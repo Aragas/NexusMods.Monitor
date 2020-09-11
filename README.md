@@ -1,6 +1,9 @@
 ## Nexus Mods Monitor  
 
-<img src="https://media.discordapp.net/attachments/751093375943573511/754076219838038046/unknown.png" alt="drawing" width="450"/>
+Bugs | Posts
+:-------------------------:|:-------------------------:
+<img src="https://media.discordapp.net/attachments/751093375943573511/754076219838038046/unknown.png" alt="drawing" width="450"/> | <img src="https://media.discordapp.net/attachments/751093375943573511/754077086649548830/unknown.png" alt="drawing" width="300"/>
+
 
 ### How to deploy
 Experience with ``docker`` and ``docker-compose`` is required.  
