@@ -34,7 +34,7 @@ namespace NexusMods.Monitor.Scraper.Application.BackgroundServices
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
             _clock = clock ?? throw new ArgumentNullException(nameof(clock));
             _scopeFactory = scopeFactory ?? throw new ArgumentNullException(nameof(scopeFactory));
-            _timeLimiter = TimeLimiter.GetFromMaxCountByInterval(1, TimeSpan.FromMinutes(1));
+            _timeLimiter = TimeLimiter.GetFromMaxCountByInterval(1, TimeSpan.FromSeconds(90));
         }
 
         protected override async Task ExecuteAsync(CancellationToken ct)

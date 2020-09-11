@@ -32,12 +32,12 @@ namespace NexusMods.Monitor.Scraper.Infrastructure.Repositories
             _memoryCache = memoryCache ?? throw new ArgumentNullException(nameof(memoryCache));
             _nexusModsGameRepository = nexusModsGameRepository ?? throw new ArgumentNullException(nameof(nexusModsGameRepository));
 
-            var timeLimiterIssuesConstraint1 = new CountByIntervalAwaitableConstraint(30, TimeSpan.FromMinutes(1)); // Create first constraint: max 30 times by minute
-            var timeLimiterIssuesConstraint2 = new CountByIntervalAwaitableConstraint(1, TimeSpan.FromMilliseconds(500)); // Create second constraint: one time each 500 ms
+            var timeLimiterIssuesConstraint1 = new CountByIntervalAwaitableConstraint(30, TimeSpan.FromMinutes(1));
+            var timeLimiterIssuesConstraint2 = new CountByIntervalAwaitableConstraint(1, TimeSpan.FromMilliseconds(500));
             _timeLimiterIssues = TimeLimiter.Compose(timeLimiterIssuesConstraint1, timeLimiterIssuesConstraint2);
 
-            var timeLimiterIssueRepliesConstraint1 = new CountByIntervalAwaitableConstraint(10, TimeSpan.FromMinutes(1)); // Create first constraint: max 30 times by minute
-            var timeLimiterIssueRepliesConstraint2 = new CountByIntervalAwaitableConstraint(1, TimeSpan.FromMilliseconds(500)); // Create second constraint: one time each 500 ms
+            var timeLimiterIssueRepliesConstraint1 = new CountByIntervalAwaitableConstraint(10, TimeSpan.FromMinutes(1));
+            var timeLimiterIssueRepliesConstraint2 = new CountByIntervalAwaitableConstraint(1, TimeSpan.FromMilliseconds(500));
             _timeLimiterIssueReplies = TimeLimiter.Compose(timeLimiterIssueRepliesConstraint1, timeLimiterIssueRepliesConstraint2);
         }
 

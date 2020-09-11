@@ -75,26 +75,6 @@ namespace NexusMods.Monitor.Scraper.Infrastructure.Repositories
         public IssueEntity Update(IssueEntity issueEntity)
         {
             _context.Entry(issueEntity).State = EntityState.Modified;
-
-            /*
-            _context.Entry(issueEntity).DetectChanges();
-
-            _context.Entry(issueEntity.Status).State = EntityState.Unchanged;
-            _context.Entry(issueEntity.Priority).State = EntityState.Unchanged;
-
-            //issueEntity.SetStatus(_context.IssueStatusEnumerations.Find(issueEntity.Status.Id));
-            //issueEntity.SetPriority(_context.IssuePriorityEnumerations.Find(issueEntity.Priority.Id));
-
-            foreach (var issueReplyEntity in issueEntity.Replies)
-            {
-                var existingIssueReplyEntity = _context.IssueReplyEntities.Find(issueReplyEntity.Id);
-                if (existingIssueReplyEntity is null)
-                    _context.Entry(issueReplyEntity).State = EntityState.Added;
-                else
-                    _context.Entry(issueReplyEntity).DetectChanges();
-            }
-            */
-
             return issueEntity;
         }
     }

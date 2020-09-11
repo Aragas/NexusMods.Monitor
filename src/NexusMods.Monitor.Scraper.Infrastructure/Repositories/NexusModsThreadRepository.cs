@@ -4,7 +4,9 @@ using Microsoft.EntityFrameworkCore;
 
 using NexusMods.Monitor.Scraper.Domain.AggregatesModel.NexusModsGameAggregate;
 using NexusMods.Monitor.Scraper.Domain.AggregatesModel.NexusModsThreadAggregate;
+using NexusMods.Monitor.Scraper.Infrastructure.ComposableAsync;
 using NexusMods.Monitor.Scraper.Infrastructure.Contexts;
+using NexusMods.Monitor.Scraper.Infrastructure.RateLimiter;
 using NexusMods.Monitor.Shared.Domain.SeedWork;
 
 using System;
@@ -19,6 +21,7 @@ namespace NexusMods.Monitor.Scraper.Infrastructure.Repositories
         private readonly IHttpClientFactory _httpClientFactory;
         private readonly INexusModsGameRepository _nexusModsGameRepository;
         private readonly NexusModsDb _nexusModsDb;
+        private readonly TimeLimiter _timeLimiter;
 
         public IUnitOfWork UnitOfWork => _nexusModsDb;
 
@@ -27,6 +30,10 @@ namespace NexusMods.Monitor.Scraper.Infrastructure.Repositories
             _httpClientFactory = httpClientFactory ?? throw new ArgumentNullException(nameof(httpClientFactory));
             _nexusModsGameRepository = nexusModsGameRepository ?? throw new ArgumentNullException(nameof(nexusModsGameRepository));
             _nexusModsDb = nexusModsDb ?? throw new ArgumentNullException(nameof(nexusModsDb));
+
+            var timeLimiterConstraint1 = new CountByIntervalAwaitableConstraint(30, TimeSpan.FromMinutes(1));
+            var timeLimiterConstraint2 = new CountByIntervalAwaitableConstraint(1, TimeSpan.FromMilliseconds(500));
+            _timeLimiter = TimeLimiter.Compose(timeLimiterConstraint1, timeLimiterConstraint2);
         }
 
         public async Task<NexusModsThreadEntity> GetAsync(uint gameId, uint modId)
@@ -36,6 +43,8 @@ namespace NexusMods.Monitor.Scraper.Infrastructure.Repositories
 
             var games = _nexusModsGameRepository.GetAllAsync();
             var gameIdText = (await games.FirstOrDefaultAsync(x => x.Id == gameId))?.DomainName ?? "ERROR";
+
+            await _timeLimiter;
 
             using var response = await _httpClientFactory.CreateClient().GetAsync($"https://www.nexusmods.com/{gameIdText}/mods/{modId}");
             var content = await response.Content.ReadAsStringAsync();

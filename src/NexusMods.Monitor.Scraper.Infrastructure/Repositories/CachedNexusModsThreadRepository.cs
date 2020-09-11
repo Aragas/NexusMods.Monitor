@@ -50,15 +50,10 @@ namespace NexusMods.Monitor.Scraper.Infrastructure.Repositories
                 {
                     var split2 = split[1].Split('&', StringSplitOptions.RemoveEmptyEntries);
                     if (split2.Length > 0 && uint.TryParse(split2[0], out var threadId))
-                    {
                         cacheEntry = new NexusModsThreadEntity(gameId, modId, threadId);
-                    }
                 }
 
-                var cacheEntryOptions = new MemoryCacheEntryOptions()
-                    .SetSize(1)
-                    .SetAbsoluteExpiration(TimeSpan.FromHours(8));
-
+                var cacheEntryOptions = new MemoryCacheEntryOptions().SetSize(1).SetAbsoluteExpiration(TimeSpan.FromHours(8));
                 _memoryCache.Set(key, cacheEntry, cacheEntryOptions);
             }
 

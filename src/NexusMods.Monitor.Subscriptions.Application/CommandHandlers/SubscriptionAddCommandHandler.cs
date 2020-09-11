@@ -24,18 +24,11 @@ namespace NexusMods.Monitor.Subscriptions.Application.CommandHandlers
 
         public async Task<bool> Handle(SubscriptionAddCommand message, CancellationToken cancellationToken)
         {
-            try
-            {
-                var subscriptionEntity = new SubscriptionEntity(message.SubscriberId, message.NexusModsGameId, message.NexusModsModId);
+            var subscriptionEntity = new SubscriptionEntity(message.SubscriberId, message.NexusModsGameId, message.NexusModsModId);
 
-                _subscriptionRepository.Add(subscriptionEntity);
+            _subscriptionRepository.Add(subscriptionEntity);
 
-                return await _subscriptionRepository.UnitOfWork.SaveEntitiesAsync(cancellationToken);
-            }
-            catch (Exception e)
-            {
-                return false;
-            }
+            return await _subscriptionRepository.UnitOfWork.SaveEntitiesAsync(cancellationToken);
         }
     }
 }

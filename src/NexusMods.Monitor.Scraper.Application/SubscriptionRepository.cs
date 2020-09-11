@@ -39,9 +39,9 @@ namespace NexusMods.Monitor.Scraper.Application
         private class SubscriptionDTO
         {
             [JsonProperty("nexusModsGameId")]
-            public uint NexusModsGameId { get; private set; }
+            public uint NexusModsGameId { get; private set; } = default!;
             [JsonProperty("nexusModsModId")]
-            public uint NexusModsModId { get; private set; }
+            public uint NexusModsModId { get; private set; } = default!;
 
             private SubscriptionDTO() { }
         }

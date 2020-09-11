@@ -55,24 +55,24 @@ namespace NexusMods.Monitor.Scraper.Application
                 _memoryCache.Set("games", cacheEntry, cacheEntryOptions);
             }
 
-            await foreach (var nexusModsGame in cacheEntry.ToAsyncEnumerable())
-            {
+            foreach (var nexusModsGame in cacheEntry)
                 yield return nexusModsGame;
-            }
         }
 
         private sealed class NexusModsGameDTO
         {
             [JsonProperty("id")]
-            public uint Id { get; set; } = default!;
+            public uint Id { get; private set; } = default!;
             [JsonProperty("name")]
-            public string Name { get; set; } = default!;
+            public string Name { get; private set; } = default!;
             [JsonProperty("forum_url")]
-            public string ForumUrl { get; set; } = default!;
+            public string ForumUrl { get; private set; } = default!;
             [JsonProperty("nexusmods_url")]
-            public string NexusModsUrl { get; set; } = default!;
+            public string NexusModsUrl { get; private set; } = default!;
             [JsonProperty("domain_name")]
-            public string DomainName { get; set; } = default!;
+            public string DomainName { get; private set; } = default!;
+
+            private NexusModsGameDTO() { }
         }
     }
 }
