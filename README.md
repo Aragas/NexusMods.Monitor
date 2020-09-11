@@ -6,6 +6,8 @@
    <a href="https://www.codefactor.io/repository/github/aragas/nexusmods.monitor"><img src="https://www.codefactor.io/repository/github/aragas/nexusmods.monitor/badge" alt="CodeFactor" /></a>
 </p>
 
+Discord and Slack bots that monitor any changes in the NexusMods Posts/Bugs sections and reports them in subscribed channels.
+
 Bugs | Posts
 :-:|:-:
 <img src="https://media.discordapp.net/attachments/751093375943573511/754076219838038046/unknown.png" alt="drawing" width="450"/> | <img src="https://media.discordapp.net/attachments/751093375943573511/754077086649548830/unknown.png" alt="drawing" width="300"/>
