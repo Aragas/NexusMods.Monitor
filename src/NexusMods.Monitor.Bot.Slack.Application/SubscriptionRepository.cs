@@ -21,7 +21,7 @@ namespace NexusMods.Monitor.Bot.Slack.Application
         private readonly SubscriptionsOptions _subscriptionsOptions;
 
         public IUnitOfWork UnitOfWork => this;
-        private bool _isSuccesful = true; // TODO
+        private bool _isSuccessful = true; // TODO
 
         public SubscriptionRepository(IHttpClientFactory httpClientFactory, IOptions<SubscriptionsOptions> options)
         {
@@ -47,17 +47,17 @@ namespace NexusMods.Monitor.Bot.Slack.Application
         {
             var response = await _httpClientFactory.CreateClient().PutAsync($"{_subscriptionsOptions.APIEndpointV1}/subscribe",
                 new StringContent(JsonConvert.SerializeObject(new SubscribeDTO($"Slack:{channelId}", gameId, modId)), Encoding.UTF8, "application/json"));
-            _isSuccesful = response.IsSuccessStatusCode;
+            _isSuccessful = response.IsSuccessStatusCode;
         }
 
         public async Task UnsubscribeAsync(string channelId, uint gameId, uint modId)
         {
             var response = await _httpClientFactory.CreateClient().PutAsync($"{_subscriptionsOptions.APIEndpointV1}/unsubscribe",
                 new StringContent(JsonConvert.SerializeObject(new UnsubscribeDTO($"Slack:{channelId}", gameId, modId)), Encoding.UTF8, "application/json"));
-            _isSuccesful = response.IsSuccessStatusCode;
+            _isSuccessful = response.IsSuccessStatusCode;
         }
 
-        public Task<int> SaveChangesAsync(CancellationToken cancellationToken = default) => Task.FromResult(_isSuccesful ? 1 : 0);
+        public Task<int> SaveChangesAsync(CancellationToken cancellationToken = default) => Task.FromResult(_isSuccessful ? 1 : 0);
         public async Task<bool> SaveEntitiesAsync(CancellationToken cancellationToken = default) => await SaveChangesAsync(cancellationToken) == 1;
 
         public void Dispose() { }
