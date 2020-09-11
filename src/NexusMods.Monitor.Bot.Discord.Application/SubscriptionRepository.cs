@@ -21,7 +21,7 @@ namespace NexusMods.Monitor.Bot.Discord.Application
         private readonly SubscriptionsOptions _subscriptionsOptions;
 
         public IUnitOfWork UnitOfWork => this;
-        private bool isSuccesful = true;
+        private bool _isSuccessful = true; // TODO:
 
         public SubscriptionRepository(IHttpClientFactory httpClientFactory, IOptions<SubscriptionsOptions> options)
         {
@@ -47,17 +47,17 @@ namespace NexusMods.Monitor.Bot.Discord.Application
         {
             var response = await _httpClientFactory.CreateClient().PutAsync($"{_subscriptionsOptions.APIEndpointV1}/subscribe",
                 new StringContent(JsonConvert.SerializeObject(new SubscribeDTO($"Discord:{channelId}", gameId, modId)), Encoding.UTF8, "application/json"));
-            isSuccesful = response.IsSuccessStatusCode;
+            _isSuccessful = response.IsSuccessStatusCode;
         }
 
         public async Task UnsubscribeAsync(ulong channelId, uint gameId, uint modId)
         {
             var response = await _httpClientFactory.CreateClient().PutAsync($"{_subscriptionsOptions.APIEndpointV1}/unsubscribe",
                 new StringContent(JsonConvert.SerializeObject(new UnsubscribeDTO($"Discord:{channelId}", gameId, modId)), Encoding.UTF8, "application/json"));
-            isSuccesful = response.IsSuccessStatusCode;
+            _isSuccessful = response.IsSuccessStatusCode;
         }
 
-        public Task<int> SaveChangesAsync(CancellationToken cancellationToken = default) => Task.FromResult(isSuccesful ? 1 : 0);
+        public Task<int> SaveChangesAsync(CancellationToken cancellationToken = default) => Task.FromResult(_isSuccessful ? 1 : 0);
         public async Task<bool> SaveEntitiesAsync(CancellationToken cancellationToken = default) => await SaveChangesAsync(cancellationToken) == 1;
 
         public void Dispose() { }

@@ -17,7 +17,7 @@ namespace NexusMods.Monitor.Bot.Discord.Application
         public static Embed About(int serverCount, int subscriptionCount, Duration uptime) => new EmbedBuilder()
             .WithTitle("Nexus Mods Monitor (Unofficial)")
             .WithDescription(@$"**Version:** {Assembly.GetEntryAssembly()?.GetCustomAttribute<AssemblyInformationalVersionAttribute>()?.InformationalVersion ?? "UNKNOWN"}
-**Source: **[GitHub](https://www.google.com)
+**Source: **[GitHub](https://github.com/Aragas/NexusMods.Monitor)
 
 Gives the ability to subscribe to your mod page notifications. Posts and Bugs sections are supported.")
             .WithThumbnailUrl("https://cdn.discordapp.com/app-icons/751048410357956658/168781156967a40bba1362042f7f1713.png")
