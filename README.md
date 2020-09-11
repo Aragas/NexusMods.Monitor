@@ -26,3 +26,13 @@ Once the bots are deployed, you have the following commands:
 * ``!nmm subscriptions`` displays current subscriptions in the current channel.
 * ``!nmm about``
 * ``!nmm help``
+
+### About
+The repository consists of four services:
+* Subscriptions - Web API based service that handles mod subscription.
+* Scraper - parses NexusMods and raises events if changes are detected.
+* Bot.Discord - listens for change events and posts them in Discord channels based on current subscriptions.
+* Bot.Slack - listens for change events and posts them in Slack channels based on current subscriptions.
+
+NATS is used for the Event Bus, via abstraction provided by [Enbiso.NLib.EventBus](https://github.com/enbiso/Enbiso.NLib/tree/master/Enbiso.NLib.EventBus).  
+Mediatr for the command bus, directly.  
