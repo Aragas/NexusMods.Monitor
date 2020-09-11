@@ -1,4 +1,4 @@
-﻿namespace NexusMods.Monitor.Bot.Discord.Application.Options
+﻿namespace NexusMods.Monitor.Bot.Discord.Host.Options
 {
     public class DiscordOptions
     {

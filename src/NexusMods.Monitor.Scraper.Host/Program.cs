@@ -9,7 +9,6 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 
 using NexusMods.Monitor.Scraper.Application;
-using NexusMods.Monitor.Scraper.Application.BackgroundServices;
 using NexusMods.Monitor.Scraper.Application.CommandHandlers.Comments;
 using NexusMods.Monitor.Scraper.Application.Extensions;
 using NexusMods.Monitor.Scraper.Application.Options;
@@ -18,6 +17,7 @@ using NexusMods.Monitor.Scraper.Domain.AggregatesModel.IssueAggregate;
 using NexusMods.Monitor.Scraper.Domain.AggregatesModel.NexusModsGameAggregate;
 using NexusMods.Monitor.Scraper.Domain.AggregatesModel.NexusModsThreadAggregate;
 using NexusMods.Monitor.Scraper.Domain.AggregatesModel.SubscriptionAggregate;
+using NexusMods.Monitor.Scraper.Host.BackgroundServices;
 using NexusMods.Monitor.Scraper.Infrastructure.Contexts;
 using NexusMods.Monitor.Scraper.Infrastructure.Models.Comments;
 using NexusMods.Monitor.Scraper.Infrastructure.Models.Issues;

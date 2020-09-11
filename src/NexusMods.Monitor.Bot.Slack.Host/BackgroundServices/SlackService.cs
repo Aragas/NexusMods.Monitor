@@ -1,23 +1,23 @@
 ﻿using Enbiso.NLib.EventBus;
 
-using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Options;
 
-using NexusMods.Monitor.Bot.Slack.Application.Options;
+using NexusMods.Monitor.Bot.Slack.Application;
+using NexusMods.Monitor.Bot.Slack.Domain.AggregatesModel.SubscriptionAggregate;
+
+using NodaTime;
+using NodaTime.Extensions;
+
+using SlackNet.Bot;
 
 using System;
 using System.Diagnostics;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using NexusMods.Monitor.Bot.Slack.Domain.AggregatesModel.SubscriptionAggregate;
-using NodaTime;
-using NodaTime.Extensions;
-using SlackNet.Bot;
 
-namespace NexusMods.Monitor.Bot.Slack.Application.BackgroundServices
+namespace NexusMods.Monitor.Bot.Slack.Host.BackgroundServices
 {
     /// <summary>
     /// Manages the Discord connection.
@@ -26,25 +26,19 @@ namespace NexusMods.Monitor.Bot.Slack.Application.BackgroundServices
     {
         private readonly ILogger _logger;
         private readonly SlackBot _bot;
-        private readonly IServiceScopeFactory _scopeFactory;
         private readonly IClock _clock;
-        private readonly SlackOptions _options;
         private readonly ISubscriptionRepository _subscriptionRepository;
         private readonly IEventSubscriber _eventSubscriber;
 
         public SlackService(ILogger<SlackService> logger,
             SlackBot bot,
-            IServiceScopeFactory scopeFactory,
             IClock clock,
-            IOptions<SlackOptions> options,
             ISubscriptionRepository subscriptionRepository,
             IEventSubscriber eventSubscriber)
         {
-            _logger = logger ?? throw new ArgumentNullException(nameof(bot));
+            _logger = logger ?? throw new ArgumentNullException(nameof(logger));
             _bot = bot ?? throw new ArgumentNullException(nameof(bot));
-            _scopeFactory = scopeFactory ?? throw new ArgumentNullException(nameof(scopeFactory));
             _clock = clock ?? throw new ArgumentNullException(nameof(clock));
-            _options = options.Value ?? throw new ArgumentNullException(nameof(bot));
             _subscriptionRepository = subscriptionRepository ?? throw new ArgumentNullException(nameof(subscriptionRepository));
             _eventSubscriber = eventSubscriber ?? throw new ArgumentNullException(nameof(eventSubscriber));
         }
@@ -71,7 +65,7 @@ namespace NexusMods.Monitor.Bot.Slack.Application.BackgroundServices
             return Task.CompletedTask;
         }
 
-        private async void Bot_OnMessageReceived(object sender, IMessage message)
+        private async void Bot_OnMessageReceived(object? sender, IMessage message)
         {
             if (!message.Conversation.IsChannel)
                 return;
@@ -125,41 +119,39 @@ namespace NexusMods.Monitor.Bot.Slack.Application.BackgroundServices
                     var embed = AttachmentHelper.About(subscriptionCount, uptime);
                     await message.ReplyWith(new BotMessage { Attachments = { embed } });
                 }
-            }
 
-            /*
-            // Ignore system messages and messages from bots
-            if (!(arg is SocketUserMessage message)) return;
-            if (message.Source != MessageSource.User) return;
-
-            if (message.Channel is IPrivateChannel)
-            {
-                return;
-            }
-
-            var argPos = 0;
-            if (message.HasStringPrefix("!nmm ", ref argPos) || message.HasMentionPrefix(_bot.CurrentUser, ref argPos))
-            {
-                using var scope = _scopeFactory.CreateScope();
-                var context = new SocketCommandContext(_bot, message);
-                var result = await _commands.ExecuteAsync(context, argPos, scope.ServiceProvider);
-
-                if (result.Error.HasValue && result.Error.Value != CommandError.UnknownCommand)
+                const string subscriptions = "subscriptions";
+                if (command.StartsWith(subscriptions))
                 {
-                    _loggerService.LogError(result.ToString());
-                    await context.Message.AddReactionAsync(new Emoji("⁉️"));
+                    var subscriptionList = await _subscriptionRepository.GetAllAsync().Where(s => s.ChannelId == message.Conversation.Id).ToListAsync();
+                    if (subscriptionList.Count > 0)
+                    {
+                        await message.ReplyWith($@"Subscriptions:
+```
+{string.Join('\n', subscriptionList.Select(s => $"Game: {s.NexusModsGameId}; Mod: {s.NexusModsModId}"))}
+```");
+                    }
+                    else
+                    {
+                        await message.ReplyWith("No subscriptions found!");
+                    }
                 }
-                else if (result.Error.HasValue && result.Error.Value == CommandError.UnknownCommand)
+
+                const string help = "help";
+                if (command.StartsWith(help))
                 {
-                    await context.Message.AddReactionAsync(new Emoji("❓"));
+                    await message.ReplyWith(@"help
+about
+subscriptions
+subscribe [Game Id] [Mod Id]
+unsubscribe [Game Id] [Mod Id]");
                 }
             }
-            */
         }
 
         public void Dispose()
         {
-            _bot?.Dispose();
+            _bot.Dispose();
         }
     }
 }

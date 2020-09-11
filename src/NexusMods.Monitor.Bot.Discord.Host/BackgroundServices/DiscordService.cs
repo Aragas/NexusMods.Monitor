@@ -9,20 +9,20 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 
-using NexusMods.Monitor.Bot.Discord.Application.Options;
+using NexusMods.Monitor.Bot.Discord.Host.Options;
 
 using System;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace NexusMods.Monitor.Bot.Discord.Application.BackgroundServices
+namespace NexusMods.Monitor.Bot.Discord.Host.BackgroundServices
 {
     /// <summary>
     /// Manages the Discord connection.
     /// </summary>
     public sealed class DiscordService : IHostedService, IDisposable
     {
-        private readonly DiscordSocketClient _bot;
+        private readonly DiscordSocketClient _discordSocketClient;
         private readonly CommandService _commands;
         private readonly IServiceScopeFactory _scopeFactory;
         private readonly ILogger _logger;
@@ -42,7 +42,7 @@ namespace NexusMods.Monitor.Bot.Discord.Application.BackgroundServices
             _options = options.Value;
             _eventSubscriber = eventSubscriber;
 
-            _bot = discordSocketClient;
+            _discordSocketClient = discordSocketClient;
         }
 
         public async Task StartAsync(CancellationToken cancellationToken)
@@ -50,7 +50,7 @@ namespace NexusMods.Monitor.Bot.Discord.Application.BackgroundServices
             using var scope = _scopeFactory.CreateScope();
             await _commands.AddModulesAsync(typeof(DiscordCommands).Assembly, scope.ServiceProvider);
 
-            if (_bot.ConnectionState != ConnectionState.Disconnecting && _bot.ConnectionState != ConnectionState.Disconnected)
+            if (_discordSocketClient.ConnectionState != ConnectionState.Disconnecting && _discordSocketClient.ConnectionState != ConnectionState.Disconnected)
                 return;
 
             var token = _options.BotToken;
@@ -60,11 +60,11 @@ namespace NexusMods.Monitor.Bot.Discord.Application.BackgroundServices
                 return;
             }
 
-            _bot.MessageReceived += Bot_MessageReceived;
-            _bot.Log += Bot_Log;
+            _discordSocketClient.MessageReceived += Bot_MessageReceived;
+            _discordSocketClient.Log += Bot_Log;
 
-            await _bot.LoginAsync(TokenType.Bot, token);
-            await _bot.StartAsync();
+            await _discordSocketClient.LoginAsync(TokenType.Bot, token);
+            await _discordSocketClient.StartAsync();
 
             await _eventSubscriber.Subscribe();
 
@@ -73,9 +73,9 @@ namespace NexusMods.Monitor.Bot.Discord.Application.BackgroundServices
 
         public async Task StopAsync(CancellationToken cancellationToken)
         {
-            _bot.MessageReceived -= Bot_MessageReceived;
-            _bot.Log -= Bot_Log;
-            await _bot.StopAsync();
+            _discordSocketClient.MessageReceived -= Bot_MessageReceived;
+            _discordSocketClient.Log -= Bot_Log;
+            await _discordSocketClient.StopAsync();
             _logger.LogWarning("Stopped Discord Bot.");
 
             _eventSubscriber.Dispose();
@@ -124,10 +124,10 @@ namespace NexusMods.Monitor.Bot.Discord.Application.BackgroundServices
             }
 
             var argPos = 0;
-            if (message.HasStringPrefix("!nmm ", ref argPos) || message.HasMentionPrefix(_bot.CurrentUser, ref argPos))
+            if (message.HasStringPrefix("!nmm ", ref argPos) || message.HasMentionPrefix(_discordSocketClient.CurrentUser, ref argPos))
             {
                 using var scope = _scopeFactory.CreateScope();
-                var context = new SocketCommandContext(_bot, message);
+                var context = new SocketCommandContext(_discordSocketClient, message);
                 var result = await _commands.ExecuteAsync(context, argPos, scope.ServiceProvider);
 
                 if (result.Error.HasValue && result.Error.Value != CommandError.UnknownCommand)
@@ -144,7 +144,7 @@ namespace NexusMods.Monitor.Bot.Discord.Application.BackgroundServices
 
         public void Dispose()
         {
-            _bot.Dispose();
+            _discordSocketClient.Dispose();
         }
     }
 }

@@ -1,4 +1,5 @@
-﻿using Discord.Commands;
+﻿using Discord;
+using Discord.Commands;
 using Discord.WebSocket;
 
 using Microsoft.Extensions.Configuration;
@@ -6,9 +7,10 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 
 using NexusMods.Monitor.Bot.Discord.Application;
-using NexusMods.Monitor.Bot.Discord.Application.BackgroundServices;
 using NexusMods.Monitor.Bot.Discord.Application.Options;
 using NexusMods.Monitor.Bot.Discord.Domain.AggregatesModel.SubscriptionAggregate;
+using NexusMods.Monitor.Bot.Discord.Host.BackgroundServices;
+using NexusMods.Monitor.Bot.Discord.Host.Options;
 using NexusMods.Monitor.Shared.Host.Extensions;
 
 using NodaTime;
@@ -20,6 +22,7 @@ using Serilog.Exceptions.EntityFrameworkCore.Destructurers;
 
 using System;
 using System.Threading.Tasks;
+using NexusMods.Monitor.Bot.Discord.Application.IntegrationEventHandlers.Comments;
 
 namespace NexusMods.Monitor.Bot.Discord.Host
 {
@@ -79,12 +82,13 @@ namespace NexusMods.Monitor.Bot.Discord.Host
                 services.AddMemoryCache();
                 services.AddHttpClient();
                 services.AddTransient<IClock, SystemClock>(_ => SystemClock.Instance);
-                services.AddEventBusNatsAndEventHandlers(context.Configuration.GetSection("EventBus"), typeof(DiscordOptions).Assembly);
+                services.AddEventBusNatsAndEventHandlers(context.Configuration.GetSection("EventBus"), typeof(CommentAddedNewIntegrationEventHandler).Assembly);
 
                 services.Configure<DiscordOptions>(context.Configuration.GetSection("Discord"));
                 services.Configure<SubscriptionsOptions>(context.Configuration.GetSection("Subscriptions"));
 
                 services.AddSingleton<DiscordSocketClient>();
+                services.AddSingleton<IDiscordClient, DiscordSocketClient>(sp => sp.GetRequiredService<DiscordSocketClient>());
                 services.AddSingleton<CommandService>();
 
                 services.AddHostedService<DiscordService>();

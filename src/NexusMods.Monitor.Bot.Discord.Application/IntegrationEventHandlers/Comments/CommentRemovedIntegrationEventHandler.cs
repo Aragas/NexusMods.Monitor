@@ -1,5 +1,4 @@
 ﻿using Discord;
-using Discord.WebSocket;
 
 using Microsoft.Extensions.Logging;
 
@@ -16,15 +15,15 @@ namespace NexusMods.Monitor.Bot.Discord.Application.IntegrationEventHandlers.Com
     {
         private readonly ILogger _logger;
         private readonly ISubscriptionRepository _subscriptionRepository;
-        private readonly DiscordSocketClient _discordSocketClient;
+        private readonly IDiscordClient _discordClient;
 
         public CommentRemovedIntegrationEventHandler(ILogger<CommentAddedNewIntegrationEventHandler> logger,
             ISubscriptionRepository subscriptionRepository,
-            DiscordSocketClient discordSocketClient)
+            IDiscordClient discordClient)
         {
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
             _subscriptionRepository = subscriptionRepository ?? throw new ArgumentNullException(nameof(subscriptionRepository));
-            _discordSocketClient = discordSocketClient ?? throw new ArgumentNullException(nameof(discordSocketClient));
+            _discordClient = discordClient ?? throw new ArgumentNullException(nameof(discordClient));
         }
 
         protected override async Task Handle(CommentRemovedIntegrationEvent command)
@@ -33,7 +32,7 @@ namespace NexusMods.Monitor.Bot.Discord.Application.IntegrationEventHandlers.Com
 
             foreach (var subscriptionEntity in await _subscriptionRepository.GetAllAsync().ToListAsync())
             {
-                if (!(_discordSocketClient.GetChannel(subscriptionEntity.ChannelId) is IMessageChannel channel)) continue;
+                if (!(await _discordClient.GetChannelAsync(subscriptionEntity.ChannelId) is IMessageChannel channel)) continue;
                 if (subscriptionEntity.NexusModsGameId != command.Comment.NexusModsGameId || subscriptionEntity.NexusModsModId != command.Comment.NexusModsModId) continue;
                 await channel.SendMessageAsync(embed: embed);
             }

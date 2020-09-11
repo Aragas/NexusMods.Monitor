@@ -46,12 +46,9 @@ namespace NexusMods.Monitor.Scraper.Application
                 requestMessage.Headers.Add("apikey", _options.APIKey);
                 using var response = await _httpClientFactory.CreateClient().SendAsync(requestMessage);
                 var content = await response.Content.ReadAsStringAsync();
+
                 cacheEntry = JsonConvert.DeserializeObject<NexusModsGameDTO[]>(content).Select(x => new NexusModsGameEntity(x.Id, x.Name, x.ForumUrl, x.NexusModsUrl, x.DomainName)).ToArray();
-
-                var cacheEntryOptions = new MemoryCacheEntryOptions()
-                    .SetSize(1)
-                    .SetAbsoluteExpiration(TimeSpan.FromHours(8));
-
+                var cacheEntryOptions = new MemoryCacheEntryOptions().SetSize(1).SetAbsoluteExpiration(TimeSpan.FromHours(8));
                 _memoryCache.Set("games", cacheEntry, cacheEntryOptions);
             }
 

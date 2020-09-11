@@ -1,4 +1,4 @@
-﻿namespace NexusMods.Monitor.Bot.Slack.Application.Options
+﻿namespace NexusMods.Monitor.Bot.Slack.Host.Options
 {
     public class SlackOptions
     {

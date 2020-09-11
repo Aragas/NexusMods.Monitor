@@ -3,6 +3,7 @@ using Discord.Commands;
 
 using Microsoft.Extensions.Logging;
 
+using NexusMods.Monitor.Bot.Discord.Application;
 using NexusMods.Monitor.Bot.Discord.Domain.AggregatesModel.SubscriptionAggregate;
 
 using NodaTime;
@@ -12,7 +13,7 @@ using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace NexusMods.Monitor.Bot.Discord.Application
+namespace NexusMods.Monitor.Bot.Discord.Host
 {
     [RequireUserPermission(GuildPermission.Administrator, Group = "Permission")]
     [RequireOwner(Group = "Permission")]

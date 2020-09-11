@@ -15,11 +15,11 @@ namespace NexusMods.Monitor.Bot.Slack.Application.IntegrationEventHandlers.Issue
     {
         private readonly ILogger _logger;
         private readonly ISubscriptionRepository _subscriptionRepository;
-        private readonly SlackBot _slackBot;
+        private readonly ISlackBot _slackBot;
 
         public IssueChangedIsClosedIntegrationEventHandler(ILogger<IssueChangedIsClosedIntegrationEventHandler> logger,
             ISubscriptionRepository subscriptionRepository,
-            SlackBot slackBot)
+            ISlackBot slackBot)
         {
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
             _subscriptionRepository = subscriptionRepository ?? throw new ArgumentNullException(nameof(subscriptionRepository));
