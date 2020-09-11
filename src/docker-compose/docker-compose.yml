@@ -1,0 +1,137 @@
+version: '3.4'
+
+volumes:
+  postgresql_data: { }
+  seq_data: { }
+
+networks:
+  internal:
+  eventbus:
+  database:
+  logging:
+  logging_syslog:
+
+services:
+  nexusmods.monitor.bot.discord:
+    image: ${DOCKER_REGISTRY-}nexusmods_monitor_bot_discord
+    environment:
+      Serilog__WriteTo__1__Args__serverUrl: http://seq:5341
+      Discord__BotToken: PLACEHOLDER
+      Subscriptions__APIEndpointV1: http://nexusmods.monitor.subscriptions/api/v1/subscriptions
+      EventBus__Servers__0: nats://nats:4222
+    build:
+      context: ../.
+      dockerfile: NexusMods.Monitor.Bot.Discord.Host/Dockerfile
+    depends_on:
+      - nexusmods.monitor.subscriptions
+      - nexusmods.monitor.scraper
+      - nats
+      - seq
+    networks:
+      - internal
+      - eventbus
+      - logging
+
+  nexusmods.monitor.bot.slack:
+    image: ${DOCKER_REGISTRY-}nexusmods_monitor_bot_slack
+    environment:
+      Serilog__WriteTo__1__Args__serverUrl: http://seq:5341
+      Slack__BotToken: PLACEHOLDER
+      Subscriptions__APIEndpointV1: http://nexusmods.monitor.subscriptions/api/v1/subscriptions
+      EventBus__Servers__0: nats://nats:4222
+    build:
+      context: ../.
+      dockerfile: NexusMods.Monitor.Bot.Slack.Host/Dockerfile
+    depends_on:
+      - nexusmods.monitor.subscriptions
+      - nexusmods.monitor.scraper
+      - nats
+      - seq
+    networks:
+      - internal
+      - eventbus
+      - logging
+
+  nexusmods.monitor.scraper:
+    image: ${DOCKER_REGISTRY-}nexusmods_monitor_scraper
+    environment:
+      Serilog__WriteTo__1__Args__serverUrl: http://seq:5341
+      NexusMods__APIKey: PLACEHOLDER
+      Subscriptions__APIEndpointV1: http://nexusmods.monitor.subscriptions/api/v1/subscriptions
+      EventBus__Servers__0: nats://nats:4222
+      ConnectionStrings__NexusMods: Host=postgres;Port=5432;Database=nexusmods;Username=nexusmodsmonitor;Password=nexusmodsmonitor;
+    build:
+      context: ../.
+      dockerfile: NexusMods.Monitor.Scraper.Host/Dockerfile
+    depends_on:
+      - nexusmods.monitor.subscriptions
+      - postgres
+      - nats
+      - seq
+    networks:
+      - internal
+      - eventbus
+      - database
+      - logging
+
+  nexusmods.monitor.subscriptions:
+    image: ${DOCKER_REGISTRY-}nexusmods_monitor_subscriptions
+    environment:
+      Serilog__WriteTo__1__Args__serverUrl: http://seq:5341
+      ConnectionStrings__Subscriptions: Host=postgres;Port=5432;Database=subscriptions;Username=nexusmodsmonitor;Password=nexusmodsmonitor;
+    build:
+      context: ../.
+      dockerfile: NexusMods.Monitor.Subscriptions.API/Dockerfile
+    depends_on:
+      - postgres
+      - seq
+    networks:
+      - internal
+      - database
+      - logging
+
+  nats:
+    image: nats:alpine
+    command: "--syslog --remote_syslog udp://seq.syslog:514"
+    #ports:
+    #  - 34222:4222
+    #  - 36222:6222
+    #  - 38222:8222
+    depends_on:
+      - seq.syslog
+    networks:
+      - eventbus
+      - logging_syslog
+
+  postgres:
+    image: postgres:alpine
+    environment:
+     POSTGRES_USER: nexusmodsmonitor
+     POSTGRES_PASSWORD: nexusmodsmonitor
+    volumes:
+      - postgresql_data:/var/lib/postgresql
+    #ports:
+    #  - 35432:5432
+    networks:
+      - database
+
+  seq:
+    image: datalust/seq:latest
+    ports:
+      - 30080:80
+    environment:
+      ACCEPT_EULA: Y
+    volumes:
+      - seq_data:/data
+    networks:
+      - logging
+      - logging_syslog
+
+  seq.syslog:
+    image: datalust/seq-input-syslog:latest
+    environment:
+      SEQ_ADDRESS: http://seq:5341
+    depends_on:
+      - seq
+    networks:
+      - logging_syslog

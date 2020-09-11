@@ -1,0 +1,10 @@
+{
+  "profiles": {
+    "NexusMods.Monitor.Scraper.Host": {
+      "commandName": "Project"
+    },
+    "Docker": {
+      "commandName": "Docker"
+    }
+  }
+}

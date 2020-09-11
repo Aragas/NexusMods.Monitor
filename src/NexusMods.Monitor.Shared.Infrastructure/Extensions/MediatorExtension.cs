@@ -1,0 +1,31 @@
+﻿using MediatR;
+
+using Microsoft.EntityFrameworkCore;
+
+using NexusMods.Monitor.Shared.Domain.SeedWork;
+
+using System.Linq;
+using System.Threading.Tasks;
+
+namespace NexusMods.Monitor.Shared.Infrastructure.Extensions
+{
+    public static class MediatorExtension
+    {
+        public static async Task DispatchDomainEventsAsync(this IMediator mediator, DbContext ctx)
+        {
+            var domainEntities = ctx.ChangeTracker
+                .Entries<Entity>()
+                .Where(x => x.Entity.DomainEvents.Count > 0);
+
+            var domainEvents = domainEntities
+                .SelectMany(x => x.Entity.DomainEvents)
+                .ToList();
+
+            domainEntities.ToList()
+                .ForEach(entity => entity.Entity.ClearDomainEvents());
+
+            foreach (var domainEvent in domainEvents)
+                await mediator.Publish(domainEvent);
+        }
+    }
+}

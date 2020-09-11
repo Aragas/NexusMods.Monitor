@@ -1,0 +1,6 @@
+version: '3.4'
+services:
+  nexusmods.monitor.bot.discord:
+  nexusmods.monitor.bot.slack:
+  nexusmods.monitor.scraper:
+  nexusmods.monitor.subscriptions:

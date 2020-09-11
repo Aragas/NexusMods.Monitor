@@ -1,0 +1,10 @@
+{
+  "profiles": {
+    "NexusMods.Monitor.Bot.Discord.Host": {
+      "commandName": "Project"
+    },
+    "Docker": {
+      "commandName": "Docker"
+    }
+  }
+}

@@ -1,0 +1,10 @@
+{
+  "profiles": {
+    "NexusMods.Monitor.Bot.Slack.Host": {
+      "commandName": "Project"
+    },
+    "Docker": {
+      "commandName": "Docker"
+    }
+  }
+}
