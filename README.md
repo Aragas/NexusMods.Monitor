@@ -37,4 +37,6 @@ The repository consists of four services:
 * Bot.Slack - listens for events and posts them as messages in Slack channels based on current subscriptions.
 
 NATS is used for the inter-process Event Bus, via abstraction provided by [Enbiso.NLib.EventBus](https://github.com/enbiso/Enbiso.NLib/tree/master/Enbiso.NLib.EventBus).  
-Mediatr for the in-process command/event bus, directly.  
+Mediatr for the in-process command/event bus, directly.
+PostgreSQL for data storage.  
+Seq for log storage.
