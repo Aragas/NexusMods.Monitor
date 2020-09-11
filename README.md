@@ -1,5 +1,7 @@
 ## Nexus Mods Monitor  
 
+<img src="https://media.discordapp.net/attachments/751093375943573511/754076219838038046/unknown.png" alt="drawing" width="450"/>
+
 ### How to deploy
 Experience with ``docker`` and ``docker-compose`` is required.  
 Go to ``src\docker-compose`` and edit the ``docker-compose.yml`` file.  
