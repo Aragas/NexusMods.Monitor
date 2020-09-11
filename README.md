@@ -7,3 +7,10 @@ You need to add real API Keys to ``Discord__BotToken`` (for Discord to work), ``
 If you don't need either Discord or Slack bot, just comment the service out.  
 Run ``docker-compose up -d`` as usual.  
 You can check http://localhost:30080 for logs.  
+
+### Usage
+Once the bots are deployed, you have the following commands:
+* ``!nmm subscribe [gameId] [modId]`` will start to monitor the desired mod and will report any changes in the current channel.
+* ``!nmm unsubscribe [gameId] [modId]`` will stop monitoring.
+* ``!nmm help``
+* ``!nmm about``
