@@ -22,6 +22,7 @@ You can check http://localhost:30080 for logs.
 ### Usage
 Once the bots are deployed, you have the following commands:
 * ``!nmm subscribe [gameId] [modId]`` will start to monitor the desired mod and will report any changes in the current channel.
-* ``!nmm unsubscribe [gameId] [modId]`` will stop monitoring.
-* ``!nmm help``
+* ``!nmm unsubscribe [gameId] [modId]`` will stop monitoring in the current channel.
+* ``!nmm subscriptions`` displays current subscriptions in the current channel.
 * ``!nmm about``
+* ``!nmm help``
