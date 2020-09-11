@@ -31,12 +31,12 @@ Once the bots are deployed, you have the following commands:
 
 ### About
 The repository consists of four services:
-* Subscriptions - Web API based service that handles mod subscription.
-* Scraper - parses NexusMods and raises events if changes are detected.
-* Bot.Discord - listens for events and posts them as messages in Discord channels based on current subscriptions.
-* Bot.Slack - listens for events and posts them as messages in Slack channels based on current subscriptions.
+* **Subscriptions** - Web API based service that handles mod subscription.
+* **Scraper** - parses NexusMods and raises events if changes are detected.
+* **Bot.Discord** - listens for events and posts them as messages in Discord channels based on current subscriptions.
+* **Bot.Slack** - listens for events and posts them as messages in Slack channels based on current subscriptions.
 
-NATS is used for the inter-process Event Bus, via abstraction provided by [Enbiso.NLib.EventBus](https://github.com/enbiso/Enbiso.NLib/tree/master/Enbiso.NLib.EventBus).  
-Mediatr for the in-process command/event bus, directly.  
-PostgreSQL for data storage.  
-Seq for log storage.  
+**NATS** is used for the inter-process Event Bus, via abstraction provided by [Enbiso.NLib.EventBus](https://github.com/enbiso/Enbiso.NLib/tree/master/Enbiso.NLib.EventBus).  
+**Mediatr** for the in-process command/event bus, directly.  
+**PostgreSQL** for data storage.  
+**Seq** for log storage.  
