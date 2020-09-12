@@ -2,27 +2,28 @@
 
 using Microsoft.Extensions.Logging;
 
-using NexusMods.Monitor.Bot.Discord.Domain.AggregatesModel.SubscriptionAggregate;
+using NexusMods.Monitor.Bot.Discord.Application.Queries;
 using NexusMods.Monitor.Shared.Application.IntegrationEvents.Comments;
 
 using System;
 using System.Linq;
 using System.Threading.Tasks;
+using NexusMods.Monitor.Bot.Discord.Application.Queries;
 
 namespace NexusMods.Monitor.Bot.Discord.Application.IntegrationEventHandlers.Comments
 {
     public class CommentAddedNewIntegrationEventHandler : Enbiso.NLib.EventBus.EventHandler<CommentAddedIntegrationEvent>
     {
         private readonly ILogger _logger;
-        private readonly ISubscriptionRepository _subscriptionRepository;
+        private readonly ISubscriptionQueries _subscriptionQueries;
         private readonly IDiscordClient _discordClient;
 
         public CommentAddedNewIntegrationEventHandler(ILogger<CommentAddedNewIntegrationEventHandler> logger,
-            ISubscriptionRepository subscriptionRepository,
+            ISubscriptionQueries subscriptionQueries,
             IDiscordClient discordClient)
         {
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
-            _subscriptionRepository = subscriptionRepository ?? throw new ArgumentNullException(nameof(subscriptionRepository));
+            _subscriptionQueries = subscriptionQueries ?? throw new ArgumentNullException(nameof(subscriptionQueries));
             _discordClient = discordClient ?? throw new ArgumentNullException(nameof(discordClient));
         }
 
@@ -30,7 +31,7 @@ namespace NexusMods.Monitor.Bot.Discord.Application.IntegrationEventHandlers.Com
         {
             var embed = EmbedHelper.NewComment(command.Comment);
 
-            foreach (var subscriptionEntity in await _subscriptionRepository.GetAllAsync().ToListAsync())
+            foreach (var subscriptionEntity in await _subscriptionQueries.GetAllAsync().ToListAsync())
             {
                 if (!(await _discordClient.GetChannelAsync(subscriptionEntity.ChannelId) is IMessageChannel channel)) continue;
                 if (subscriptionEntity.NexusModsGameId != command.Comment.NexusModsGameId || subscriptionEntity.NexusModsModId != command.Comment.NexusModsModId) continue;

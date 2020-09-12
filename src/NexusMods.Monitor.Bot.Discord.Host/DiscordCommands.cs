@@ -30,7 +30,6 @@ namespace NexusMods.Monitor.Bot.Discord.Host
 
         public DiscordCommands(ILogger<DiscordCommands> loggerService, IMediator mediator, ISubscriptionQueries subscriptionQueries, IClock clock)
         {
-            if (_mediator == null) throw new ArgumentNullException(nameof(_mediator));
             _loggerService = loggerService ?? throw new ArgumentNullException(nameof(loggerService));
             _mediator = mediator ?? throw new ArgumentNullException(nameof(mediator));
             _subscriptionQueries = subscriptionQueries ?? throw new ArgumentNullException(nameof(subscriptionQueries));

@@ -15,8 +15,8 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\NexusMods.Monitor.Bot.Discord.Domain\NexusMods.Monitor.Bot.Discord.Domain.csproj" />
     <ProjectReference Include="..\NexusMods.Monitor.Shared.Application\NexusMods.Monitor.Shared.Application.csproj" />
+    <ProjectReference Include="..\NexusMods.Monitor.Shared.Domain\NexusMods.Monitor.Shared.Domain.csproj" />
   </ItemGroup>
 
 </Project>

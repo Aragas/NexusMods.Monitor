@@ -21,8 +21,6 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Scraper", "Scraper", "{B37F
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "NexusMods.Monitor.Scraper.Host", "NexusMods.Monitor.Scraper.Host\NexusMods.Monitor.Scraper.Host.csproj", "{6E067BE1-DC15-4731-A4D5-1775BC2CDBCB}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "NexusMods.Monitor.Bot.Discord.Domain", "NexusMods.Monitor.Bot.Discord.Domain\NexusMods.Monitor.Bot.Discord.Domain.csproj", "{D2AF5476-AF52-452B-9B45-097A661612F2}"
-EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "NexusMods.Monitor.Subscriptions.API", "NexusMods.Monitor.Subscriptions.API\NexusMods.Monitor.Subscriptions.API.csproj", "{8D9D12A0-EF6A-4502-B6C4-CA706E8745B6}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Subscriptions", "Subscriptions", "{FF55EE66-1ECB-499C-8ED0-BED6649B8E80}"
@@ -35,19 +33,17 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "NexusMods.Monitor.Subscript
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Bot.Slack", "Bot.Slack", "{587BCD42-861E-435E-AFCC-6A680C321A60}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NexusMods.Monitor.Shared.Domain", "NexusMods.Monitor.Shared.Domain\NexusMods.Monitor.Shared.Domain.csproj", "{91895C29-4132-4F94-9F1B-7EE6FD5297D5}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "NexusMods.Monitor.Shared.Domain", "NexusMods.Monitor.Shared.Domain\NexusMods.Monitor.Shared.Domain.csproj", "{91895C29-4132-4F94-9F1B-7EE6FD5297D5}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NexusMods.Monitor.Shared.Infrastructure", "NexusMods.Monitor.Shared.Infrastructure\NexusMods.Monitor.Shared.Infrastructure.csproj", "{8BCB464D-E736-4641-B28E-4E59F07ACE4D}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "NexusMods.Monitor.Shared.Infrastructure", "NexusMods.Monitor.Shared.Infrastructure\NexusMods.Monitor.Shared.Infrastructure.csproj", "{8BCB464D-E736-4641-B28E-4E59F07ACE4D}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NexusMods.Monitor.Shared.Application", "NexusMods.Monitor.Shared.Application\NexusMods.Monitor.Shared.Application.csproj", "{89508E9B-22EC-403A-B508-4A3FB4156AFF}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "NexusMods.Monitor.Shared.Application", "NexusMods.Monitor.Shared.Application\NexusMods.Monitor.Shared.Application.csproj", "{89508E9B-22EC-403A-B508-4A3FB4156AFF}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NexusMods.Monitor.Shared.Host", "NexusMods.Monitor.Shared.Host\NexusMods.Monitor.Shared.Host.csproj", "{67FE3070-C3F1-4F64-9CA2-B9C4B46A30C1}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "NexusMods.Monitor.Shared.Host", "NexusMods.Monitor.Shared.Host\NexusMods.Monitor.Shared.Host.csproj", "{67FE3070-C3F1-4F64-9CA2-B9C4B46A30C1}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NexusMods.Monitor.Bot.Slack.Domain", "NexusMods.Monitor.Bot.Slack.Domain\NexusMods.Monitor.Bot.Slack.Domain.csproj", "{396F4904-E8B0-4D69-9C50-C1D6D8055575}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "NexusMods.Monitor.Bot.Slack.Application", "NexusMods.Monitor.Bot.Slack.Application\NexusMods.Monitor.Bot.Slack.Application.csproj", "{03072AD9-9E4D-42C2-87D7-39DAC5361E60}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NexusMods.Monitor.Bot.Slack.Application", "NexusMods.Monitor.Bot.Slack.Application\NexusMods.Monitor.Bot.Slack.Application.csproj", "{03072AD9-9E4D-42C2-87D7-39DAC5361E60}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NexusMods.Monitor.Bot.Slack.Host", "NexusMods.Monitor.Bot.Slack.Host\NexusMods.Monitor.Bot.Slack.Host.csproj", "{62D179EB-B436-47B3-92B8-46188967967A}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "NexusMods.Monitor.Bot.Slack.Host", "NexusMods.Monitor.Bot.Slack.Host\NexusMods.Monitor.Bot.Slack.Host.csproj", "{62D179EB-B436-47B3-92B8-46188967967A}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -83,10 +79,6 @@ Global
 		{6E067BE1-DC15-4731-A4D5-1775BC2CDBCB}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{6E067BE1-DC15-4731-A4D5-1775BC2CDBCB}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{6E067BE1-DC15-4731-A4D5-1775BC2CDBCB}.Release|Any CPU.Build.0 = Release|Any CPU
-		{D2AF5476-AF52-452B-9B45-097A661612F2}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{D2AF5476-AF52-452B-9B45-097A661612F2}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{D2AF5476-AF52-452B-9B45-097A661612F2}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{D2AF5476-AF52-452B-9B45-097A661612F2}.Release|Any CPU.Build.0 = Release|Any CPU
 		{8D9D12A0-EF6A-4502-B6C4-CA706E8745B6}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{8D9D12A0-EF6A-4502-B6C4-CA706E8745B6}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{8D9D12A0-EF6A-4502-B6C4-CA706E8745B6}.Release|Any CPU.ActiveCfg = Release|Any CPU
@@ -119,10 +111,6 @@ Global
 		{67FE3070-C3F1-4F64-9CA2-B9C4B46A30C1}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{67FE3070-C3F1-4F64-9CA2-B9C4B46A30C1}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{67FE3070-C3F1-4F64-9CA2-B9C4B46A30C1}.Release|Any CPU.Build.0 = Release|Any CPU
-		{396F4904-E8B0-4D69-9C50-C1D6D8055575}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{396F4904-E8B0-4D69-9C50-C1D6D8055575}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{396F4904-E8B0-4D69-9C50-C1D6D8055575}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{396F4904-E8B0-4D69-9C50-C1D6D8055575}.Release|Any CPU.Build.0 = Release|Any CPU
 		{03072AD9-9E4D-42C2-87D7-39DAC5361E60}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{03072AD9-9E4D-42C2-87D7-39DAC5361E60}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{03072AD9-9E4D-42C2-87D7-39DAC5361E60}.Release|Any CPU.ActiveCfg = Release|Any CPU
@@ -142,12 +130,10 @@ Global
 		{056911B3-8461-4EA7-A898-0DDD6BE85116} = {B37FCEA2-CFEA-43F9-B3D5-0AF6BDB72DB8}
 		{BFAA56BD-0860-465D-9EF6-6C58CB6ED519} = {E9EC3017-C7C8-4EB5-8EAB-B9C8BB71FA14}
 		{6E067BE1-DC15-4731-A4D5-1775BC2CDBCB} = {B37FCEA2-CFEA-43F9-B3D5-0AF6BDB72DB8}
-		{D2AF5476-AF52-452B-9B45-097A661612F2} = {E9EC3017-C7C8-4EB5-8EAB-B9C8BB71FA14}
 		{8D9D12A0-EF6A-4502-B6C4-CA706E8745B6} = {FF55EE66-1ECB-499C-8ED0-BED6649B8E80}
 		{4D2EB168-5388-4769-88C6-277E8BAAC06C} = {FF55EE66-1ECB-499C-8ED0-BED6649B8E80}
 		{0B1FCA59-B43A-4612-BD35-9A72D6B3DB86} = {FF55EE66-1ECB-499C-8ED0-BED6649B8E80}
 		{1BA89976-3882-4E14-A93F-43D8F2550F33} = {FF55EE66-1ECB-499C-8ED0-BED6649B8E80}
-		{396F4904-E8B0-4D69-9C50-C1D6D8055575} = {587BCD42-861E-435E-AFCC-6A680C321A60}
 		{03072AD9-9E4D-42C2-87D7-39DAC5361E60} = {587BCD42-861E-435E-AFCC-6A680C321A60}
 		{62D179EB-B436-47B3-92B8-46188967967A} = {587BCD42-861E-435E-AFCC-6A680C321A60}
 	EndGlobalSection

@@ -2,7 +2,7 @@
 
 using Microsoft.Extensions.Logging;
 
-using NexusMods.Monitor.Bot.Discord.Domain.AggregatesModel.SubscriptionAggregate;
+using NexusMods.Monitor.Bot.Discord.Application.Queries;
 using NexusMods.Monitor.Shared.Application.IntegrationEvents.Issues;
 
 using System;
@@ -14,15 +14,15 @@ namespace NexusMods.Monitor.Bot.Discord.Application.IntegrationEventHandlers.Iss
     public class IssueAddedNewReplyIntegrationEventHandler : Enbiso.NLib.EventBus.EventHandler<IssueAddedReplyIntegrationEvent>
     {
         private readonly ILogger _logger;
-        private readonly ISubscriptionRepository _subscriptionRepository;
+        private readonly ISubscriptionQueries _subscriptionQueries;
         private readonly IDiscordClient _discordClient;
 
         public IssueAddedNewReplyIntegrationEventHandler(ILogger<IssueChangedStatusIntegrationEventHandler> logger,
-            ISubscriptionRepository subscriptionRepository,
+            ISubscriptionQueries subscriptionQueries,
             IDiscordClient discordClient)
         {
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
-            _subscriptionRepository = subscriptionRepository ?? throw new ArgumentNullException(nameof(subscriptionRepository));
+            _subscriptionQueries = subscriptionQueries ?? throw new ArgumentNullException(nameof(subscriptionQueries));
             _discordClient = discordClient ?? throw new ArgumentNullException(nameof(discordClient));
         }
 
@@ -30,7 +30,7 @@ namespace NexusMods.Monitor.Bot.Discord.Application.IntegrationEventHandlers.Iss
         {
             var embed = EmbedHelper.NewIssueReply(command.Issue, command.Issue.Replies.First(x => x.Id == command.ReplyId));
 
-            foreach (var subscriptionEntity in await _subscriptionRepository.GetAllAsync().ToListAsync())
+            foreach (var subscriptionEntity in await _subscriptionQueries.GetAllAsync().ToListAsync())
             {
                 if (!(await _discordClient.GetChannelAsync(subscriptionEntity.ChannelId) is IMessageChannel channel)) continue;
                 if (subscriptionEntity.NexusModsGameId != command.Issue.NexusModsGameId || subscriptionEntity.NexusModsModId != command.Issue.NexusModsModId) continue;

@@ -13,6 +13,9 @@ using NexusMods.Monitor.Scraper.Application;
 using NexusMods.Monitor.Scraper.Application.CommandHandlers.Comments;
 using NexusMods.Monitor.Scraper.Application.Extensions;
 using NexusMods.Monitor.Scraper.Application.Options;
+using NexusMods.Monitor.Scraper.Application.Queries.Comments;
+using NexusMods.Monitor.Scraper.Application.Queries.Issues;
+using NexusMods.Monitor.Scraper.Application.Queries.Subscriptions;
 using NexusMods.Monitor.Scraper.Domain.AggregatesModel.CommentAggregate;
 using NexusMods.Monitor.Scraper.Domain.AggregatesModel.IssueAggregate;
 using NexusMods.Monitor.Scraper.Domain.AggregatesModel.NexusModsGameAggregate;
@@ -146,6 +149,10 @@ namespace NexusMods.Monitor.Scraper.Host
                 services.AddTransient<INexusModsGameRepository, NexusModsGameRepository>();
                 services.AddTransient<INexusModsThreadRepository, CachedNexusModsThreadRepository>();
                 //services.AddTransient<INexusModsThreadRepository, NexusModsThreadRepository>();
+
+                services.AddTransient<ICommentQueries, CommentQueries>();
+                services.AddTransient<IIssueQueries, IssueQueries>();
+                services.AddTransient<ISubscriptionQueries, SubscriptionQueries>();
             })
             .ConfigureAppConfiguration(config => config.AddEnvironmentVariables())
             .UseSerilog();

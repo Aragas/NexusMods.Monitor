@@ -17,8 +17,8 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\NexusMods.Monitor.Bot.Slack.Domain\NexusMods.Monitor.Bot.Slack.Domain.csproj" />
     <ProjectReference Include="..\NexusMods.Monitor.Shared.Application\NexusMods.Monitor.Shared.Application.csproj" />
+    <ProjectReference Include="..\NexusMods.Monitor.Shared.Domain\NexusMods.Monitor.Shared.Domain.csproj" />
   </ItemGroup>
 
 </Project>

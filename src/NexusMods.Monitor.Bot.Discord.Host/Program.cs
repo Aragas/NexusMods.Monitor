@@ -2,14 +2,16 @@
 using Discord.Commands;
 using Discord.WebSocket;
 
+using MediatR;
+
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 
-using NexusMods.Monitor.Bot.Discord.Application;
+using NexusMods.Monitor.Bot.Discord.Application.CommandHandlers;
 using NexusMods.Monitor.Bot.Discord.Application.IntegrationEventHandlers.Comments;
 using NexusMods.Monitor.Bot.Discord.Application.Options;
-using NexusMods.Monitor.Bot.Discord.Domain.AggregatesModel.SubscriptionAggregate;
+using NexusMods.Monitor.Bot.Discord.Application.Queries;
 using NexusMods.Monitor.Bot.Discord.Host.BackgroundServices;
 using NexusMods.Monitor.Bot.Discord.Host.Options;
 using NexusMods.Monitor.Shared.Host.Extensions;
@@ -79,6 +81,7 @@ namespace NexusMods.Monitor.Bot.Discord.Host
             .CreateDefaultBuilder(args)
             .ConfigureServices((context, services) =>
             {
+                services.AddMediatR(typeof(SubscribeCommandHandler).Assembly);
                 services.AddMemoryCache();
                 services.AddHttpClient();
                 services.AddTransient<IClock, SystemClock>(_ => SystemClock.Instance);
@@ -93,7 +96,7 @@ namespace NexusMods.Monitor.Bot.Discord.Host
 
                 services.AddHostedService<DiscordService>();
 
-                services.AddTransient<ISubscriptionRepository, SubscriptionRepository>();
+                services.AddTransient<ISubscriptionQueries, SubscriptionQueries>();
             })
             .ConfigureAppConfiguration((hostingContext, config) => config.AddEnvironmentVariables())
             .UseSerilog();

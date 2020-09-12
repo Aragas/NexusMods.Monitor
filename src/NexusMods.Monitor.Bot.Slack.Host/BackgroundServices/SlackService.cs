@@ -25,17 +25,17 @@ namespace NexusMods.Monitor.Bot.Slack.Host.BackgroundServices
     /// <summary>
     /// Manages the Discord connection.
     /// </summary>
-    public sealed class SlackService : IHostedService, IDisposable
+    public sealed class SlackService : IHostedService
     {
         private readonly ILogger _logger;
-        private readonly SlackBot _bot;
+        private readonly ISlackBot _bot;
         private readonly IClock _clock;
         private readonly IMediator _mediator;
         private readonly ISubscriptionQueries _subscriptionQueries;
         private readonly IEventSubscriber _eventSubscriber;
 
         public SlackService(ILogger<SlackService> logger,
-            SlackBot bot,
+            ISlackBot bot,
             IClock clock,
             IMediator mediator,
             ISubscriptionQueries subscriptionQueries,
@@ -63,7 +63,7 @@ namespace NexusMods.Monitor.Bot.Slack.Host.BackgroundServices
         public Task StopAsync(CancellationToken cancellationToken)
         {
             _bot.OnMessage -= Bot_OnMessageReceived;
-            _bot.Dispose();
+
             _logger.LogWarning("Stopped Slack Bot.");
 
             _eventSubscriber.Dispose();
@@ -157,11 +157,6 @@ subscribe [Game Id] [Mod Id]
 unsubscribe [Game Id] [Mod Id]");
                 }
             }
-        }
-
-        public void Dispose()
-        {
-            _bot.Dispose();
         }
     }
 }
