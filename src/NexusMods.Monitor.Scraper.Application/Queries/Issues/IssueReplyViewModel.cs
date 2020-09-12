@@ -6,7 +6,7 @@
         public uint OwnerId { get; private set; } = default!;
 
         private IssueReplyViewModel() { }
-        public IssueReplyViewModel(uint id, uint ownerId)
+        public IssueReplyViewModel(uint id, uint ownerId) : this()
         {
             Id = id;
             OwnerId = ownerId;

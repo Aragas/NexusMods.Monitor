@@ -14,17 +14,18 @@ namespace NexusMods.Monitor.Scraper.Application.Queries.NexusModsIssues
 {
     public class NexusModsIssueViewModel
     {
-        public uint Id { get; }
-        public string Title { get; }
-        public bool IsPrivate { get; }
-        public bool IsClosed { get; }
-        public IssueStatusEnumeration Status { get; }
-        public uint ReplyCount { get; }
-        public string ModVersion { get; }
-        public IssuePriorityEnumeration Priority { get; }
-        public Instant LastPost { get; }
+        public uint Id { get; private set; } = default!;
+        public string Title { get; private set; } = default!;
+        public bool IsPrivate { get; private set; } = default!;
+        public bool IsClosed { get; private set; } = default!;
+        public IssueStatusEnumeration Status { get; private set; } = default!;
+        public uint ReplyCount { get; private set; } = default!;
+        public string ModVersion { get; private set; } = default!;
+        public IssuePriorityEnumeration Priority { get; private set; } = default!;
+        public Instant LastPost { get; private set; } = default!;
 
-        public NexusModsIssueViewModel(IElement element)
+        private NexusModsIssueViewModel() { }
+        public NexusModsIssueViewModel(IElement element) : this()
         {
             Id = uint.TryParse(element.GetAttribute("data-issue-id"), out var id) ? id : uint.MaxValue;
             Title = element.GetElementsByClassName("table-bug-title").FirstOrDefault()?.GetElementsByClassName("issue-title").FirstOrDefault()?.ToText() ?? "ERROR";

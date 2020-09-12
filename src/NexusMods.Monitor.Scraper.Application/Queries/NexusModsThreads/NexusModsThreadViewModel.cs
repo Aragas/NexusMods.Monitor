@@ -7,7 +7,7 @@
         public uint ThreadId { get; private set; } = default!;
 
         private NexusModsThreadViewModel() { }
-        public NexusModsThreadViewModel(uint nexusModsGameId, uint nexusModsModId, uint threadId)
+        public NexusModsThreadViewModel(uint nexusModsGameId, uint nexusModsModId, uint threadId) : this()
         {
             NexusModsGameId = nexusModsGameId;
             NexusModsModId = nexusModsModId;

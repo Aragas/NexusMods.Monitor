@@ -63,7 +63,7 @@ namespace NexusMods.Monitor.Scraper.Application.Commands.Comments
             IsDeleted = false;
             TimeOfPost = nexusModsCommentRoot.NexusModsComment.Post;
 
-            _commentReplies = nexusModsCommentRoot.NexusModsComment.Children.Select(x => new CommentReplyDTO
+            _commentReplies = nexusModsCommentRoot.NexusModsComment.Replies.Select(x => new CommentReplyDTO
             {
                 Id = x.Id,
                 Url = $"https://www.nexusmods.com/{nexusModsCommentRoot.NexusModsGameIdText}/mods/{NexusModsModId}/?tab=posts&jump_to_comment={x.Id}",

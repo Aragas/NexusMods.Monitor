@@ -2,12 +2,13 @@
 {
     public class NexusModsCommentRootViewModel
     {
-        public string NexusModsGameIdText { get; }
-        public uint NexusModsGameId { get; }
-        public uint NexusModsModId { get; }
-        public NexusModsCommentViewModel NexusModsComment { get; }
+        public string NexusModsGameIdText { get; private set; } = default!;
+        public uint NexusModsGameId { get; private set; } = default!;
+        public uint NexusModsModId { get; private set; } = default!;
+        public NexusModsCommentViewModel NexusModsComment { get; private set; } = default!;
 
-        public NexusModsCommentRootViewModel(string nexusModsGameIdText, uint nexusModsGameId, uint nexusModsModId, NexusModsCommentViewModel nexusModsComment)
+        private NexusModsCommentRootViewModel() { }
+        public NexusModsCommentRootViewModel(string nexusModsGameIdText, uint nexusModsGameId, uint nexusModsModId, NexusModsCommentViewModel nexusModsComment): this()
         {
             NexusModsGameIdText = nexusModsGameIdText;
             NexusModsGameId = nexusModsGameId;

@@ -6,14 +6,15 @@ namespace NexusMods.Monitor.Scraper.Application.Queries.NexusModsIssues
 {
     public class NexusModsIssueRootViewModel
     {
-        public string NexusModsGameIdText { get; }
-        public uint NexusModsGameId { get; }
-        public uint NexusModsModId { get; }
-        public NexusModsIssueViewModel NexusModsIssue { get; }
-        public NexusModsIssueContentViewModel? NexusModsIssueContent { get; private set; }
-        public List<NexusModsIssueReplyViewModel>? NexusModsIssueReplies { get; private set; }
+        public string NexusModsGameIdText { get; private set; } = default!;
+        public uint NexusModsGameId { get; private set; } = default!;
+        public uint NexusModsModId { get; private set; } = default!;
+        public NexusModsIssueViewModel NexusModsIssue { get; private set; } = default!;
+        public NexusModsIssueContentViewModel? NexusModsIssueContent { get; private set; } = default!;
+        public List<NexusModsIssueReplyViewModel>? NexusModsIssueReplies { get; private set; } = default!;
 
-        public NexusModsIssueRootViewModel(string nexusModsGameIdText, uint nexusModsGameId, uint nexusModsModId, NexusModsIssueViewModel nexusModsIssue)
+        private NexusModsIssueRootViewModel() { }
+        public NexusModsIssueRootViewModel(string nexusModsGameIdText, uint nexusModsGameId, uint nexusModsModId, NexusModsIssueViewModel nexusModsIssue) : this()
         {
             NexusModsGameIdText = nexusModsGameIdText;
             NexusModsGameId = nexusModsGameId;

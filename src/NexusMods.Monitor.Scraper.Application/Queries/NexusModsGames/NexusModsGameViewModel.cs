@@ -9,7 +9,7 @@
         public string DomainName { get; private set; } = default!;
 
         private NexusModsGameViewModel() { }
-        public NexusModsGameViewModel(uint id, string name, string forumUrl, string nexusModsUrl, string domainName)
+        public NexusModsGameViewModel(uint id, string name, string forumUrl, string nexusModsUrl, string domainName) : this()
         {
             Id = id;
             Name = name;

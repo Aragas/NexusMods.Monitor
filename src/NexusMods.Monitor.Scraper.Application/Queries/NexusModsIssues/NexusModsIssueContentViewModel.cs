@@ -13,14 +13,15 @@ namespace NexusMods.Monitor.Scraper.Application.Queries.NexusModsIssues
 {
     public class NexusModsIssueContentViewModel
     {
-        public uint Id { get; }
-        public string Author { get; }
-        public string AuthorUrl { get; }
-        public string AvatarUrl { get; }
-        public string Content { get; }
-        public Instant Time { get; }
+        public uint Id { get; private set; } = default!;
+        public string Author { get; private set; } = default!;
+        public string AuthorUrl { get; private set; } = default!;
+        public string AvatarUrl { get; private set; } = default!;
+        public string Content { get; private set; } = default!;
+        public Instant Time { get; private set; } = default!;
 
-        public NexusModsIssueContentViewModel(IElement element)
+        private NexusModsIssueContentViewModel() { }
+        public NexusModsIssueContentViewModel(IElement element) : this()
         {
             var idSplit = element.Id.Split("bug-issue-tile-", StringSplitOptions.RemoveEmptyEntries);
             Id = idSplit.Length > 0 ? uint.TryParse(idSplit[0], out var id) ? id : uint.MaxValue : uint.MaxValue;

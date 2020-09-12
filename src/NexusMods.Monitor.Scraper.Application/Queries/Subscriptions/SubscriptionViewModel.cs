@@ -6,7 +6,7 @@
         public uint NexusModsModId { get; private set; } = default!;
 
         private SubscriptionViewModel() { }
-        public SubscriptionViewModel(uint nexusModsGameId, uint nexusModsModId)
+        public SubscriptionViewModel(uint nexusModsGameId, uint nexusModsModId) : this()
         {
             NexusModsGameId = nexusModsGameId;
             NexusModsModId = nexusModsModId;

@@ -101,8 +101,8 @@ namespace NexusMods.Monitor.Scraper.Host.BackgroundServices
                     }
 
 
-                    var newReplies = nexusModsCommentRoot.NexusModsComment.Children.Where(x => databaseComment.Replies.All(y => y.Id != x.Id));
-                    var deletedReplies = databaseComment.Replies.Where(x => nexusModsCommentRoot.NexusModsComment.Children.All(y => y.Id != x.Id)).ToList();
+                    var newReplies = nexusModsCommentRoot.NexusModsComment.Replies.Where(x => databaseComment.Replies.All(y => y.Id != x.Id));
+                    var deletedReplies = databaseComment.Replies.Where(x => nexusModsCommentRoot.NexusModsComment.Replies.All(y => y.Id != x.Id)).ToList();
 
                     foreach (var commentReply in newReplies)
                     {

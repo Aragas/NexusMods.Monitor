@@ -14,17 +14,23 @@ namespace NexusMods.Monitor.Scraper.Application.Queries.NexusModsComments
 {
     public class NexusModsCommentViewModel
     {
-        public uint Id { get; }
-        public string Author { get; }
-        public string AuthorUrl { get; }
-        public string AvatarUrl { get; }
-        public string Content { get; }
-        public bool IsSticky { get; }
-        public bool IsLocked { get; }
-        public Instant Post { get; }
-        public List<NexusModsCommentReplyViewModel> Children { get; } = new List<NexusModsCommentReplyViewModel>();
+        public uint Id { get; private set; } = default!;
+        public string Author { get; private set; } = default!;
+        public string AuthorUrl { get; private set; } = default!;
+        public string AvatarUrl { get; private set; } = default!;
+        public string Content { get; private set; } = default!;
+        public bool IsSticky { get; private set; } = default!;
+        public bool IsLocked { get; private set; } = default!;
+        public Instant Post { get; private set; } = default!;
 
-        public NexusModsCommentViewModel(IElement element) // comment-container
+        private readonly List<NexusModsCommentReplyViewModel> _replies;
+        public IEnumerable<NexusModsCommentReplyViewModel> Replies => _replies;
+
+        private NexusModsCommentViewModel()
+        {
+            _replies = new List<NexusModsCommentReplyViewModel>();
+        }
+        public NexusModsCommentViewModel(IElement element) : this()
         {
             var commentIdSplit = element.Id.Split("comment-", StringSplitOptions.RemoveEmptyEntries);
             Id = commentIdSplit.Length > 0 ? uint.TryParse(commentIdSplit[0], out var commentId) ? commentId : uint.MaxValue : uint.MaxValue;
@@ -47,7 +53,7 @@ namespace NexusMods.Monitor.Scraper.Application.Queries.NexusModsComments
 
             var kids = element.GetElementsByClassName("comment-kids").FirstOrDefault();
             foreach (var subComment in kids?.Children ?? Enumerable.Empty<IElement>())
-                Children.Add(new NexusModsCommentReplyViewModel(subComment, Id));
+                _replies.Add(new NexusModsCommentReplyViewModel(subComment, Id));
         }
 
         public override string ToString() => Author;
