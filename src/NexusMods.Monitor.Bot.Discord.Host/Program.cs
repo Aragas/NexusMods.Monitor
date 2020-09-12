@@ -7,6 +7,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 
 using NexusMods.Monitor.Bot.Discord.Application;
+using NexusMods.Monitor.Bot.Discord.Application.IntegrationEventHandlers.Comments;
 using NexusMods.Monitor.Bot.Discord.Application.Options;
 using NexusMods.Monitor.Bot.Discord.Domain.AggregatesModel.SubscriptionAggregate;
 using NexusMods.Monitor.Bot.Discord.Host.BackgroundServices;
@@ -22,7 +23,6 @@ using Serilog.Exceptions.EntityFrameworkCore.Destructurers;
 
 using System;
 using System.Threading.Tasks;
-using NexusMods.Monitor.Bot.Discord.Application.IntegrationEventHandlers.Comments;
 
 namespace NexusMods.Monitor.Bot.Discord.Host
 {

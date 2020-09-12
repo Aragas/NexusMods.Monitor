@@ -1,14 +1,18 @@
 ﻿using Discord;
 using Discord.Commands;
 
+using MediatR;
+
 using Microsoft.Extensions.Logging;
 
 using NexusMods.Monitor.Bot.Discord.Application;
-using NexusMods.Monitor.Bot.Discord.Domain.AggregatesModel.SubscriptionAggregate;
+using NexusMods.Monitor.Bot.Discord.Application.Commands;
+using NexusMods.Monitor.Bot.Discord.Application.Queries;
 
 using NodaTime;
 using NodaTime.Extensions;
 
+using System;
 using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
@@ -20,14 +24,17 @@ namespace NexusMods.Monitor.Bot.Discord.Host
     public class DiscordCommands : ModuleBase<SocketCommandContext>
     {
         private readonly ILogger _loggerService;
-        private readonly ISubscriptionRepository _subscriptionRepository;
+        private readonly IMediator _mediator;
+        private readonly ISubscriptionQueries _subscriptionQueries;
         private readonly IClock _clock;
 
-        public DiscordCommands(ILogger<DiscordCommands> loggerService, ISubscriptionRepository subscriptionRepository, IClock clock)
+        public DiscordCommands(ILogger<DiscordCommands> loggerService, IMediator mediator, ISubscriptionQueries subscriptionQueries, IClock clock)
         {
-            _loggerService = loggerService;
-            _subscriptionRepository = subscriptionRepository;
-            _clock = clock;
+            if (_mediator == null) throw new ArgumentNullException(nameof(_mediator));
+            _loggerService = loggerService ?? throw new ArgumentNullException(nameof(loggerService));
+            _mediator = mediator ?? throw new ArgumentNullException(nameof(mediator));
+            _subscriptionQueries = subscriptionQueries ?? throw new ArgumentNullException(nameof(subscriptionQueries));
+            _clock = clock ?? throw new ArgumentNullException(nameof(clock));
         }
 
         [Command("help")]
@@ -48,7 +55,7 @@ unsubscribe [Game Id] [Mod Id]");
             _loggerService.LogInformation("Received 'about' command from user '{User}'.", Context.User.ToString());
 
             var uptime = _clock.GetCurrentInstant() - Process.GetCurrentProcess().StartTime.ToUniversalTime().ToInstant();
-            var subscriptionCount = await _subscriptionRepository.GetAllAsync().CountAsync();
+            var subscriptionCount = await _subscriptionQueries.GetSubscriptionsAsync().CountAsync();
             var embed = EmbedHelper.About(Context.Client.Guilds.Count, subscriptionCount, uptime);
 
             if (Context.IsPrivate)
@@ -72,7 +79,7 @@ unsubscribe [Game Id] [Mod Id]");
             _loggerService.LogInformation("Received 'subscriptions' command from user '{User}'.", Context.User.ToString());
 
 
-            var subscriptions = await _subscriptionRepository.GetAllAsync().Where(s => s.ChannelId == Context.Channel.Id).ToListAsync();
+            var subscriptions = await _subscriptionQueries.GetSubscriptionsAsync().Where(s => s.ChannelId == Context.Channel.Id).ToListAsync();
             if (subscriptions.Count > 0)
             {
                 await Context.Channel.SendMessageAsync($@"Subscriptions:
@@ -99,8 +106,7 @@ unsubscribe [Game Id] [Mod Id]");
             _loggerService.LogInformation("Received 'subscribe' command from user '{User}'.", Context.User.ToString());
 
 
-            await _subscriptionRepository.SubscribeAsync(Context.Channel.Id, gameId, modId);
-            if (await _subscriptionRepository.UnitOfWork.SaveEntitiesAsync())
+            if (await _mediator.Send(new SubscribeCommand(Context.Channel.Id, gameId, modId)))
                 await Context.Message.AddReactionAsync(new Emoji("✅"));
             else
                 await Context.Message.AddReactionAsync(new Emoji("❎"));
@@ -118,8 +124,7 @@ unsubscribe [Game Id] [Mod Id]");
             _loggerService.LogInformation("Received 'unsubscribe' command from user '{User}'.", Context.User.ToString());
 
 
-            await _subscriptionRepository.UnsubscribeAsync(Context.Channel.Id, gameId, modId);
-            if (await _subscriptionRepository.UnitOfWork.SaveEntitiesAsync())
+            if (await _mediator.Send(new UnsubscribeCommand(Context.Channel.Id, gameId, modId)))
                 await Context.Message.AddReactionAsync(new Emoji("✅"));
             else
                 await Context.Message.AddReactionAsync(new Emoji("❎"));

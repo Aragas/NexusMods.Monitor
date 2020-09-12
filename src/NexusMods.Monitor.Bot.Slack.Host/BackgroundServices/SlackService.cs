@@ -1,10 +1,13 @@
 ﻿using Enbiso.NLib.EventBus;
 
+using MediatR;
+
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 
 using NexusMods.Monitor.Bot.Slack.Application;
-using NexusMods.Monitor.Bot.Slack.Domain.AggregatesModel.SubscriptionAggregate;
+using NexusMods.Monitor.Bot.Slack.Application.Commands;
+using NexusMods.Monitor.Bot.Slack.Application.Queries;
 
 using NodaTime;
 using NodaTime.Extensions;
@@ -27,19 +30,22 @@ namespace NexusMods.Monitor.Bot.Slack.Host.BackgroundServices
         private readonly ILogger _logger;
         private readonly SlackBot _bot;
         private readonly IClock _clock;
-        private readonly ISubscriptionRepository _subscriptionRepository;
+        private readonly IMediator _mediator;
+        private readonly ISubscriptionQueries _subscriptionQueries;
         private readonly IEventSubscriber _eventSubscriber;
 
         public SlackService(ILogger<SlackService> logger,
             SlackBot bot,
             IClock clock,
-            ISubscriptionRepository subscriptionRepository,
+            IMediator mediator,
+            ISubscriptionQueries subscriptionQueries,
             IEventSubscriber eventSubscriber)
         {
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
             _bot = bot ?? throw new ArgumentNullException(nameof(bot));
             _clock = clock ?? throw new ArgumentNullException(nameof(clock));
-            _subscriptionRepository = subscriptionRepository ?? throw new ArgumentNullException(nameof(subscriptionRepository));
+            _mediator = mediator ?? throw new ArgumentNullException(nameof(mediator));
+            _subscriptionQueries = subscriptionQueries ?? throw new ArgumentNullException(nameof(subscriptionQueries));
             _eventSubscriber = eventSubscriber ?? throw new ArgumentNullException(nameof(eventSubscriber));
         }
 
@@ -80,16 +86,18 @@ namespace NexusMods.Monitor.Bot.Slack.Host.BackgroundServices
                 {
                     var argsText = command.Remove(0, subscribe.Length);
                     var args = argsText.Split(' ', StringSplitOptions.RemoveEmptyEntries);
-                    if (args.Length == 2)
+                    if (args.Length == 2 && uint.TryParse(args[0], out var gameId) && uint.TryParse(args[1], out var modId))
                     {
-                        var gameId = uint.Parse(args[0]);
-                        var modId = uint.Parse(args[1]);
-
-                        await _subscriptionRepository.SubscribeAsync(message.Conversation.Id, gameId, modId);
-                        if (await _subscriptionRepository.UnitOfWork.SaveEntitiesAsync())
+                        if (await _mediator.Send(new SubscribeCommand(message.Conversation.Id, gameId, modId)))
+                        {
                             await message.ReplyWith("Successful!");
-                        else
-                            await message.ReplyWith("Failed!");
+                            return;
+                        }
+                    }
+                    else
+                    {
+                        await message.ReplyWith("Failed!");
+                        return;
                     }
                 }
 
@@ -98,16 +106,18 @@ namespace NexusMods.Monitor.Bot.Slack.Host.BackgroundServices
                 {
                     var argsText = command.Remove(0, unsubscribe.Length);
                     var args = argsText.Split(' ', StringSplitOptions.RemoveEmptyEntries);
-                    if (args.Length == 2)
+                    if (args.Length == 2 && uint.TryParse(args[0], out var gameId) && uint.TryParse(args[1], out var modId))
                     {
-                        var gameId = uint.Parse(args[0]);
-                        var modId = uint.Parse(args[1]);
-
-                        await _subscriptionRepository.UnsubscribeAsync(message.Conversation.Id, gameId, modId);
-                        if (await _subscriptionRepository.UnitOfWork.SaveEntitiesAsync())
+                        if (await _mediator.Send(new UnsubscribeCommand(message.Conversation.Id, gameId, modId)))
+                        {
                             await message.ReplyWith("Successful!");
-                        else
-                            await message.ReplyWith("Failed!");
+                            return;
+                        }
+                    }
+                    else
+                    {
+                        await message.ReplyWith("Failed!");
+                        return;
                     }
                 }
 
@@ -115,7 +125,7 @@ namespace NexusMods.Monitor.Bot.Slack.Host.BackgroundServices
                 if (command.StartsWith(about))
                 {
                     var uptime = _clock.GetCurrentInstant() - Process.GetCurrentProcess().StartTime.ToUniversalTime().ToInstant();
-                    var subscriptionCount = await _subscriptionRepository.GetAllAsync().CountAsync();
+                    var subscriptionCount = await _subscriptionQueries.GetSubscriptionsAsync().CountAsync();
                     var embed = AttachmentHelper.About(subscriptionCount, uptime);
                     await message.ReplyWith(new BotMessage { Attachments = { embed } });
                 }
@@ -123,7 +133,7 @@ namespace NexusMods.Monitor.Bot.Slack.Host.BackgroundServices
                 const string subscriptions = "subscriptions";
                 if (command.StartsWith(subscriptions))
                 {
-                    var subscriptionList = await _subscriptionRepository.GetAllAsync().Where(s => s.ChannelId == message.Conversation.Id).ToListAsync();
+                    var subscriptionList = await _subscriptionQueries.GetSubscriptionsAsync().Where(s => s.ChannelId == message.Conversation.Id).ToListAsync();
                     if (subscriptionList.Count > 0)
                     {
                         await message.ReplyWith($@"Subscriptions:
