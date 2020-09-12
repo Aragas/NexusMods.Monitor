@@ -7,6 +7,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 
 using NexusMods.Monitor.Scraper.Application;
 using NexusMods.Monitor.Scraper.Application.CommandHandlers.Comments;
@@ -18,12 +19,15 @@ using NexusMods.Monitor.Scraper.Domain.AggregatesModel.NexusModsGameAggregate;
 using NexusMods.Monitor.Scraper.Domain.AggregatesModel.NexusModsThreadAggregate;
 using NexusMods.Monitor.Scraper.Domain.AggregatesModel.SubscriptionAggregate;
 using NexusMods.Monitor.Scraper.Host.BackgroundServices;
+using NexusMods.Monitor.Scraper.Hosts.Options;
 using NexusMods.Monitor.Scraper.Infrastructure.Contexts;
 using NexusMods.Monitor.Scraper.Infrastructure.Models.Comments;
 using NexusMods.Monitor.Scraper.Infrastructure.Models.Issues;
 using NexusMods.Monitor.Scraper.Infrastructure.Repositories;
 using NexusMods.Monitor.Shared.Application;
 using NexusMods.Monitor.Shared.Host.Extensions;
+
+using NexusModsNET;
 
 using NodaTime;
 
@@ -130,6 +134,8 @@ namespace NexusMods.Monitor.Scraper.Host
 
                 services.AddHostedService<NexusModsIssueMonitor>();
                 services.AddHostedService<NexusModsCommentsMonitor>();
+
+                services.AddTransient<INexusModsClient>(sp => NexusModsClient.Create(sp.GetRequiredService<IOptions<NexusModsOptions>>().Value.APIKey));
 
                 services.AddTransient<ICommentRepository, CommentRepository>();
                 services.AddTransient<IIssueRepository, IssueRepository>();

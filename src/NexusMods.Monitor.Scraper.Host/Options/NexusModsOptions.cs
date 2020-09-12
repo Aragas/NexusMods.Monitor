@@ -1,4 +1,4 @@
-﻿namespace NexusMods.Monitor.Scraper.Application.Options
+﻿namespace NexusMods.Monitor.Scraper.Hosts.Options
 {
     public class NexusModsOptions
     {
