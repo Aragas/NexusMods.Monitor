@@ -9,7 +9,7 @@ namespace NexusMods.Monitor.Bot.Slack.Domain.AggregatesModel.SubscriptionAggrega
     {
         IAsyncEnumerable<SubscriptionEntity> GetAllAsync();
 
-        Task SubscribeAsync(string channelId, uint gameId, uint modId);
-        Task UnsubscribeAsync(string channelId, uint gameId, uint modId);
+        Task AddAsync(SubscriptionEntity subscriptionEntity);
+        Task RemoveAsync(SubscriptionEntity subscriptionEntity);
     }
 }

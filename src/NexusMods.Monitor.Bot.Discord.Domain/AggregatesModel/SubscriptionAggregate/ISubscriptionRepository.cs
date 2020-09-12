@@ -9,7 +9,7 @@ namespace NexusMods.Monitor.Bot.Discord.Domain.AggregatesModel.SubscriptionAggre
     {
         IAsyncEnumerable<SubscriptionEntity> GetAllAsync();
 
-        Task SubscribeAsync(ulong channelId, uint gameId, uint modId);
-        Task UnsubscribeAsync(ulong channelId, uint gameId, uint modId);
+        Task AddAsync(SubscriptionEntity subscriptionEntity);
+        Task RemoveAsync(SubscriptionEntity subscriptionEntity);
     }
 }

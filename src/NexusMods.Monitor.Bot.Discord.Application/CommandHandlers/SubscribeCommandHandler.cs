@@ -24,7 +24,7 @@ namespace NexusMods.Monitor.Bot.Discord.Application.CommandHandlers
 
         public async Task<bool> Handle(SubscribeCommand message, CancellationToken cancellationToken)
         {
-            await _subscriptionRepository.SubscribeAsync(message.ChannelId, message.NexusModsGameId, message.NexusModsModId);
+            await _subscriptionRepository.AddAsync(new SubscriptionEntity(message.ChannelId, message.NexusModsGameId, message.NexusModsModId));
             return await _subscriptionRepository.UnitOfWork.SaveEntitiesAsync(cancellationToken);
         }
     }

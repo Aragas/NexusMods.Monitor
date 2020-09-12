@@ -24,7 +24,7 @@ namespace NexusMods.Monitor.Bot.Slack.Application.CommandHandlers
 
         public async Task<bool> Handle(UnsubscribeCommand message, CancellationToken cancellationToken)
         {
-            await _subscriptionRepository.UnsubscribeAsync(message.ChannelId, message.NexusModsGameId, message.NexusModsModId);
+            await _subscriptionRepository.RemoveAsync(new SubscriptionEntity(message.ChannelId, message.NexusModsGameId, message.NexusModsModId));
             return await _subscriptionRepository.UnitOfWork.SaveEntitiesAsync(cancellationToken);
         }
     }

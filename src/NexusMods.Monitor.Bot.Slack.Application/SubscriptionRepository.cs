@@ -43,17 +43,17 @@ namespace NexusMods.Monitor.Bot.Slack.Application
             }
         }
 
-        public async Task SubscribeAsync(string channelId, uint gameId, uint modId)
+        public async Task AddAsync(SubscriptionEntity subscriptionEntity)
         {
             var response = await _httpClientFactory.CreateClient().PutAsync($"{_subscriptionsOptions.APIEndpointV1}/subscribe",
-                new StringContent(JsonConvert.SerializeObject(new SubscribeDTO($"Slack:{channelId}", gameId, modId)), Encoding.UTF8, "application/json"));
+                new StringContent(JsonConvert.SerializeObject(new SubscribeDTO($"Slack:{subscriptionEntity.ChannelId}", subscriptionEntity.NexusModsGameId, subscriptionEntity.NexusModsModId)), Encoding.UTF8, "application/json"));
             _isSuccessful = response.IsSuccessStatusCode;
         }
 
-        public async Task UnsubscribeAsync(string channelId, uint gameId, uint modId)
+        public async Task RemoveAsync(SubscriptionEntity subscriptionEntity)
         {
             var response = await _httpClientFactory.CreateClient().PutAsync($"{_subscriptionsOptions.APIEndpointV1}/unsubscribe",
-                new StringContent(JsonConvert.SerializeObject(new UnsubscribeDTO($"Slack:{channelId}", gameId, modId)), Encoding.UTF8, "application/json"));
+                new StringContent(JsonConvert.SerializeObject(new UnsubscribeDTO($"Slack:{subscriptionEntity.ChannelId}", subscriptionEntity.NexusModsGameId, subscriptionEntity.NexusModsModId)), Encoding.UTF8, "application/json"));
             _isSuccessful = response.IsSuccessStatusCode;
         }
 
