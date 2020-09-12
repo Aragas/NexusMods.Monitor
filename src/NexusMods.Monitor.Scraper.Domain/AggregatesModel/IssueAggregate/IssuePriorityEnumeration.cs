@@ -25,7 +25,7 @@ namespace NexusMods.Monitor.Scraper.Domain.AggregatesModel.IssueAggregate
             var state = List().SingleOrDefault(s => string.Equals(s.Name, name, StringComparison.CurrentCultureIgnoreCase));
             if (state is null)
             {
-                throw new MonitorDomainException($"Possible values for IssuePriority: {string.Join(",", List().Select(s => s.Name))}");
+                throw new MonitorScraperDomainException($"Possible values for IssuePriority: {string.Join(",", List().Select(s => s.Name))}");
             }
             return state;
         }
@@ -35,7 +35,7 @@ namespace NexusMods.Monitor.Scraper.Domain.AggregatesModel.IssueAggregate
             var state = List().SingleOrDefault(s => s.Id == id);
             if (state is null)
             {
-                throw new MonitorDomainException($"Possible values for IssuePriority: {string.Join(",", List().Select(s => s.Name))}");
+                throw new MonitorScraperDomainException($"Possible values for IssuePriority: {string.Join(",", List().Select(s => s.Name))}");
             }
             return state;
         }
