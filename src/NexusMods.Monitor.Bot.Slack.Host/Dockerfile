@@ -6,7 +6,6 @@ WORKDIR /src
 COPY ["NexusMods.Monitor.Bot.Slack.Host/NexusMods.Monitor.Bot.Slack.Host.csproj", "NexusMods.Monitor.Bot.Slack.Host/"]
 COPY ["NexusMods.Monitor.Shared.Host/NexusMods.Monitor.Shared.Host.csproj", "NexusMods.Monitor.Shared.Host/"]
 COPY ["NexusMods.Monitor.Bot.Slack.Application/NexusMods.Monitor.Bot.Slack.Application.csproj", "NexusMods.Monitor.Bot.Slack.Application/"]
-COPY ["NexusMods.Monitor.Bot.Slack.Domain/NexusMods.Monitor.Bot.Slack.Domain.csproj", "NexusMods.Monitor.Bot.Slack.Domain/"]
 COPY ["NexusMods.Monitor.Shared.Domain/NexusMods.Monitor.Shared.Domain.csproj", "NexusMods.Monitor.Shared.Domain/"]
 COPY ["NexusMods.Monitor.Shared.Application/NexusMods.Monitor.Shared.Application.csproj", "NexusMods.Monitor.Shared.Application/"]
 RUN dotnet restore "NexusMods.Monitor.Bot.Slack.Host/NexusMods.Monitor.Bot.Slack.Host.csproj"

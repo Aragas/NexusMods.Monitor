@@ -7,7 +7,6 @@ COPY ["NexusMods.Monitor.Bot.Discord.Host/NexusMods.Monitor.Bot.Discord.Host.csp
 COPY ["NexusMods.Monitor.Shared.Host/NexusMods.Monitor.Shared.Host.csproj", "NexusMods.Monitor.Shared.Host/"]
 COPY ["NexusMods.Monitor.Bot.Discord.Application/NexusMods.Monitor.Bot.Discord.Application.csproj", "NexusMods.Monitor.Bot.Discord.Application/"]
 COPY ["NexusMods.Monitor.Shared.Application/NexusMods.Monitor.Shared.Application.csproj", "NexusMods.Monitor.Shared.Application/"]
-COPY ["NexusMods.Monitor.Bot.Discord.Domain/NexusMods.Monitor.Bot.Discord.Domain.csproj", "NexusMods.Monitor.Bot.Discord.Domain/"]
 COPY ["NexusMods.Monitor.Shared.Domain/NexusMods.Monitor.Shared.Domain.csproj", "NexusMods.Monitor.Shared.Domain/"]
 RUN dotnet restore "NexusMods.Monitor.Bot.Discord.Host/NexusMods.Monitor.Bot.Discord.Host.csproj"
 COPY . .

@@ -1,11 +1,12 @@
-﻿using Newtonsoft.Json;
+﻿using Microsoft.Extensions.Options;
+
+using Newtonsoft.Json;
 
 using NexusMods.Monitor.Bot.Slack.Application.Options;
 
 using System;
 using System.Collections.Generic;
 using System.Net.Http;
-using Microsoft.Extensions.Options;
 
 namespace NexusMods.Monitor.Bot.Slack.Application.Queries
 {
