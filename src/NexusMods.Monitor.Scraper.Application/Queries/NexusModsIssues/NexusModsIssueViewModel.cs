@@ -1,7 +1,7 @@
 ﻿using AngleSharp.Dom;
 
+using NexusMods.Monitor.Scraper.Application.Extensions;
 using NexusMods.Monitor.Scraper.Domain.AggregatesModel.IssueAggregate;
-using NexusMods.Monitor.Scraper.Infrastructure.Extensions;
 
 using NodaTime;
 using NodaTime.Extensions;

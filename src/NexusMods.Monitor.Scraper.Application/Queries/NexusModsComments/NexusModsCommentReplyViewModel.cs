@@ -1,6 +1,6 @@
 ﻿using AngleSharp.Dom;
 
-using NexusMods.Monitor.Scraper.Infrastructure.Extensions;
+using NexusMods.Monitor.Scraper.Application.Extensions;
 
 using NodaTime;
 using NodaTime.Extensions;

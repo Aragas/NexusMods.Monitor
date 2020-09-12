@@ -1,8 +1,8 @@
 ﻿using AngleSharp;
 
-using NexusMods.Monitor.Scraper.Infrastructure.Formatters;
+using NexusMods.Monitor.Scraper.Application.Formatters;
 
-namespace NexusMods.Monitor.Scraper.Infrastructure.Extensions
+namespace NexusMods.Monitor.Scraper.Application.Extensions
 {
     public static class FormatExtensions
     {

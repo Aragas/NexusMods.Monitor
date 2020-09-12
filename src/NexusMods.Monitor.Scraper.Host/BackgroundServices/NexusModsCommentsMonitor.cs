@@ -74,7 +74,7 @@ namespace NexusMods.Monitor.Scraper.Host.BackgroundServices
 
                 var newComments = nexusModsComments.Where(x => databaseComments.All(y => y.Id != x.NexusModsComment.Id));
                 var deletedComments = databaseComments.Where(x => nexusModsComments.All(y => y.NexusModsComment.Id != x.Id)).ToList();
-                var existingComments = nexusModsComments.Select(nmce => databaseComments.Find(y => y?.Id == nmce.NexusModsComment.Id) is { } dce
+                var existingComments = nexusModsComments.Select(nmce => databaseComments.Find(y => y.Id == nmce.NexusModsComment.Id) is { } dce
                     ? (DatabaseCommentEntity: dce, NexusModsCommentEntity: nmce)
                     : default).Where(tuple => tuple != default).ToList();
 

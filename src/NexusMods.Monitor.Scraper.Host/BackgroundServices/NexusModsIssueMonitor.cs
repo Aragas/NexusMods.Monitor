@@ -74,7 +74,7 @@ namespace NexusMods.Monitor.Scraper.Host.BackgroundServices
 
                 var newIssues = nexusModsIssues.Where(x => databaseIssues.All(y => y.Id != x.NexusModsIssue.Id));
                 var deletedIssues = databaseIssues.Where(x => nexusModsIssues.All(y => y.NexusModsIssue.Id != x.Id)).ToList();
-                var existingIssues = nexusModsIssues.Select(nmie => databaseIssues.Find(y => y?.Id == nmie.NexusModsIssue.Id) is { } die
+                var existingIssues = nexusModsIssues.Select(nmie => databaseIssues.Find(y => y.Id == nmie.NexusModsIssue.Id) is { } die
                     ? (DatabaseIssueEntity: die, NexusModsIssueEntity: nmie)
                     : default).Where(tuple => tuple != default).ToList();
 

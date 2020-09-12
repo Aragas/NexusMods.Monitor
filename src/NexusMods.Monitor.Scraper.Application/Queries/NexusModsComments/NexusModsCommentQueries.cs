@@ -5,9 +5,9 @@ using ComposableAsync;
 
 using Microsoft.Extensions.Caching.Memory;
 
+using NexusMods.Monitor.Scraper.Application.Extensions;
 using NexusMods.Monitor.Scraper.Application.Queries.NexusModsGames;
 using NexusMods.Monitor.Scraper.Application.Queries.NexusModsThreads;
-using NexusMods.Monitor.Scraper.Infrastructure.Extensions;
 
 using RateLimiter;
 

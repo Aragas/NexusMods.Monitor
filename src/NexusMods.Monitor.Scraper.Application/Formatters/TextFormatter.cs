@@ -1,7 +1,7 @@
 ﻿using AngleSharp;
 using AngleSharp.Dom;
 
-namespace NexusMods.Monitor.Scraper.Infrastructure.Formatters
+namespace NexusMods.Monitor.Scraper.Application.Formatters
 {
     public sealed class TextFormatter : IMarkupFormatter
     {
