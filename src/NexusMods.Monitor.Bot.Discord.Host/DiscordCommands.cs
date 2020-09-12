@@ -55,7 +55,7 @@ unsubscribe [Game Id] [Mod Id]");
             _loggerService.LogInformation("Received 'about' command from user '{User}'.", Context.User.ToString());
 
             var uptime = _clock.GetCurrentInstant() - Process.GetCurrentProcess().StartTime.ToUniversalTime().ToInstant();
-            var subscriptionCount = await _subscriptionQueries.GetSubscriptionsAsync().CountAsync();
+            var subscriptionCount = await _subscriptionQueries.GetAllAsync().CountAsync();
             var embed = EmbedHelper.About(Context.Client.Guilds.Count, subscriptionCount, uptime);
 
             if (Context.IsPrivate)
@@ -79,7 +79,7 @@ unsubscribe [Game Id] [Mod Id]");
             _loggerService.LogInformation("Received 'subscriptions' command from user '{User}'.", Context.User.ToString());
 
 
-            var subscriptions = await _subscriptionQueries.GetSubscriptionsAsync().Where(s => s.ChannelId == Context.Channel.Id).ToListAsync();
+            var subscriptions = await _subscriptionQueries.GetAllAsync().Where(s => s.ChannelId == Context.Channel.Id).ToListAsync();
             if (subscriptions.Count > 0)
             {
                 await Context.Channel.SendMessageAsync($@"Subscriptions:

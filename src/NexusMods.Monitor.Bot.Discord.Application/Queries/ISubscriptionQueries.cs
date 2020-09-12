@@ -4,6 +4,6 @@ namespace NexusMods.Monitor.Bot.Discord.Application.Queries
 {
     public interface ISubscriptionQueries
     {
-        IAsyncEnumerable<SubscriptionViewModel> GetSubscriptionsAsync();
+        IAsyncEnumerable<SubscriptionViewModel> GetAllAsync();
     }
 }

@@ -125,7 +125,7 @@ namespace NexusMods.Monitor.Bot.Slack.Host.BackgroundServices
                 if (command.StartsWith(about))
                 {
                     var uptime = _clock.GetCurrentInstant() - Process.GetCurrentProcess().StartTime.ToUniversalTime().ToInstant();
-                    var subscriptionCount = await _subscriptionQueries.GetSubscriptionsAsync().CountAsync();
+                    var subscriptionCount = await _subscriptionQueries.GetAllAsync().CountAsync();
                     var embed = AttachmentHelper.About(subscriptionCount, uptime);
                     await message.ReplyWith(new BotMessage { Attachments = { embed } });
                 }
@@ -133,7 +133,7 @@ namespace NexusMods.Monitor.Bot.Slack.Host.BackgroundServices
                 const string subscriptions = "subscriptions";
                 if (command.StartsWith(subscriptions))
                 {
-                    var subscriptionList = await _subscriptionQueries.GetSubscriptionsAsync().Where(s => s.ChannelId == message.Conversation.Id).ToListAsync();
+                    var subscriptionList = await _subscriptionQueries.GetAllAsync().Where(s => s.ChannelId == message.Conversation.Id).ToListAsync();
                     if (subscriptionList.Count > 0)
                     {
                         await message.ReplyWith($@"Subscriptions:

@@ -1,13 +1,11 @@
-﻿using NexusMods.Monitor.Scraper.Domain.AggregatesModel.SubscriptionAggregate;
-
-using System;
+﻿using System;
 using System.Collections.Generic;
 
-namespace NexusMods.Monitor.Scraper.Domain.Comparators
+namespace NexusMods.Monitor.Scraper.Application.Queries.Subscriptions
 {
-    public class SubscriptionEntityComparer : IEqualityComparer<SubscriptionEntity>
+    public sealed class SubscriptionViewModelComparer : IEqualityComparer<SubscriptionViewModel>
     {
-        public bool Equals(SubscriptionEntity? x, SubscriptionEntity? y)
+        public bool Equals(SubscriptionViewModel? x, SubscriptionViewModel? y)
         {
             if (ReferenceEquals(x, y)) return true;
             if (x is null) return false;
@@ -16,7 +14,7 @@ namespace NexusMods.Monitor.Scraper.Domain.Comparators
             return x.NexusModsModId == y.NexusModsModId && x.NexusModsGameId == y.NexusModsGameId;
         }
 
-        public int GetHashCode(SubscriptionEntity obj)
+        public int GetHashCode(SubscriptionViewModel obj)
         {
             return HashCode.Combine(obj.NexusModsModId, obj.NexusModsGameId);
         }

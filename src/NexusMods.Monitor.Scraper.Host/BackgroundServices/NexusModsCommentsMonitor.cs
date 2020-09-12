@@ -1,14 +1,12 @@
 ﻿using MediatR;
 
-using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 
 using NexusMods.Monitor.Scraper.Application.Commands.Comments;
-using NexusMods.Monitor.Scraper.Domain.AggregatesModel.CommentAggregate;
-using NexusMods.Monitor.Scraper.Domain.AggregatesModel.SubscriptionAggregate;
-using NexusMods.Monitor.Scraper.Domain.Comparators;
+using NexusMods.Monitor.Scraper.Application.Queries.Comments;
+using NexusMods.Monitor.Scraper.Application.Queries.Subscriptions;
 using NexusMods.Monitor.Scraper.Infrastructure.Models.Comments;
 using NexusMods.Monitor.Scraper.Infrastructure.RateLimiter;
 
@@ -61,15 +59,15 @@ namespace NexusMods.Monitor.Scraper.Host.BackgroundServices
         private async Task ProcessComments(CancellationToken ct)
         {
             using var scope = _scopeFactory.CreateScope();
-            var subscriptionRepository = scope.ServiceProvider.GetRequiredService<ISubscriptionRepository>();
-            var commentRepository = scope.ServiceProvider.GetRequiredService<ICommentRepository>();
+            var subscriptionQueries = scope.ServiceProvider.GetRequiredService<ISubscriptionQueries>();
+            var commentQueries = scope.ServiceProvider.GetRequiredService<ICommentQueries>();
             var nexusModsCommentsRepository = scope.ServiceProvider.GetRequiredService<INexusModsCommentsRepository>();
             var mediator = scope.ServiceProvider.GetRequiredService<IMediator>();
 
-            await foreach (var subscription in subscriptionRepository.GetAllAsync().Distinct(new SubscriptionEntityComparer()).WithCancellation(ct))
+            await foreach (var subscription in subscriptionQueries.GetAllAsync().Distinct(new SubscriptionViewModelComparer()).WithCancellation(ct))
             {
                 var nexusModsComments = await nexusModsCommentsRepository.GetCommentsAsync(subscription.NexusModsGameId, subscription.NexusModsModId).ToListAsync(ct);
-                var databaseComments = await commentRepository.GetAll().Where(x =>
+                var databaseComments = await commentQueries.GetAllAsync().Where(x =>
                     x.NexusModsGameId == subscription.NexusModsGameId &&
                     x.NexusModsModId == subscription.NexusModsModId).ToListAsync(ct);
 

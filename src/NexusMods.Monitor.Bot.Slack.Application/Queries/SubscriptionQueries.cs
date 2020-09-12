@@ -6,7 +6,7 @@ using System.Linq;
 
 namespace NexusMods.Monitor.Bot.Slack.Application.Queries
 {
-    public class SubscriptionQueries : ISubscriptionQueries
+    public sealed class SubscriptionQueries : ISubscriptionQueries
     {
         private readonly ISubscriptionRepository _subscriptionRepository;
 
@@ -15,7 +15,7 @@ namespace NexusMods.Monitor.Bot.Slack.Application.Queries
             _subscriptionRepository = subscriptionRepository ?? throw new ArgumentNullException(nameof(subscriptionRepository));
         }
 
-        public IAsyncEnumerable<SubscriptionViewModel> GetSubscriptionsAsync() =>
-            _subscriptionRepository.GetAllAsync().Select(x => new SubscriptionViewModel(x.ChannelId, x.NexusModsGameId, x.NexusModsModId));
+        public IAsyncEnumerable<SubscriptionViewModel> GetAllAsync() => _subscriptionRepository.GetAllAsync()
+            .Select(x => new SubscriptionViewModel(x.ChannelId, x.NexusModsGameId, x.NexusModsModId));
     }
 }

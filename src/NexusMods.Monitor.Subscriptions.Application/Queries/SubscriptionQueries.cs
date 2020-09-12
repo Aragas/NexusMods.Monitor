@@ -8,7 +8,7 @@ using System.Linq;
 
 namespace NexusMods.Monitor.Subscriptions.Application.Queries
 {
-    public class SubscriptionQueries : ISubscriptionQueries
+    public sealed class SubscriptionQueries : ISubscriptionQueries
     {
         private readonly SubscriptionDb _context;
 
@@ -17,7 +17,9 @@ namespace NexusMods.Monitor.Subscriptions.Application.Queries
             _context = context ?? throw new ArgumentNullException(nameof(context));
         }
 
-        public IAsyncEnumerable<SubscriptionViewModel> GetSubscriptionsAsync() =>
-            _context.SubscriptionEntities.AsNoTracking().AsAsyncEnumerable().Select(x => new SubscriptionViewModel(x.SubscriberId, x.NexusModsGameId, x.NexusModsModId));
+        public IAsyncEnumerable<SubscriptionViewModel> GetSubscriptionsAsync() => _context.SubscriptionEntities
+            .AsNoTracking()
+            .ToAsyncEnumerable()
+            .Select(x => new SubscriptionViewModel(x.SubscriberId, x.NexusModsGameId, x.NexusModsModId));
     }
 }

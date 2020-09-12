@@ -1,15 +1,13 @@
-﻿namespace NexusMods.Monitor.Bot.Slack.Application.Queries
+﻿namespace NexusMods.Monitor.Scraper.Application.Queries.Subscriptions
 {
     public sealed class SubscriptionViewModel
     {
-        public string ChannelId { get; private set; } = default!;
         public uint NexusModsGameId { get; private set; } = default!;
         public uint NexusModsModId { get; private set; } = default!;
 
         private SubscriptionViewModel() { }
-        public SubscriptionViewModel(string channelId, uint nexusModsGameId, uint nexusModsModId)
+        public SubscriptionViewModel(uint nexusModsGameId, uint nexusModsModId)
         {
-            ChannelId = channelId;
             NexusModsGameId = nexusModsGameId;
             NexusModsModId = nexusModsModId;
         }

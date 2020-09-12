@@ -1,10 +1,10 @@
-﻿using NexusMods.Monitor.Bot.Discord.Domain.AggregatesModel.SubscriptionAggregate;
+﻿using NexusMods.Monitor.Scraper.Domain.AggregatesModel.SubscriptionAggregate;
 
 using System;
 using System.Collections.Generic;
 using System.Linq;
 
-namespace NexusMods.Monitor.Bot.Discord.Application.Queries
+namespace NexusMods.Monitor.Scraper.Application.Queries.Subscriptions
 {
     public sealed class SubscriptionQueries : ISubscriptionQueries
     {
@@ -15,7 +15,7 @@ namespace NexusMods.Monitor.Bot.Discord.Application.Queries
             _subscriptionRepository = subscriptionRepository ?? throw new ArgumentNullException(nameof(subscriptionRepository));
         }
 
-        public IAsyncEnumerable<SubscriptionViewModel> GetAllAsync() => _subscriptionRepository.GetAllAsync()
-            .Select(x => new SubscriptionViewModel(x.ChannelId, x.NexusModsGameId, x.NexusModsModId));
+        public IAsyncEnumerable<SubscriptionViewModel> GetAllAsync() =>
+            _subscriptionRepository.GetAllAsync().Select(x => new SubscriptionViewModel(x.NexusModsGameId, x.NexusModsModId));
     }
 }

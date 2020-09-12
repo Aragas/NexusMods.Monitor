@@ -6,9 +6,8 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 
 using NexusMods.Monitor.Scraper.Application.Commands.Issues;
-using NexusMods.Monitor.Scraper.Domain.AggregatesModel.IssueAggregate;
-using NexusMods.Monitor.Scraper.Domain.AggregatesModel.SubscriptionAggregate;
-using NexusMods.Monitor.Scraper.Domain.Comparators;
+using NexusMods.Monitor.Scraper.Application.Queries.Issues;
+using NexusMods.Monitor.Scraper.Application.Queries.Subscriptions;
 using NexusMods.Monitor.Scraper.Infrastructure.Models.Issues;
 using NexusMods.Monitor.Scraper.Infrastructure.RateLimiter;
 
@@ -61,15 +60,15 @@ namespace NexusMods.Monitor.Scraper.Host.BackgroundServices
         private async Task ProcessIssues(CancellationToken ct)
         {
             using var scope = _scopeFactory.CreateScope();
-            var subscriptionRepository = scope.ServiceProvider.GetRequiredService<ISubscriptionRepository>();
-            var issueRepository = scope.ServiceProvider.GetRequiredService<IIssueRepository>();
+            var subscriptionQueries = scope.ServiceProvider.GetRequiredService<ISubscriptionQueries>();
+            var issueQueries = scope.ServiceProvider.GetRequiredService<IIssueQueries>();
             var nexusModsIssuesRepository = scope.ServiceProvider.GetRequiredService<INexusModsIssuesRepository>();
             var mediator = scope.ServiceProvider.GetRequiredService<IMediator>();
 
-            await foreach (var subscription in subscriptionRepository.GetAllAsync().Distinct(new SubscriptionEntityComparer()).WithCancellation(ct))
+            await foreach (var subscription in subscriptionQueries.GetAllAsync().Distinct(new SubscriptionViewModelComparer()).WithCancellation(ct))
             {
                 var nexusModsIssues = await nexusModsIssuesRepository.GetIssuesAsync(subscription.NexusModsGameId, subscription.NexusModsModId).ToListAsync(ct);
-                var databaseIssues = await issueRepository.GetAll().Where(x =>
+                var databaseIssues = await issueQueries.GetAllAsync().Where(x =>
                     x.NexusModsGameId == subscription.NexusModsGameId &&
                     x.NexusModsModId == subscription.NexusModsModId).ToListAsync(ct);
 
@@ -94,12 +93,12 @@ namespace NexusMods.Monitor.Scraper.Host.BackgroundServices
 
                 foreach (var (databaseIssue, nexusModsIssueRoot) in existingIssues)
                 {
-                    if (databaseIssue.Status.Id != nexusModsIssueRoot.NexusModsIssue.Status.Id)
+                    if (databaseIssue.Status != nexusModsIssueRoot.NexusModsIssue.Status.Id)
                     {
                         await mediator.Send(new IssueChangeStatusCommand(databaseIssue.Id, nexusModsIssueRoot.NexusModsIssue.Status.Id), ct);
                     }
 
-                    if (databaseIssue.Priority.Id != nexusModsIssueRoot.NexusModsIssue.Priority.Id)
+                    if (databaseIssue.Priority != nexusModsIssueRoot.NexusModsIssue.Priority.Id)
                     {
                         await mediator.Send(new IssueChangePriorityCommand(databaseIssue.Id, nexusModsIssueRoot.NexusModsIssue.Priority.Id), ct);
                     }

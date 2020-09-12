@@ -1,6 +1,6 @@
 ﻿namespace NexusMods.Monitor.Subscriptions.Application.Queries
 {
-    public class SubscriptionViewModel
+    public sealed class SubscriptionViewModel
     {
         public string SubscriberId { get; private set; } = default!;
         public uint NexusModsGameId { get; private set; } = default!;
