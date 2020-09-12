@@ -6,13 +6,14 @@ using Microsoft.Extensions.Logging;
 
 using NexusMods.Monitor.Scraper.Application.Commands.Comments;
 using NexusMods.Monitor.Scraper.Application.Queries.Comments;
+using NexusMods.Monitor.Scraper.Application.Queries.NexusModsComments;
 using NexusMods.Monitor.Scraper.Application.Queries.Subscriptions;
-using NexusMods.Monitor.Scraper.Infrastructure.Models.Comments;
-using NexusMods.Monitor.Scraper.Infrastructure.RateLimiter;
 
 using NodaTime;
 
 using Polly;
+
+using RateLimiter;
 
 using System;
 using System.Linq;
@@ -61,12 +62,12 @@ namespace NexusMods.Monitor.Scraper.Host.BackgroundServices
             using var scope = _scopeFactory.CreateScope();
             var subscriptionQueries = scope.ServiceProvider.GetRequiredService<ISubscriptionQueries>();
             var commentQueries = scope.ServiceProvider.GetRequiredService<ICommentQueries>();
-            var nexusModsCommentsRepository = scope.ServiceProvider.GetRequiredService<INexusModsCommentsRepository>();
+            var nexusModsCommentQueries = scope.ServiceProvider.GetRequiredService<INexusModsCommentQueries>();
             var mediator = scope.ServiceProvider.GetRequiredService<IMediator>();
 
             await foreach (var subscription in subscriptionQueries.GetAllAsync().Distinct(new SubscriptionViewModelComparer()).WithCancellation(ct))
             {
-                var nexusModsComments = await nexusModsCommentsRepository.GetCommentsAsync(subscription.NexusModsGameId, subscription.NexusModsModId).ToListAsync(ct);
+                var nexusModsComments = await nexusModsCommentQueries.GetAllAsync(subscription.NexusModsGameId, subscription.NexusModsModId).ToListAsync(ct);
                 var databaseComments = await commentQueries.GetAllAsync().Where(x =>
                     x.NexusModsGameId == subscription.NexusModsGameId &&
                     x.NexusModsModId == subscription.NexusModsModId).ToListAsync(ct);

@@ -1,6 +1,6 @@
 ﻿using MediatR;
 
-using NexusMods.Monitor.Scraper.Infrastructure.Models.Comments;
+using NexusMods.Monitor.Scraper.Application.Queries.NexusModsComments;
 
 using NodaTime;
 
@@ -31,7 +31,7 @@ namespace NexusMods.Monitor.Scraper.Application.Commands.Comments
         public Instant TimeOfPost { get; private set; } = default!;
 
         private CommentAddReplyCommand() { }
-        public CommentAddReplyCommand(NexusModsCommentRoot nexusModsCommentRoot, NexusModsCommentReply nexusModsCommentReply) : this()
+        public CommentAddReplyCommand(NexusModsCommentRootViewModel nexusModsCommentRoot, NexusModsCommentReplyViewModel nexusModsCommentReply) : this()
         {
             Id = nexusModsCommentReply.OwnerId;
             ReplyId = nexusModsCommentReply.Id;

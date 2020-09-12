@@ -1,6 +1,6 @@
 ﻿using MediatR;
 
-using NexusMods.Monitor.Scraper.Infrastructure.Models.Comments;
+using NexusMods.Monitor.Scraper.Application.Queries.NexusModsComments;
 
 using NodaTime;
 
@@ -48,7 +48,7 @@ namespace NexusMods.Monitor.Scraper.Application.Commands.Comments
         {
             _commentReplies = new List<CommentReplyDTO>();
         }
-        public CommentAddCommand(NexusModsCommentRoot nexusModsCommentRoot) : this()
+        public CommentAddCommand(NexusModsCommentRootViewModel nexusModsCommentRoot) : this()
         {
             Id = nexusModsCommentRoot.NexusModsComment.Id;
             NexusModsGameId = nexusModsCommentRoot.NexusModsGameId;

@@ -1,6 +1,6 @@
 ﻿using MediatR;
 
-using NexusMods.Monitor.Scraper.Infrastructure.Models.Issues;
+using NexusMods.Monitor.Scraper.Application.Queries.NexusModsIssues;
 
 using NodaTime;
 
@@ -29,7 +29,7 @@ namespace NexusMods.Monitor.Scraper.Application.Commands.Issues
         public Instant TimeOfPost { get; private set; } = default!;
 
         private IssueAddReplyCommand() { }
-        public IssueAddReplyCommand(NexusModsIssueRoot nexusModsIssueRoot, NexusModsIssueReply nexusModsIssueReply) : this()
+        public IssueAddReplyCommand(NexusModsIssueRootViewModel nexusModsIssueRoot, NexusModsIssueReplyViewModel nexusModsIssueReply) : this()
         {
             Id = nexusModsIssueReply.Id;
             OwnerId = nexusModsIssueRoot.NexusModsIssue.Id;

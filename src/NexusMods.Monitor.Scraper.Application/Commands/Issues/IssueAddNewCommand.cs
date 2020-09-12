@@ -1,7 +1,7 @@
 ﻿using MediatR;
 
+using NexusMods.Monitor.Scraper.Application.Queries.NexusModsIssues;
 using NexusMods.Monitor.Scraper.Domain.AggregatesModel.IssueAggregate;
-using NexusMods.Monitor.Scraper.Infrastructure.Models.Issues;
 
 using NodaTime;
 
@@ -50,7 +50,7 @@ namespace NexusMods.Monitor.Scraper.Application.Commands.Issues
         {
             _replies = new List<IssueReplyDTO>();
         }
-        public IssueAddNewCommand(NexusModsIssueRoot nexusModsIssueRoot) : this()
+        public IssueAddNewCommand(NexusModsIssueRootViewModel nexusModsIssueRoot) : this()
         {
             Id = nexusModsIssueRoot.NexusModsIssue.Id;
             NexusModsGameId = nexusModsIssueRoot.NexusModsGameId;

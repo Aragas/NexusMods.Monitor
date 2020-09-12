@@ -4,7 +4,6 @@ using Microsoft.EntityFrameworkCore;
 
 using NexusMods.Monitor.Scraper.Domain.AggregatesModel.CommentAggregate;
 using NexusMods.Monitor.Scraper.Domain.AggregatesModel.IssueAggregate;
-using NexusMods.Monitor.Scraper.Domain.AggregatesModel.NexusModsThreadAggregate;
 using NexusMods.Monitor.Scraper.Infrastructure.Contexts.Config;
 using NexusMods.Monitor.Shared.Domain.SeedWork;
 using NexusMods.Monitor.Shared.Infrastructure.Extensions;
@@ -26,7 +25,6 @@ namespace NexusMods.Monitor.Scraper.Infrastructure.Contexts
         public DbSet<IssueReplyEntity> IssueReplyEntities { get; set; } = default!;
         public DbSet<CommentEntity> CommentEntities { get; set; } = default!;
         public DbSet<CommentReplyEntity> CommentReplyEntities { get; set; } = default!;
-        public DbSet<NexusModsThreadEntity> ThreadIdEntities { get; set; } = default!;
 
         public NexusModsDb(DbContextOptions<NexusModsDb> options) : base(options) { }
         public NexusModsDb(DbContextOptions<NexusModsDb> options, IMediator mediator) : base(options)
@@ -46,7 +44,6 @@ namespace NexusMods.Monitor.Scraper.Infrastructure.Contexts
             modelBuilder.ApplyConfiguration(new IssueReplyEntityConfiguration());
             modelBuilder.ApplyConfiguration(new CommentEntityConfiguration());
             modelBuilder.ApplyConfiguration(new CommentReplyEntityConfiguration());
-            modelBuilder.ApplyConfiguration(new NexusModsThreadEntityConfiguration());
         }
 
         public async Task<bool> SaveEntitiesAsync(CancellationToken cancellationToken = default)

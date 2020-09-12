@@ -9,23 +9,21 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 
-using NexusMods.Monitor.Scraper.Application;
 using NexusMods.Monitor.Scraper.Application.CommandHandlers.Comments;
 using NexusMods.Monitor.Scraper.Application.Extensions;
 using NexusMods.Monitor.Scraper.Application.Options;
 using NexusMods.Monitor.Scraper.Application.Queries.Comments;
 using NexusMods.Monitor.Scraper.Application.Queries.Issues;
+using NexusMods.Monitor.Scraper.Application.Queries.NexusModsComments;
+using NexusMods.Monitor.Scraper.Application.Queries.NexusModsGames;
+using NexusMods.Monitor.Scraper.Application.Queries.NexusModsIssues;
+using NexusMods.Monitor.Scraper.Application.Queries.NexusModsThreads;
 using NexusMods.Monitor.Scraper.Application.Queries.Subscriptions;
 using NexusMods.Monitor.Scraper.Domain.AggregatesModel.CommentAggregate;
 using NexusMods.Monitor.Scraper.Domain.AggregatesModel.IssueAggregate;
-using NexusMods.Monitor.Scraper.Domain.AggregatesModel.NexusModsGameAggregate;
-using NexusMods.Monitor.Scraper.Domain.AggregatesModel.NexusModsThreadAggregate;
-using NexusMods.Monitor.Scraper.Domain.AggregatesModel.SubscriptionAggregate;
 using NexusMods.Monitor.Scraper.Host.BackgroundServices;
 using NexusMods.Monitor.Scraper.Hosts.Options;
 using NexusMods.Monitor.Scraper.Infrastructure.Contexts;
-using NexusMods.Monitor.Scraper.Infrastructure.Models.Comments;
-using NexusMods.Monitor.Scraper.Infrastructure.Models.Issues;
 using NexusMods.Monitor.Scraper.Infrastructure.Repositories;
 using NexusMods.Monitor.Shared.Application;
 using NexusMods.Monitor.Shared.Host.Extensions;
@@ -142,13 +140,11 @@ namespace NexusMods.Monitor.Scraper.Host
 
                 services.AddTransient<ICommentRepository, CommentRepository>();
                 services.AddTransient<IIssueRepository, IssueRepository>();
-                services.AddTransient<ISubscriptionRepository, SubscriptionRepository>();
 
-                services.AddTransient<INexusModsIssuesRepository, NexusModsIssuesRepository>();
-                services.AddTransient<INexusModsCommentsRepository, NexusModsCommentsRepository>();
-                services.AddTransient<INexusModsGameRepository, NexusModsGameRepository>();
-                services.AddTransient<INexusModsThreadRepository, CachedNexusModsThreadRepository>();
-                //services.AddTransient<INexusModsThreadRepository, NexusModsThreadRepository>();
+                services.AddTransient<INexusModsIssueQueries, NexusModsIssueQueries>();
+                services.AddTransient<INexusModsCommentQueries, NexusModsCommentQueries>();
+                services.AddTransient<INexusModsGameQueries, NexusModsGameQueries>();
+                services.AddTransient<INexusModsThreadQueries, NexusModsThreadQueries>();
 
                 services.AddTransient<ICommentQueries, CommentQueries>();
                 services.AddTransient<IIssueQueries, IssueQueries>();
