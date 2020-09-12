@@ -114,14 +114,9 @@ namespace NexusMods.Monitor.Bot.Discord.Host.BackgroundServices
 
         private async Task Bot_MessageReceived(SocketMessage arg)
         {
-            // Ignore system messages and messages from bots
             if (!(arg is SocketUserMessage message)) return;
             if (message.Source != MessageSource.User) return;
-
-            if (message.Channel is IPrivateChannel)
-            {
-                return;
-            }
+            if (message.Channel is IPrivateChannel) return;
 
             var argPos = 0;
             if (message.HasStringPrefix("!nmm ", ref argPos) || message.HasMentionPrefix(_discordSocketClient.CurrentUser, ref argPos))
