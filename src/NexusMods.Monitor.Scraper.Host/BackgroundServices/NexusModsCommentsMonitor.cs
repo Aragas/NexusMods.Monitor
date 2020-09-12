@@ -45,7 +45,7 @@ namespace NexusMods.Monitor.Scraper.Host.BackgroundServices
                 .WaitAndRetryForeverAsync(retryAttempt => TimeSpan.FromMinutes(10),
                     (ex, time) =>
                     {
-                        _logger.LogError(ex, "Exception during comments processing. Waiting {time} seconds...", time);
+                        _logger.LogError(ex, "Exception during comments processing. Waiting {time}...", time);
                     });
 
             while (!stoppingToken.IsCancellationRequested)
