@@ -38,7 +38,7 @@ namespace NexusMods.Monitor.Scraper.Application.CommandHandlers.Issues
             if (issueEntity is null) return false;
 
             var oldStatus = _mapper.Map<IssueStatusEnumeration, IssueDTO.IssueStatusDTO>(issueEntity.Status);
-            issueEntity.SetStatus(IssueStatusEnumeration.From(message.StatusId));
+            issueEntity.SetStatus(await _issueRepository.GetStatusAsync(message.StatusId));
 
             _issueRepository.Update(issueEntity);
 

@@ -23,15 +23,7 @@ namespace NexusMods.Monitor.Scraper.Infrastructure.Repositories
 
         public IssueEntity Add(IssueEntity issueEntity)
         {
-            _context.Entry(issueEntity).State = EntityState.Added;
-
-            if (issueEntity.Content is { })
-                _context.Entry(issueEntity.Content).State = EntityState.Added;
-
-            foreach (var issueReplyEntity in issueEntity.Replies)
-                _context.Entry(issueReplyEntity).State = EntityState.Added;
-
-            return issueEntity;
+            return  _context.IssueEntities.Add(issueEntity).Entity;
         }
 
         public async Task<IssueEntity?> GetAsync(uint issueEntityId)
@@ -66,6 +58,17 @@ namespace NexusMods.Monitor.Scraper.Infrastructure.Repositories
 
             return issueEntity;
         }
+
+        public async Task<IssueStatusEnumeration> GetStatusAsync(int issueStatusEnumerationId)
+        {
+            return await _context.IssueStatusEnumerations.FindAsync(issueStatusEnumerationId);
+        }
+
+        public async Task<IssuePriorityEnumeration> GetPriorityAsync(int issuePriorityEnumerationId)
+        {
+            return await _context.IssuePriorityEnumerations.FindAsync(issuePriorityEnumerationId);
+        }
+
         public IQueryable<IssueEntity> GetAll() => _context.IssueEntities
             .Include(x => x.Replies)
             .Include(x => x.Content)
@@ -74,8 +77,7 @@ namespace NexusMods.Monitor.Scraper.Infrastructure.Repositories
 
         public IssueEntity Update(IssueEntity issueEntity)
         {
-            _context.Entry(issueEntity).State = EntityState.Modified;
-            return issueEntity;
+            return  _context.IssueEntities.Update(issueEntity).Entity;
         }
     }
 }

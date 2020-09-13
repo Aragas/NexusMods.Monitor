@@ -38,7 +38,7 @@ namespace NexusMods.Monitor.Scraper.Application.CommandHandlers.Issues
             if (issueEntity is null) return false;
 
             var oldPriority = _mapper.Map<IssuePriorityEnumeration, IssueDTO.IssuePriorityDTO>(issueEntity.Priority);
-            issueEntity.SetPriority(IssuePriorityEnumeration.From(message.PriorityId));
+            issueEntity.SetPriority(await _issueRepository.GetPriorityAsync(message.PriorityId));
 
             _issueRepository.Update(issueEntity);
 
