@@ -11,7 +11,7 @@ using System.Threading.Tasks;
 
 namespace NexusMods.Monitor.Subscriptions.Application.CommandHandlers
 {
-    public class SubscriptionAddCommandHandler : IRequestHandler<SubscriptionAddCommand, bool>
+    public sealed class SubscriptionAddCommandHandler : IRequestHandler<SubscriptionAddCommand, bool>
     {
         private readonly ILogger _logger;
         private readonly ISubscriptionRepository _subscriptionRepository;
@@ -24,8 +24,14 @@ namespace NexusMods.Monitor.Subscriptions.Application.CommandHandlers
 
         public async Task<bool> Handle(SubscriptionAddCommand message, CancellationToken cancellationToken)
         {
-            var subscriptionEntity = new SubscriptionEntity(message.SubscriberId, message.NexusModsGameId, message.NexusModsModId);
+            var existingSubscription = await _subscriptionRepository.GetAsync(message.SubscriberId, message.NexusModsGameId, message.NexusModsModId);
+            if (existingSubscription is { })
+            {
+                _logger.LogError("Subscription with Id {Id} already exists.", message.SubscriberId);
+                return false;
+            }
 
+            var subscriptionEntity = new SubscriptionEntity(message.SubscriberId, message.NexusModsGameId, message.NexusModsModId);
             _subscriptionRepository.Add(subscriptionEntity);
 
             return await _subscriptionRepository.UnitOfWork.SaveEntitiesAsync(cancellationToken);

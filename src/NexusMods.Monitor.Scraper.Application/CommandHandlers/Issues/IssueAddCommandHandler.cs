@@ -5,16 +5,14 @@ using Microsoft.Extensions.Logging;
 using NexusMods.Monitor.Scraper.Application.CommandHandlers.Comments;
 using NexusMods.Monitor.Scraper.Application.Commands.Issues;
 using NexusMods.Monitor.Scraper.Domain.AggregatesModel.IssueAggregate;
-using NexusMods.Monitor.Scraper.Domain.Events.Issues;
 
 using System;
-using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 
 namespace NexusMods.Monitor.Scraper.Application.CommandHandlers.Issues
 {
-    public class IssueAddCommandHandler : IRequestHandler<IssueAddCommand, bool>
+    public sealed class IssueAddCommandHandler : IRequestHandler<IssueAddCommand, bool>
     {
         private readonly ILogger _logger;
         private readonly IIssueRepository _issueRepository;
@@ -27,6 +25,19 @@ namespace NexusMods.Monitor.Scraper.Application.CommandHandlers.Issues
 
         public async Task<bool> Handle(IssueAddCommand message, CancellationToken cancellationToken)
         {
+            var existingIssueEntity = await _issueRepository.GetAsync(message.Id);
+            if (existingIssueEntity is { })
+            {
+                if (existingIssueEntity.IsDeleted)
+                {
+                    existingIssueEntity.Return();
+                    return await _issueRepository.UnitOfWork.SaveEntitiesAsync(cancellationToken);
+                }
+
+                _logger.LogError("Issue with Id {Id} already exist, is not deleted.", message.Id);
+                return false;
+            }
+
             var issueEntity = new IssueEntity(
                 message.Id,
                 message.NexusModsGameId,
@@ -41,15 +52,15 @@ namespace NexusMods.Monitor.Scraper.Application.CommandHandlers.Issues
                 message.IsDeleted,
                 message.TimeOfLastPost);
 
-            if (!(issueEntity.Content is null))
+            if (message.Content is { })
             {
                 issueEntity.SetContent(
-                    issueEntity.Content.Author,
-                    issueEntity.Content.AuthorUrl,
-                    issueEntity.Content.AvatarUrl,
-                    issueEntity.Content.Content,
-                    issueEntity.Content.IsDeleted,
-                    issueEntity.Content.TimeOfPost);
+                    message.Content.Author,
+                    message.Content.AuthorUrl,
+                    message.Content.AvatarUrl,
+                    message.Content.Content,
+                    message.Content.IsDeleted,
+                    message.Content.TimeOfPost);
             }
 
             foreach (var issueReply in message.Replies)

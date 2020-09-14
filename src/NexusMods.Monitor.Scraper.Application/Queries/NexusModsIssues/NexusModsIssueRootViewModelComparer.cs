@@ -3,7 +3,7 @@ using System.Collections.Generic;
 
 namespace NexusMods.Monitor.Scraper.Application.Queries.NexusModsIssues
 {
-    public class NexusModsIssueRootViewModelComparer : IEqualityComparer<NexusModsIssueRootViewModel>
+    public sealed class NexusModsIssueRootViewModelComparer : IEqualityComparer<NexusModsIssueRootViewModel>
     {
         public bool Equals(NexusModsIssueRootViewModel? x, NexusModsIssueRootViewModel? y)
         {

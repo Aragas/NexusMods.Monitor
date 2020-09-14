@@ -15,7 +15,7 @@ namespace NexusMods.Monitor.Subscriptions.API.Controllers
 {
     [Route("api/v1/[controller]")]
     [ApiController]
-    public class SubscriptionsController : ControllerBase
+    public sealed class SubscriptionsController : ControllerBase
     {
         private readonly ILogger _logger;
         private readonly IMediator _mediator;

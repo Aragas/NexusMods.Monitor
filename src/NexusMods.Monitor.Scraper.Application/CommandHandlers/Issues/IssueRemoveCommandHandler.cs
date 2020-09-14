@@ -17,7 +17,7 @@ using System.Threading.Tasks;
 
 namespace NexusMods.Monitor.Scraper.Application.CommandHandlers.Issues
 {
-    public class IssueRemoveCommandHandler : IRequestHandler<IssueRemoveCommand, bool>
+    public sealed class IssueRemoveCommandHandler : IRequestHandler<IssueRemoveCommand, bool>
     {
         private readonly ILogger _logger;
         private readonly IIssueRepository _issueRepository;
@@ -35,7 +35,11 @@ namespace NexusMods.Monitor.Scraper.Application.CommandHandlers.Issues
         public async Task<bool> Handle(IssueRemoveCommand message, CancellationToken cancellationToken)
         {
             var issueEntity = await _issueRepository.GetAsync(message.Id);
-            if (issueEntity is null) return false;
+            if (issueEntity is null)
+            {
+                _logger.LogError("Issue with Id {Id} was not found.", message.Id);
+                return false;
+            }
 
             issueEntity.Remove();
             _issueRepository.Update(issueEntity);

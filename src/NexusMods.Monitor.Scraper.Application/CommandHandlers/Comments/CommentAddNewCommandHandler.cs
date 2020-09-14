@@ -17,7 +17,7 @@ using System.Threading.Tasks;
 
 namespace NexusMods.Monitor.Scraper.Application.CommandHandlers.Comments
 {
-    public class CommentAddNewCommandHandler : IRequestHandler<CommentAddNewCommand, bool>
+    public sealed class CommentAddNewCommandHandler : IRequestHandler<CommentAddNewCommand, bool>
     {
         private readonly ILogger _logger;
         private readonly ICommentRepository _commentRepository;
@@ -43,6 +43,7 @@ namespace NexusMods.Monitor.Scraper.Application.CommandHandlers.Comments
                     return await _commentRepository.UnitOfWork.SaveEntitiesAsync(cancellationToken);
                 }
 
+                _logger.LogError("Comment with Id {Id} already exist, is not deleted.", message.Id);
                 return false;
             }
 
@@ -69,7 +70,7 @@ namespace NexusMods.Monitor.Scraper.Application.CommandHandlers.Comments
                     commentReply.AuthorUrl,
                     commentReply.AvatarUrl,
                     commentReply.Content,
-                    commentReply.IsDeleted,
+                    false,
                     commentReply.TimeOfPost);
             }
 

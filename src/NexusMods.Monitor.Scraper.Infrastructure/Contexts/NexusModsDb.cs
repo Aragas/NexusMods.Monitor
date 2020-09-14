@@ -14,7 +14,7 @@ using System.Threading.Tasks;
 
 namespace NexusMods.Monitor.Scraper.Infrastructure.Contexts
 {
-    public class NexusModsDb : DbContext, IUnitOfWork
+    public sealed class NexusModsDb : DbContext, IUnitOfWork
     {
         private readonly IMediator? _mediator;
 
@@ -31,7 +31,6 @@ namespace NexusMods.Monitor.Scraper.Infrastructure.Contexts
         {
             _mediator = mediator ?? throw new ArgumentNullException(nameof(mediator));
         }
-        protected NexusModsDb(DbContextOptions options) : base(options) { }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {

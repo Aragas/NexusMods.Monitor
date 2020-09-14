@@ -21,7 +21,7 @@ namespace NexusMods.Monitor.Bot.Discord.Host
 {
     [RequireUserPermission(GuildPermission.Administrator, Group = "Permission")]
     [RequireOwner(Group = "Permission")]
-    public class DiscordCommands : ModuleBase<SocketCommandContext>
+    public sealed class DiscordCommands : ModuleBase<SocketCommandContext>
     {
         private readonly ILogger _loggerService;
         private readonly IMediator _mediator;

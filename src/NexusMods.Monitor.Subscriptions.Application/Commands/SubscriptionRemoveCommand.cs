@@ -5,7 +5,7 @@ using System.Runtime.Serialization;
 namespace NexusMods.Monitor.Subscriptions.Application.Commands
 {
     [DataContract]
-    public class SubscriptionRemoveCommand : IRequest<bool>
+    public sealed class SubscriptionRemoveCommand : IRequest<bool>
     {
         [DataMember]
         public string SubscriberId { get; private set; } = default!;

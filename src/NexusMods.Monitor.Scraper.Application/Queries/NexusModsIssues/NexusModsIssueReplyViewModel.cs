@@ -8,16 +8,24 @@ using NodaTime.Extensions;
 using System;
 using System.Globalization;
 using System.Linq;
+using System.Runtime.Serialization;
 
 namespace NexusMods.Monitor.Scraper.Application.Queries.NexusModsIssues
 {
-    public class NexusModsIssueReplyViewModel
+    [DataContract]
+    public sealed class NexusModsIssueReplyViewModel
     {
+        [DataMember]
         public uint Id { get; private set; } = default!;
+        [DataMember]
         public string Author { get; private set; } = default!;
+        [DataMember]
         public string AuthorUrl { get; private set; } = default!;
+        [DataMember]
         public string AvatarUrl { get; private set; } = default!;
+        [DataMember]
         public string Content { get; private set; } = default!;
+        [DataMember]
         public Instant Time { get; private set; } = default!;
 
         private NexusModsIssueReplyViewModel() { }

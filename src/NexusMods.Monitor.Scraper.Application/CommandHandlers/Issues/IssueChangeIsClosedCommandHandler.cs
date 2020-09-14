@@ -17,7 +17,7 @@ using System.Threading.Tasks;
 
 namespace NexusMods.Monitor.Scraper.Application.CommandHandlers.Issues
 {
-    public class IssueChangeIsClosedCommandHandler : IRequestHandler<IssueChangeIsClosedCommand, bool>
+    public sealed class IssueChangeIsClosedCommandHandler : IRequestHandler<IssueChangeIsClosedCommand, bool>
     {
         private readonly ILogger _logger;
         private readonly IIssueRepository _issueRepository;
@@ -35,7 +35,11 @@ namespace NexusMods.Monitor.Scraper.Application.CommandHandlers.Issues
         public async Task<bool> Handle(IssueChangeIsClosedCommand message, CancellationToken cancellationToken)
         {
             var issueEntity = await _issueRepository.GetAsync(message.Id);
-            if (issueEntity is null) return false;
+            if (issueEntity is null)
+            {
+                _logger.LogError("Issue with Id {Id} was not found.", message.Id);
+                return false;
+            }
 
             var oldIsClosed = issueEntity.IsClosed;
             issueEntity.SetIsClosed(message.IsClosed);

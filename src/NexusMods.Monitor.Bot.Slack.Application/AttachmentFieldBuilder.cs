@@ -2,7 +2,7 @@
 
 namespace NexusMods.Monitor.Bot.Slack.Application
 {
-    public class AttachmentFieldBuilder
+    public sealed class AttachmentFieldBuilder
     {
         private readonly Field _field;
 

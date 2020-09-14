@@ -11,7 +11,7 @@ using System.Threading.Tasks;
 
 namespace NexusMods.Monitor.Bot.Slack.Application.IntegrationEventHandlers.Comments
 {
-    public class CommentAddedNewReplyIntegrationEventHandler : Enbiso.NLib.EventBus.EventHandler<CommentAddedReplyIntegrationEvent>
+    public sealed class CommentAddedNewReplyIntegrationEventHandler : Enbiso.NLib.EventBus.EventHandler<CommentAddedReplyIntegrationEvent>
     {
         private readonly ILogger _logger;
         private readonly ISubscriptionQueries _subscriptionQueries;

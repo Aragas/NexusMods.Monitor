@@ -5,7 +5,7 @@ using System.Runtime.Serialization;
 namespace NexusMods.Monitor.Scraper.Application.Commands.Comments
 {
     [DataContract]
-    public class CommentRemoveReplyCommand : IRequest<bool>
+    public sealed class CommentRemoveReplyCommand : IRequest<bool>
     {
         [DataMember]
         public uint Id { get; private set; }

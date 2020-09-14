@@ -10,6 +10,7 @@ using NexusMods.Monitor.Bot.Discord.Application.Options;
 
 using System;
 using System.Net.Http;
+using System.Runtime.Serialization;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
@@ -22,7 +23,9 @@ namespace NexusMods.Monitor.Bot.Discord.Application.CommandHandlers
         private readonly IHttpClientFactory _httpClientFactory;
         private readonly SubscriptionsOptions _options;
 
-        public SubscribeCommandHandler(ILogger<SubscribeCommandHandler> logger, IHttpClientFactory httpClientFactory, IOptions<SubscriptionsOptions> options)
+        public SubscribeCommandHandler(ILogger<SubscribeCommandHandler> logger,
+            IHttpClientFactory httpClientFactory,
+            IOptions<SubscriptionsOptions> options)
         {
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
             _httpClientFactory = httpClientFactory ?? throw new ArgumentNullException(nameof(httpClientFactory));
@@ -31,18 +34,21 @@ namespace NexusMods.Monitor.Bot.Discord.Application.CommandHandlers
 
         public async Task<bool> Handle(SubscribeCommand message, CancellationToken cancellationToken)
         {
-            var response = await _httpClientFactory.CreateClient().PutAsync($"{_options.APIEndpointV1}/subscribe",
-                new StringContent(JsonConvert.SerializeObject(new SubscribeDTO($"Discord:{message.ChannelId}", message.NexusModsGameId, message.NexusModsModId)), Encoding.UTF8, "application/json"));
+            var response = await _httpClientFactory.CreateClient().PutAsync(
+                $"{_options.APIEndpointV1}/subscribe",
+                new StringContent(JsonConvert.SerializeObject(new SubscribeDTO($"Discord:{message.ChannelId}", message.NexusModsGameId, message.NexusModsModId)), Encoding.UTF8, "application/json"),
+                cancellationToken);
             return response.IsSuccessStatusCode;
         }
 
-        private class SubscribeDTO
+        [DataContract]
+        private sealed class SubscribeDTO
         {
-            [JsonProperty("subscriberId")]
+            [DataMember(Name = "subscriberId")]
             public string SubscriberId { get; private set; } = default!;
-            [JsonProperty("nexusModsGameId")]
+            [DataMember(Name = "nexusModsGameId")]
             public uint NexusModsGameId { get; private set; } = default!;
-            [JsonProperty("nexusModsModId")]
+            [DataMember(Name = "nexusModsModId")]
             public uint NexusModsModId { get; private set;} = default!;
 
             private SubscribeDTO() { }

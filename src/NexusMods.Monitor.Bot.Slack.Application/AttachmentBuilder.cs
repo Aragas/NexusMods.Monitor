@@ -5,7 +5,7 @@ using System.Drawing;
 
 namespace NexusMods.Monitor.Bot.Slack.Application
 {
-    public class AttachmentBuilder
+    public sealed class AttachmentBuilder
     {
         private readonly Attachment _attachment;
 

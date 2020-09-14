@@ -5,7 +5,7 @@ using System.Runtime.Serialization;
 namespace NexusMods.Monitor.Bot.Discord.Application.Commands
 {
     [DataContract]
-    public class SubscribeCommand : IRequest<bool>
+    public sealed class SubscribeCommand : IRequest<bool>
     {
         [DataMember]
         public ulong ChannelId { get; private set; } = default!;

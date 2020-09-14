@@ -11,7 +11,7 @@ using System.Threading.Tasks;
 
 namespace NexusMods.Monitor.Bot.Discord.Application.IntegrationEventHandlers.Issues
 {
-    public class IssueAddedNewReplyIntegrationEventHandler : Enbiso.NLib.EventBus.EventHandler<IssueAddedReplyIntegrationEvent>
+    public sealed class IssueAddedNewReplyIntegrationEventHandler : Enbiso.NLib.EventBus.EventHandler<IssueAddedReplyIntegrationEvent>
     {
         private readonly ILogger _logger;
         private readonly ISubscriptionQueries _subscriptionQueries;

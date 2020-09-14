@@ -19,10 +19,11 @@ using System;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
+using NodaTime.Extensions;
 
 namespace NexusMods.Monitor.Scraper.Host.BackgroundServices
 {
-    public class NexusModsCommentsMonitor : BackgroundService
+    public sealed class NexusModsCommentsMonitor : BackgroundService
     {
         private readonly ILogger _logger;
         private readonly IClock _clock;

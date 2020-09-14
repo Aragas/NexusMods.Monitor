@@ -1,57 +1,111 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace NexusMods.Monitor.Shared.Application
 {
-    public class IssueDTO
+    public sealed class IssueDTO
     {
-        public uint Id { get; set; } = default!;
-        public uint NexusModsGameId { get; set; } = default!;
-        public uint NexusModsModId { get; set; } = default!;
-        public string Title { get; set; } = default!;
-        public string Url { get; set; } = default!;
-        public string ModVersion { get; set; } = default!;
-        public IssueStatusDTO Status { get; set; } = default!;
-        public IssuePriorityDTO Priority { get; set; } = default!;
-        public bool IsPrivate { get; set; } = default!;
-        public bool IsClosed { get; set; } = default!;
-        public bool IsDeleted { get; set; } = default!;
-        public DateTimeOffset TimeOfLastPost { get; set; } = default!;
-        public IssueContentDTO? Content { get; set; } = default!;
-        public List<IssueReplyDTO> Replies { get; set; } = new List<IssueReplyDTO>();
+        public uint Id { get; private set; } = default!;
+        public uint NexusModsGameId { get; private set; } = default!;
+        public uint NexusModsModId { get; private set; } = default!;
+        public string Title { get; private set; } = default!;
+        public string Url { get; private set; } = default!;
+        public string ModVersion { get; private set; } = default!;
+        public IssueStatusDTO Status { get; private set; } = default!;
+        public IssuePriorityDTO Priority { get; private set; } = default!;
+        public bool IsPrivate { get; private set; } = default!;
+        public bool IsClosed { get; private set; } = default!;
+        public DateTimeOffset TimeOfLastPost { get; private set; } = default!;
+        public IssueContentDTO? Content { get; private set; } = default!;
+        public IReadOnlyCollection<IssueReplyDTO> Replies { get; private set; } = default!;
 
-        public class IssueStatusDTO
+        private IssueDTO()
         {
-            public uint Id { get; set; } = default!;
-            public string Name { get; set; } = default!;
+            Replies = new List<IssueReplyDTO>();
         }
-
-        public class IssuePriorityDTO
+        public IssueDTO(uint id, uint nexusModsGameId, uint nexusModsModId, string title, string url, string modVersion, IssueStatusDTO status, IssuePriorityDTO priority, bool isPrivate, bool isClosed, DateTimeOffset timeOfLastPost, IEnumerable<IssueReplyDTO> replies) : this()
         {
-            public uint Id { get; set; } = default!;
-            public string Name { get; set; } = default!;
+            Id = id;
+            NexusModsGameId = nexusModsGameId;
+            NexusModsModId = nexusModsModId;
+            Title = title;
+            Url = url;
+            ModVersion = modVersion;
+            Status = status;
+            Priority = priority;
+            IsPrivate = isPrivate;
+            IsClosed = isClosed;
+            TimeOfLastPost = timeOfLastPost;
+            Replies = replies.ToList();
         }
+    }
 
-        public class IssueContentDTO
+    public sealed class IssueStatusDTO
+    {
+        public uint Id { get; private set; } = default!;
+        public string Name { get; private set; } = default!;
+
+        private IssueStatusDTO() { }
+        public IssueStatusDTO(uint id, string name)
         {
-            public uint Id { get; set; } = default!;
-            public string Author { get; set; } = default!;
-            public string AuthorUrl { get; set; } = default!;
-            public string AvatarUrl { get; set; } = default!;
-            public string Content { get; set; } = default!;
-            public bool IsDeleted { get; set; } = default!;
-            public DateTimeOffset TimeOfPost { get; set; } = default!;
+            Id = id;
+            Name = name;
         }
+    }
 
-        public class IssueReplyDTO
+    public sealed class IssuePriorityDTO
+    {
+        public uint Id { get; private set; } = default!;
+        public string Name { get; private set; } = default!;
+
+        private IssuePriorityDTO() { }
+        public IssuePriorityDTO(uint id, string name)
         {
-            public uint Id { get; set; } = default!;
-            public string Author { get; set; } = default!;
-            public string AuthorUrl { get; set; } = default!;
-            public string AvatarUrl { get; set; } = default!;
-            public string Content { get; set; } = default!;
-            public bool IsDeleted { get; set; } = default!;
-            public DateTimeOffset TimeOfPost { get; set; } = default!;
+            Id = id;
+            Name = name;
+        }
+    }
+
+    public sealed class IssueContentDTO
+    {
+        public uint Id { get; private set; } = default!;
+        public string Author { get; private set; } = default!;
+        public string AuthorUrl { get; private set; } = default!;
+        public string AvatarUrl { get; private set; } = default!;
+        public string Content { get; private set; } = default!;
+        public DateTimeOffset TimeOfPost { get; private set; } = default!;
+
+        private IssueContentDTO() { }
+        public IssueContentDTO(uint id, string author, string authorUrl, string avatarUrl, string content, DateTimeOffset timeOfPost)
+        {
+            Id = id;
+            Author = author;
+            AuthorUrl = authorUrl;
+            AvatarUrl = avatarUrl;
+            Content = content;
+            TimeOfPost = timeOfPost;
+        }
+    }
+
+    public sealed class IssueReplyDTO
+    {
+        public uint Id { get; private set; } = default!;
+        public string Author { get; private set; } = default!;
+        public string AuthorUrl { get; private set; } = default!;
+        public string AvatarUrl { get; private set; } = default!;
+        public string Content { get; private set; } = default!;
+        public DateTimeOffset TimeOfPost { get; private set; } = default!;
+
+        private IssueReplyDTO() { }
+        public IssueReplyDTO(uint id, string author, string authorUrl, string avatarUrl, string content, DateTimeOffset timeOfPost)
+        {
+            Id = id;
+            Author = author;
+            AuthorUrl = authorUrl;
+            AvatarUrl = avatarUrl;
+            Content = content;
+            TimeOfPost = timeOfPost;
         }
     }
 }

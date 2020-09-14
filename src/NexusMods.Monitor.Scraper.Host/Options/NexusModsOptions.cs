@@ -1,6 +1,6 @@
-﻿namespace NexusMods.Monitor.Scraper.Hosts.Options
+﻿namespace NexusMods.Monitor.Scraper.Host.Options
 {
-    public class NexusModsOptions
+    public sealed class NexusModsOptions
     {
         public string APIKey { get; set; } = default!;
     }

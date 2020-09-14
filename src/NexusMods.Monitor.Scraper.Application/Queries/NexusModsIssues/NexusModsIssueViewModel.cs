@@ -9,19 +9,30 @@ using NodaTime.Extensions;
 using System;
 using System.Globalization;
 using System.Linq;
+using System.Runtime.Serialization;
 
 namespace NexusMods.Monitor.Scraper.Application.Queries.NexusModsIssues
 {
-    public class NexusModsIssueViewModel
+    [DataContract]
+    public sealed class NexusModsIssueViewModel
     {
+        [DataMember]
         public uint Id { get; private set; } = default!;
+        [DataMember]
         public string Title { get; private set; } = default!;
+        [DataMember]
         public bool IsPrivate { get; private set; } = default!;
+        [DataMember]
         public bool IsClosed { get; private set; } = default!;
+        [DataMember]
         public IssueStatusEnumeration Status { get; private set; } = default!;
+        [DataMember]
         public uint ReplyCount { get; private set; } = default!;
+        [DataMember]
         public string ModVersion { get; private set; } = default!;
+        [DataMember]
         public IssuePriorityEnumeration Priority { get; private set; } = default!;
+        [DataMember]
         public Instant LastPost { get; private set; } = default!;
 
         private NexusModsIssueViewModel() { }

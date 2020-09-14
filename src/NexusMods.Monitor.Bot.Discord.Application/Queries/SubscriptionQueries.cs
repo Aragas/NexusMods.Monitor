@@ -7,6 +7,7 @@ using NexusMods.Monitor.Bot.Discord.Application.Options;
 using System;
 using System.Collections.Generic;
 using System.Net.Http;
+using System.Runtime.Serialization;
 
 namespace NexusMods.Monitor.Bot.Discord.Application.Queries
 {
@@ -35,13 +36,14 @@ namespace NexusMods.Monitor.Bot.Discord.Application.Queries
             }
         }
 
-        private class SubscriptionDTO
+        [DataContract]
+        private sealed class SubscriptionDTO
         {
-            [JsonProperty("subscriberId")]
+            [DataMember(Name = "subscriberId")]
             public string SubscriberId { get; private set; } = default!;
-            [JsonProperty("nexusModsGameId")]
+            [DataMember(Name = "nexusModsGameId")]
             public uint NexusModsGameId { get; private set;} = default!;
-            [JsonProperty("nexusModsModId")]
+            [DataMember(Name = "nexusModsModId")]
             public uint NexusModsModId { get; private set;} = default!;
 
             private SubscriptionDTO() { }

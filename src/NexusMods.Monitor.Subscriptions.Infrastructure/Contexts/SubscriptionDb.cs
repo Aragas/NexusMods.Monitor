@@ -13,7 +13,7 @@ using System.Threading.Tasks;
 
 namespace NexusMods.Monitor.Subscriptions.Infrastructure.Contexts
 {
-    public class SubscriptionDb : DbContext, IUnitOfWork
+    public sealed class SubscriptionDb : DbContext, IUnitOfWork
     {
         private readonly IMediator? _mediator;
 
@@ -24,7 +24,6 @@ namespace NexusMods.Monitor.Subscriptions.Infrastructure.Contexts
         {
             _mediator = mediator ?? throw new ArgumentNullException(nameof(mediator));
         }
-        protected SubscriptionDb(DbContextOptions options) : base(options) { }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {

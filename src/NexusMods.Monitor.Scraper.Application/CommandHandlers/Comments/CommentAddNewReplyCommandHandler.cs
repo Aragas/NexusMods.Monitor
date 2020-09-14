@@ -17,7 +17,7 @@ using System.Threading.Tasks;
 
 namespace NexusMods.Monitor.Scraper.Application.CommandHandlers.Comments
 {
-    public class CommentAddNewReplyCommandHandler : IRequestHandler<CommentAddNewReplyCommand, bool>
+    public sealed class CommentAddNewReplyCommandHandler : IRequestHandler<CommentAddNewReplyCommand, bool>
     {
         private readonly ILogger _logger;
         private readonly ICommentRepository _commentRepository;
@@ -35,7 +35,11 @@ namespace NexusMods.Monitor.Scraper.Application.CommandHandlers.Comments
         public async Task<bool> Handle(CommentAddNewReplyCommand message, CancellationToken cancellationToken)
         {
             var commentEntity = await _commentRepository.GetAsync(message.Id);
-            if (commentEntity is null) return false;
+            if (commentEntity is null)
+            {
+                _logger.LogError("Comment with Id {Id} was not found. CommentReply Id {ReplyId}.", message.Id, message.ReplyId);
+                return false;
+            }
 
             commentEntity.AddReplyEntity(
                 message.ReplyId,
@@ -44,7 +48,7 @@ namespace NexusMods.Monitor.Scraper.Application.CommandHandlers.Comments
                 message.AuthorUrl,
                 message.AvatarUrl,
                 message.Content,
-                message.IsDeleted,
+                false,
                 message.TimeOfPost);
 
             _commentRepository.Update(commentEntity);

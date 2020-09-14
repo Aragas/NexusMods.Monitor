@@ -1,8 +1,13 @@
-﻿namespace NexusMods.Monitor.Scraper.Application.Queries.Issues
+﻿using System.Runtime.Serialization;
+
+namespace NexusMods.Monitor.Scraper.Application.Queries.Issues
 {
+    [DataContract]
     public sealed class IssueReplyViewModel
     {
+        [DataMember]
         public uint Id { get; private set; } = default!;
+        [DataMember]
         public uint OwnerId { get; private set; } = default!;
 
         private IssueReplyViewModel() { }

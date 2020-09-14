@@ -1,10 +1,17 @@
-﻿namespace NexusMods.Monitor.Scraper.Application.Queries.NexusModsComments
+﻿using System.Runtime.Serialization;
+
+namespace NexusMods.Monitor.Scraper.Application.Queries.NexusModsComments
 {
-    public class NexusModsCommentRootViewModel
+    [DataContract]
+    public sealed class NexusModsCommentRootViewModel
     {
+        [DataMember]
         public string NexusModsGameIdText { get; private set; } = default!;
+        [DataMember]
         public uint NexusModsGameId { get; private set; } = default!;
+        [DataMember]
         public uint NexusModsModId { get; private set; } = default!;
+        [DataMember]
         public NexusModsCommentViewModel NexusModsComment { get; private set; } = default!;
 
         private NexusModsCommentRootViewModel() { }

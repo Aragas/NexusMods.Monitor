@@ -9,7 +9,7 @@ using System.Runtime.Serialization;
 namespace NexusMods.Monitor.Scraper.Application.Commands.Comments
 {
     [DataContract]
-    public class CommentAddNewReplyCommand : IRequest<bool>
+    public sealed class CommentAddNewReplyCommand : IRequest<bool>
     {
         [DataMember]
         public uint Id { get; private set; } = default!;
@@ -26,8 +26,6 @@ namespace NexusMods.Monitor.Scraper.Application.Commands.Comments
         [DataMember]
         public string Content { get; private set; } = default!;
         [DataMember]
-        public bool IsDeleted { get; private set; } = default!;
-        [DataMember]
         public Instant TimeOfPost { get; private set; } = default!;
 
         private CommentAddNewReplyCommand() { }
@@ -40,7 +38,6 @@ namespace NexusMods.Monitor.Scraper.Application.Commands.Comments
             AuthorUrl = nexusModsCommentReply.AuthorUrl;
             AvatarUrl = nexusModsCommentReply.AvatarUrl;
             Content = nexusModsCommentReply.Content;
-            IsDeleted = false;
             TimeOfPost = nexusModsCommentReply.Post;
         }
     }

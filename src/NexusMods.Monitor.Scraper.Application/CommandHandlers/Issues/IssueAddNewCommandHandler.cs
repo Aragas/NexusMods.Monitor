@@ -17,7 +17,7 @@ using System.Threading.Tasks;
 
 namespace NexusMods.Monitor.Scraper.Application.CommandHandlers.Issues
 {
-    public class IssueAddNewCommandHandler : IRequestHandler<IssueAddNewCommand, bool>
+    public sealed class IssueAddNewCommandHandler : IRequestHandler<IssueAddNewCommand, bool>
     {
         private readonly ILogger _logger;
         private readonly IIssueRepository _issueRepository;
@@ -34,6 +34,19 @@ namespace NexusMods.Monitor.Scraper.Application.CommandHandlers.Issues
 
         public async Task<bool> Handle(IssueAddNewCommand message, CancellationToken cancellationToken)
         {
+            var existingIssueEntity = await _issueRepository.GetAsync(message.Id);
+            if (existingIssueEntity is { })
+            {
+                if (existingIssueEntity.IsDeleted)
+                {
+                    existingIssueEntity.Return();
+                    return await _issueRepository.UnitOfWork.SaveEntitiesAsync(cancellationToken);
+                }
+
+                _logger.LogError("Issue with Id {Id} already exist, is not deleted.", message.Id);
+                return false;
+            }
+
             var issueEntity = new IssueEntity(
                 message.Id,
                 message.NexusModsGameId,
@@ -55,7 +68,7 @@ namespace NexusMods.Monitor.Scraper.Application.CommandHandlers.Issues
                     message.Content.AuthorUrl,
                     message.Content.AvatarUrl,
                     message.Content.Content,
-                    message.Content.IsDeleted,
+                    false,
                     message.Content.TimeOfPost);
             }
 
@@ -67,7 +80,7 @@ namespace NexusMods.Monitor.Scraper.Application.CommandHandlers.Issues
                     issueReply.AuthorUrl,
                     issueReply.AvatarUrl,
                     issueReply.Content,
-                    issueReply.IsDeleted,
+                    false,
                     issueReply.TimeOfPost);
             }
 

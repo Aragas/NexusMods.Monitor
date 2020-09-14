@@ -10,7 +10,7 @@ using System.Threading.Tasks;
 
 namespace NexusMods.Monitor.Scraper.Infrastructure.Repositories
 {
-    public class IssueRepository : IIssueRepository
+    public sealed class IssueRepository : IIssueRepository
     {
         private readonly NexusModsDb _context;
 
@@ -34,6 +34,7 @@ namespace NexusMods.Monitor.Scraper.Infrastructure.Repositories
                 .Include(x => x.Content)
                 .Include(x => x.Priority)
                 .Include(x => x.Status)
+                .IgnoreQueryFilters()
                 .FirstOrDefaultAsync(o => o.Id == issueEntityId);
 
             if (issueEntity is null)

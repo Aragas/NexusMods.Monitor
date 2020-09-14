@@ -39,7 +39,7 @@ Gives the ability to subscribe to your mod page notifications. Posts and Bugs se
 
         public static Attachment NewIssue(IssueDTO issue) => new AttachmentBuilder()
             .WithTitle($"Bugs: [{issue.Title}] new report")
-            .WithAuthor(issue.Content.Author, issue.Content.AvatarUrl, issue.Content.AuthorUrl)
+            .WithAuthor(issue.Content!.Author, issue.Content.AvatarUrl, issue.Content.AuthorUrl)
             .WithThumbnailUrl(issue.Content.AvatarUrl)
             .WithTimestamp(issue.TimeOfLastPost)
             .WithUrl(issue.Url)
@@ -74,7 +74,7 @@ Gives the ability to subscribe to your mod page notifications. Posts and Bugs se
 
         public static Attachment DeletedIssue(IssueDTO issue) => new AttachmentBuilder()
             .WithTitle($"Bugs: [{issue.Title}] report was deleted")
-            .WithAuthor(issue.Content.Author, issue.Content.AvatarUrl, issue.Content.AuthorUrl)
+            .WithAuthor(issue.Content!.Author, issue.Content.AvatarUrl, issue.Content.AuthorUrl)
             .WithThumbnailUrl(issue.Content.AvatarUrl)
             .WithTimestamp(issue.TimeOfLastPost)
             .WithUrl(issue.Url)
@@ -107,7 +107,7 @@ Gives the ability to subscribe to your mod page notifications. Posts and Bugs se
                     .WithValue(issue.Content.Content.WithMaxLength(MaxTextLength)))
             .Build();
 
-        public static Attachment NewIssueReply(IssueDTO issue, IssueDTO.IssueReplyDTO issueReply) => new AttachmentBuilder()
+        public static Attachment NewIssueReply(IssueDTO issue, IssueReplyDTO issueReply) => new AttachmentBuilder()
             .WithTitle($"Bugs: [{issue.Title}] new reply")
             .WithDescription(issue.Status.Name)
             .WithAuthor(issueReply.Author, issueReply.AvatarUrl, issueReply.AuthorUrl)
@@ -142,7 +142,7 @@ Gives the ability to subscribe to your mod page notifications. Posts and Bugs se
                 .WithValue(issueReply.Content.WithMaxLength(MaxTextLength)))
             .Build();
 
-        public static Attachment DeletedIssueReply(IssueDTO issueEntity, IssueDTO.IssueReplyDTO issueReply) => new AttachmentBuilder()
+        public static Attachment DeletedIssueReply(IssueDTO issueEntity, IssueReplyDTO issueReply) => new AttachmentBuilder()
             .WithTitle($"Bugs: [{issueEntity.Title}] reply was deleted")
             .WithDescription(issueEntity.Status.Name)
             .WithAuthor(issueReply.Author, issueReply.AvatarUrl, issueReply.AuthorUrl)
@@ -177,7 +177,7 @@ Gives the ability to subscribe to your mod page notifications. Posts and Bugs se
                 .WithValue(issueReply.Content.WithMaxLength(MaxTextLength)))
             .Build();
 
-        public static Attachment StatusChanged(IssueDTO issueEntity, IssueDTO.IssueStatusDTO oldIssueStatus) => new AttachmentBuilder()
+        public static Attachment StatusChanged(IssueDTO issueEntity, IssueStatusDTO oldIssueStatus) => new AttachmentBuilder()
             .WithTitle($"Bugs: [{issueEntity.Title}] status changed")
             .WithCurrentTimestamp()
             .WithDescription($"{oldIssueStatus.Name} -> {issueEntity.Status.Name}")
@@ -207,7 +207,7 @@ Gives the ability to subscribe to your mod page notifications. Posts and Bugs se
                     .WithIsInline(true))
             .Build();
 
-        public static Attachment PriorityChanged(IssueDTO issueEntity, IssueDTO.IssuePriorityDTO oldIssuePriority) => new AttachmentBuilder()
+        public static Attachment PriorityChanged(IssueDTO issueEntity, IssuePriorityDTO oldIssuePriority) => new AttachmentBuilder()
             .WithTitle($"Bugs: [{issueEntity.Title}] priority changed")
             .WithCurrentTimestamp()
             .WithDescription($"{oldIssuePriority.Name} -> {issueEntity.Priority.Name}")
@@ -339,7 +339,7 @@ Gives the ability to subscribe to your mod page notifications. Posts and Bugs se
                     .WithValue(comment.Content.WithMaxLength(MaxTextLength)))
             .Build();
 
-        public static Attachment NewCommentReply(CommentDTO comment, CommentDTO.CommentReplyDTO commentReply) => new AttachmentBuilder()
+        public static Attachment NewCommentReply(CommentDTO comment, CommentReplyDTO commentReply) => new AttachmentBuilder()
             .WithTitle($"Posts: [{comment.Id}] new reply")
             .WithAuthor(commentReply.Author, commentReply.AvatarUrl, commentReply.AuthorUrl)
             .WithThumbnailUrl(commentReply.AvatarUrl)
@@ -361,7 +361,7 @@ Gives the ability to subscribe to your mod page notifications. Posts and Bugs se
                     .WithValue(commentReply.Content.WithMaxLength(MaxTextLength)))
             .Build();
 
-        public static Attachment DeletedCommentReply(CommentDTO comment, CommentDTO.CommentReplyDTO commentReply) => new AttachmentBuilder()
+        public static Attachment DeletedCommentReply(CommentDTO comment, CommentReplyDTO commentReply) => new AttachmentBuilder()
             .WithTitle($"Posts: [{comment.Id}] reply was deleted")
             .WithAuthor(commentReply.Author, commentReply.AvatarUrl, commentReply.AuthorUrl)
             .WithThumbnailUrl(commentReply.AvatarUrl)

@@ -8,11 +8,10 @@ using NexusMods.Monitor.Shared.Application.IntegrationEvents.Comments;
 using System;
 using System.Linq;
 using System.Threading.Tasks;
-using NexusMods.Monitor.Bot.Discord.Application.Queries;
 
 namespace NexusMods.Monitor.Bot.Discord.Application.IntegrationEventHandlers.Comments
 {
-    public class CommentAddedNewIntegrationEventHandler : Enbiso.NLib.EventBus.EventHandler<CommentAddedIntegrationEvent>
+    public sealed class CommentAddedNewIntegrationEventHandler : Enbiso.NLib.EventBus.EventHandler<CommentAddedIntegrationEvent>
     {
         private readonly ILogger _logger;
         private readonly ISubscriptionQueries _subscriptionQueries;

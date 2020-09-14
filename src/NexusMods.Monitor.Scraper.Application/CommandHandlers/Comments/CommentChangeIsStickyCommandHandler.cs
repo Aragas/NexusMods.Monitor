@@ -17,7 +17,7 @@ using System.Threading.Tasks;
 
 namespace NexusMods.Monitor.Scraper.Application.CommandHandlers.Comments
 {
-    public class CommentChangeIsStickyCommandHandler : IRequestHandler<CommentChangeIsStickyCommand, bool>
+    public sealed class CommentChangeIsStickyCommandHandler : IRequestHandler<CommentChangeIsStickyCommand, bool>
     {
         private readonly ILogger _logger;
         private readonly ICommentRepository _commentRepository;
@@ -35,7 +35,11 @@ namespace NexusMods.Monitor.Scraper.Application.CommandHandlers.Comments
         public async Task<bool> Handle(CommentChangeIsStickyCommand message, CancellationToken cancellationToken)
         {
             var commentEntity = await _commentRepository.GetAsync(message.Id);
-            if (commentEntity is null) return false;
+            if (commentEntity is null)
+            {
+                _logger.LogError("Comment with Id {Id} was not found.", message.Id);
+                return false;
+            }
 
             var oldIsSticky = commentEntity.IsSticky;
             commentEntity.SetIsSticky(message.IsSticky);

@@ -38,7 +38,7 @@ namespace NexusMods.Monitor.Scraper.Application.Queries.NexusModsGames
                 var gameInquirer = new GamesInquirer(_nexusModsClient);
                 var games = await gameInquirer.GetGamesAsync();
 
-                cacheEntry = games.Select(g => new NexusModsGameViewModel((uint) g.Id, g.Name, g.ForumUrl.ToString(), g.NexusmodsUrl.ToString(), g.DomainName)).ToArray(); 
+                cacheEntry = games.Select(g => new NexusModsGameViewModel((uint) g.Id, g.Name, g.ForumUrl.ToString(), g.NexusmodsUrl.ToString(), g.DomainName)).ToArray();
                 var cacheEntryOptions = new MemoryCacheEntryOptions().SetSize(1).SetAbsoluteExpiration(TimeSpan.FromHours(8));
                 _memoryCache.Set("games", cacheEntry, cacheEntryOptions);
             }

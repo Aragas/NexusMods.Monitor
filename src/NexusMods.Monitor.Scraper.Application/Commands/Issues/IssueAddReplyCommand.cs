@@ -9,7 +9,7 @@ using System.Runtime.Serialization;
 namespace NexusMods.Monitor.Scraper.Application.Commands.Issues
 {
     [DataContract]
-    public class IssueAddReplyCommand : IRequest<bool>
+    public sealed class IssueAddReplyCommand : IRequest<bool>
     {
         [DataMember]
         public uint Id { get; private set; } = default!;

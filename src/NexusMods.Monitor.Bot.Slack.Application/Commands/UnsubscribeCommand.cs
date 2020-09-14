@@ -5,7 +5,7 @@ using System.Runtime.Serialization;
 namespace NexusMods.Monitor.Bot.Slack.Application.Commands
 {
     [DataContract]
-    public class UnsubscribeCommand : IRequest<bool>
+    public sealed class UnsubscribeCommand : IRequest<bool>
     {
         [DataMember]
         public string ChannelId { get; private set; } = default!;

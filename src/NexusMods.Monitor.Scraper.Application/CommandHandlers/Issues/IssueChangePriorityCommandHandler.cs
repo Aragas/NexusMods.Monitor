@@ -17,7 +17,7 @@ using System.Threading.Tasks;
 
 namespace NexusMods.Monitor.Scraper.Application.CommandHandlers.Issues
 {
-    public class IssueChangePriorityCommandHandler : IRequestHandler<IssueChangePriorityCommand, bool>
+    public sealed class IssueChangePriorityCommandHandler : IRequestHandler<IssueChangePriorityCommand, bool>
     {
         private readonly ILogger _logger;
         private readonly IIssueRepository _issueRepository;
@@ -35,9 +35,13 @@ namespace NexusMods.Monitor.Scraper.Application.CommandHandlers.Issues
         public async Task<bool> Handle(IssueChangePriorityCommand message, CancellationToken cancellationToken)
         {
             var issueEntity = await _issueRepository.GetAsync(message.Id);
-            if (issueEntity is null) return false;
+            if (issueEntity is null)
+            {
+                _logger.LogError("Issue with Id {Id} was not found.", message.Id);
+                return false;
+            }
 
-            var oldPriority = _mapper.Map<IssuePriorityEnumeration, IssueDTO.IssuePriorityDTO>(issueEntity.Priority);
+            var oldPriority = _mapper.Map<IssuePriorityEnumeration, IssuePriorityDTO>(issueEntity.Priority);
             issueEntity.SetPriority(await _issueRepository.GetPriorityAsync(message.PriorityId));
 
             _issueRepository.Update(issueEntity);

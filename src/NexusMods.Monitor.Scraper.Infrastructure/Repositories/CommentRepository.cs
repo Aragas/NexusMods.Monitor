@@ -10,7 +10,7 @@ using System.Threading.Tasks;
 
 namespace NexusMods.Monitor.Scraper.Infrastructure.Repositories
 {
-    public class CommentRepository : ICommentRepository
+    public sealed class CommentRepository : ICommentRepository
     {
         private readonly NexusModsDb _context;
 

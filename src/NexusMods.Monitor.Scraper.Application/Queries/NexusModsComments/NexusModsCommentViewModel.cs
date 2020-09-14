@@ -3,26 +3,37 @@
 using NexusMods.Monitor.Scraper.Application.Extensions;
 
 using NodaTime;
-using NodaTime.Extensions;
+using NodaTime.Text;
 
 using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.Linq;
+using System.Runtime.Serialization;
 
 namespace NexusMods.Monitor.Scraper.Application.Queries.NexusModsComments
 {
-    public class NexusModsCommentViewModel
+    [DataContract]
+    public sealed class NexusModsCommentViewModel
     {
+        [DataMember]
         public uint Id { get; private set; } = default!;
+        [DataMember]
         public string Author { get; private set; } = default!;
+        [DataMember]
         public string AuthorUrl { get; private set; } = default!;
+        [DataMember]
         public string AvatarUrl { get; private set; } = default!;
+        [DataMember]
         public string Content { get; private set; } = default!;
+        [DataMember]
         public bool IsSticky { get; private set; } = default!;
+        [DataMember]
         public bool IsLocked { get; private set; } = default!;
+        [DataMember]
         public Instant Post { get; private set; } = default!;
 
+        [DataMember]
         private readonly List<NexusModsCommentReplyViewModel> _replies;
         public IEnumerable<NexusModsCommentReplyViewModel> Replies => _replies;
 
@@ -48,7 +59,7 @@ namespace NexusMods.Monitor.Scraper.Application.Queries.NexusModsComments
             var sticky = content?.GetElementsByClassName("sticky").FirstOrDefault();
             IsSticky = sticky?.GetAttribute("style") is null || (sticky.GetAttribute("style") is { } attr1 && string.IsNullOrEmpty(attr1));
             var time = content?.GetElementsByTagName("time")?.FirstOrDefault()?.ToText();
-            Post = DateTimeOffset.ParseExact(time, "dd MMMM yyyy, h:mmtt", CultureInfo.GetCultureInfo("en-UK")).ToInstant();
+            Post = InstantPattern.Create("dd MMMM yyyy, h:mmtt", CultureInfo.GetCultureInfo("en-UK")).Parse(time ?? "").GetValueOrThrow();
             Content = content?.GetElementsByClassName("comment-content-text").FirstOrDefault()?.ToText() ?? "ERROR";
 
             var kids = element.GetElementsByClassName("comment-kids").FirstOrDefault();

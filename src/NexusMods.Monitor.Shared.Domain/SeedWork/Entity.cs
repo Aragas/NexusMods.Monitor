@@ -61,7 +61,6 @@ namespace NexusMods.Monitor.Shared.Domain.SeedWork
             {
                 return base.GetHashCode();
             }
-
         }
         public static bool operator ==(Entity left, Entity right)
         {

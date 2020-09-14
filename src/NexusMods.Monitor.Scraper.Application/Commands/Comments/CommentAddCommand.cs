@@ -11,7 +11,7 @@ using System.Runtime.Serialization;
 namespace NexusMods.Monitor.Scraper.Application.Commands.Comments
 {
     [DataContract]
-    public class CommentAddCommand : IRequest<bool>
+    public sealed class CommentAddCommand : IRequest<bool>
     {
         [DataMember]
         private readonly List<CommentReplyDTO> _commentReplies;
@@ -63,29 +63,41 @@ namespace NexusMods.Monitor.Scraper.Application.Commands.Comments
             IsDeleted = false;
             TimeOfPost = nexusModsCommentRoot.NexusModsComment.Post;
 
-            _commentReplies = nexusModsCommentRoot.NexusModsComment.Replies.Select(x => new CommentReplyDTO
-            {
-                Id = x.Id,
-                Url = $"https://www.nexusmods.com/{nexusModsCommentRoot.NexusModsGameIdText}/mods/{NexusModsModId}/?tab=posts&jump_to_comment={x.Id}",
-                Author = x.Author,
-                AuthorUrl = x.AuthorUrl,
-                AvatarUrl = x.AvatarUrl,
-                IsDeleted = false,
-                Content = x.Content,
-                TimeOfPost = x.Post
-            }).ToList();
+            _commentReplies = nexusModsCommentRoot.NexusModsComment.Replies.Select(x => new CommentReplyDTO(
+                x.Id,
+                $"https://www.nexusmods.com/{nexusModsCommentRoot.NexusModsGameIdText}/mods/{NexusModsModId}/?tab=posts&jump_to_comment={x.Id}",
+                x.Author,
+                x.AuthorUrl,
+                x.AvatarUrl,
+                x.Content,
+                false,
+                x.Post
+            )).ToList();
         }
 
-        public class CommentReplyDTO
+        public sealed class CommentReplyDTO
         {
-            public uint Id { get; set; } = default!;
-            public string Url { get; set; } = default!;
-            public string Author { get; set; } = default!;
-            public string AuthorUrl { get; set; } = default!;
-            public string AvatarUrl { get; set; } = default!;
-            public string Content { get; set; } = default!;
-            public bool IsDeleted { get; set; } = default!;
-            public Instant TimeOfPost { get; set; } = default!;
+            public uint Id { get; private set; } = default!;
+            public string Url { get; private set; } = default!;
+            public string Author { get; private set; } = default!;
+            public string AuthorUrl { get; private set; } = default!;
+            public string AvatarUrl { get; private set; } = default!;
+            public string Content { get; private set; } = default!;
+            public bool IsDeleted { get; private set; } = default!;
+            public Instant TimeOfPost { get; private set; } = default!;
+
+            private CommentReplyDTO() { }
+            public CommentReplyDTO(uint id, string url, string author, string authorUrl, string avatarUrl, string content, bool isDeleted, Instant time) : this()
+            {
+                Id = id;
+                Url = url;
+                Author = author;
+                AuthorUrl = authorUrl;
+                AvatarUrl = avatarUrl;
+                Content = content;
+                IsDeleted = isDeleted;
+                TimeOfPost = time;
+            }
         }
     }
 }

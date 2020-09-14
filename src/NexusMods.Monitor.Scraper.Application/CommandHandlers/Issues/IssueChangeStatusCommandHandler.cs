@@ -17,7 +17,7 @@ using System.Threading.Tasks;
 
 namespace NexusMods.Monitor.Scraper.Application.CommandHandlers.Issues
 {
-    public class IssueChangeStatusCommandHandler : IRequestHandler<IssueChangeStatusCommand, bool>
+    public sealed class IssueChangeStatusCommandHandler : IRequestHandler<IssueChangeStatusCommand, bool>
     {
         private readonly ILogger _logger;
         private readonly IIssueRepository _issueRepository;
@@ -35,9 +35,13 @@ namespace NexusMods.Monitor.Scraper.Application.CommandHandlers.Issues
         public async Task<bool> Handle(IssueChangeStatusCommand message, CancellationToken cancellationToken)
         {
             var issueEntity = await _issueRepository.GetAsync(message.Id);
-            if (issueEntity is null) return false;
+            if (issueEntity is null)
+            {
+                _logger.LogError("Issue with Id {Id} was not found.", message.Id);
+                return false;
+            }
 
-            var oldStatus = _mapper.Map<IssueStatusEnumeration, IssueDTO.IssueStatusDTO>(issueEntity.Status);
+            var oldStatus = _mapper.Map<IssueStatusEnumeration, IssueStatusDTO>(issueEntity.Status);
             issueEntity.SetStatus(await _issueRepository.GetStatusAsync(message.StatusId));
 
             _issueRepository.Update(issueEntity);

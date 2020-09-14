@@ -10,19 +10,22 @@ using NexusMods.Monitor.Bot.Discord.Application.Options;
 
 using System;
 using System.Net.Http;
+using System.Runtime.Serialization;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 
 namespace NexusMods.Monitor.Bot.Discord.Application.CommandHandlers
 {
-    public class UnsubscribeCommandHandler : IRequestHandler<UnsubscribeCommand, bool>
+    public sealed class UnsubscribeCommandHandler : IRequestHandler<UnsubscribeCommand, bool>
     {
         private readonly ILogger _logger;
         private readonly IHttpClientFactory _httpClientFactory;
         private readonly SubscriptionsOptions _options;
 
-        public UnsubscribeCommandHandler(ILogger<UnsubscribeCommandHandler> logger, IHttpClientFactory httpClientFactory, IOptions<SubscriptionsOptions> options)
+        public UnsubscribeCommandHandler(ILogger<UnsubscribeCommandHandler> logger,
+            IHttpClientFactory httpClientFactory,
+            IOptions<SubscriptionsOptions> options)
         {
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
             _httpClientFactory = httpClientFactory ?? throw new ArgumentNullException(nameof(httpClientFactory));
@@ -31,18 +34,21 @@ namespace NexusMods.Monitor.Bot.Discord.Application.CommandHandlers
 
         public async Task<bool> Handle(UnsubscribeCommand message, CancellationToken cancellationToken)
         {
-            var response = await _httpClientFactory.CreateClient().PutAsync($"{_options.APIEndpointV1}/unsubscribe",
-                new StringContent(JsonConvert.SerializeObject(new UnsubscribeDTO($"Discord:{message.ChannelId}", message.NexusModsGameId, message.NexusModsModId)), Encoding.UTF8, "application/json"));
+            var response = await _httpClientFactory.CreateClient().PutAsync(
+                $"{_options.APIEndpointV1}/unsubscribe",
+                new StringContent(JsonConvert.SerializeObject(new UnsubscribeDTO($"Discord:{message.ChannelId}", message.NexusModsGameId, message.NexusModsModId)), Encoding.UTF8, "application/json"),
+                cancellationToken);
             return response.IsSuccessStatusCode;
         }
 
-        private class UnsubscribeDTO
+        [DataContract]
+        private sealed class UnsubscribeDTO
         {
-            [JsonProperty("subscriberId")]
+            [DataMember(Name = "subscriberId")]
             public string SubscriberId { get; private set; } = default!;
-            [JsonProperty("nexusModsGameId")]
+            [DataMember(Name = "nexusModsGameId")]
             public uint NexusModsGameId { get; private set;} = default!;
-            [JsonProperty("nexusModsModId")]
+            [DataMember(Name = "nexusModsModId")]
             public uint NexusModsModId { get; private set;} = default!;
 
             private UnsubscribeDTO() { }

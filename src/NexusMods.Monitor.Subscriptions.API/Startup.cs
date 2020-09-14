@@ -15,7 +15,7 @@ using NexusMods.Monitor.Subscriptions.Infrastructure.Repositories;
 
 namespace NexusMods.Monitor.Subscriptions.API
 {
-    public class Startup
+    public sealed class Startup
     {
         public IConfiguration Configuration { get; }
 

@@ -18,7 +18,7 @@ using System.Threading.Tasks;
 
 namespace NexusMods.Monitor.Scraper.Application.CommandHandlers.Issues
 {
-    public class IssueRemoveReplyCommandHandler : IRequestHandler<IssueRemoveReplyCommand, bool>
+    public sealed class IssueRemoveReplyCommandHandler : IRequestHandler<IssueRemoveReplyCommand, bool>
     {
         private readonly ILogger _logger;
         private readonly IIssueRepository _issueRepository;
@@ -36,9 +36,13 @@ namespace NexusMods.Monitor.Scraper.Application.CommandHandlers.Issues
         public async Task<bool> Handle(IssueRemoveReplyCommand message, CancellationToken cancellationToken)
         {
             var issueEntity = await _issueRepository.GetAsync(message.Id);
-            if (issueEntity is null) return false;
+            if (issueEntity is null)
+            {
+                _logger.LogError("Issue with Id {Id} was not found.", message.Id);
+                return false;
+            }
 
-            var issueReplyDTO = _mapper.Map<IssueReplyEntity, IssueDTO.IssueReplyDTO>(issueEntity.Replies.First(x => x.Id == message.ReplyId));
+            var issueReplyDTO = _mapper.Map<IssueReplyEntity, IssueReplyDTO>(issueEntity.Replies.First(x => x.Id == message.ReplyId));
 
             issueEntity.RemoveReply(message.ReplyId);
             _issueRepository.Update(issueEntity);

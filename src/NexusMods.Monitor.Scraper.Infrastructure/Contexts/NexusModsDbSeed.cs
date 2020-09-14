@@ -13,9 +13,9 @@ using System.Threading.Tasks;
 
 namespace NexusMods.Monitor.Scraper.Infrastructure.Contexts
 {
-    public class NexusModsDbSeed
+    public sealed class NexusModsDbSeed
     {
-        public async Task SeedAsync(ILogger<NexusModsDbSeed> logger, NexusModsDb context)
+        public static async Task SeedAsync(ILogger<NexusModsDbSeed> logger, NexusModsDb context)
         {
             var policy = CreatePolicy(logger, nameof(NexusModsDbSeed));
 
@@ -37,17 +37,16 @@ namespace NexusMods.Monitor.Scraper.Infrastructure.Contexts
             });
         }
 
-        private AsyncRetryPolicy CreatePolicy(ILogger<NexusModsDbSeed> logger, string prefix, int retries = 3)
-        {
-            return Policy.Handle<DbException>().
-                WaitAndRetryAsync(
-                    retryCount: retries,
-                    sleepDurationProvider: retry => TimeSpan.FromSeconds(5),
-                    onRetry: (exception, timeSpan, retry, ctx) =>
-                    {
-                        logger.LogWarning(exception, "[{prefix}] Exception {ExceptionType} with message {Message} detected on attempt {retry} of {retries}", prefix, exception.GetType().Name, exception.Message, retry, retries);
-                    }
-                );
-        }
+        private static AsyncRetryPolicy CreatePolicy(ILogger<NexusModsDbSeed> logger, string prefix, int retries = 3) => Policy.Handle<DbException>()
+            .WaitAndRetryAsync(
+                retryCount: retries,
+                sleepDurationProvider: retry => TimeSpan.FromSeconds(5),
+                onRetry: (exception, timeSpan, retry, ctx) =>
+                {
+                    logger.LogWarning(exception,
+                        "[{prefix}] Exception {ExceptionType} with message {Message} detected on attempt {retry} of {retries}",
+                        prefix, exception.GetType().Name, exception.Message, retry, retries);
+                }
+            );
     }
 }

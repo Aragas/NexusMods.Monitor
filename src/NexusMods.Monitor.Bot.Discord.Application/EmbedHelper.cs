@@ -39,7 +39,7 @@ Subscriptions: {subscriptionCount}"))
 
         public static Embed NewIssue(IssueDTO issue) => new EmbedBuilder()
             .WithTitle($"Bugs: [{issue.Title}] new report")
-            .WithAuthor(issue.Content.Author, issue.Content.AvatarUrl, issue.Content.AuthorUrl)
+            .WithAuthor(issue.Content!.Author, issue.Content.AvatarUrl, issue.Content.AuthorUrl)
             .WithThumbnailUrl(issue.Content.AvatarUrl)
             .WithTimestamp(issue.TimeOfLastPost)
             .WithUrl(issue.Url)
@@ -74,7 +74,7 @@ Subscriptions: {subscriptionCount}"))
 
         public static Embed DeletedIssue(IssueDTO issue) => new EmbedBuilder()
             .WithTitle($"Bugs: [{issue.Title}] report was deleted")
-            .WithAuthor(issue.Content.Author, issue.Content.AvatarUrl, issue.Content.AuthorUrl)
+            .WithAuthor(issue.Content!.Author, issue.Content.AvatarUrl, issue.Content.AuthorUrl)
             .WithThumbnailUrl(issue.Content.AvatarUrl)
             .WithTimestamp(issue.TimeOfLastPost)
             .WithUrl(issue.Url)
@@ -107,7 +107,7 @@ Subscriptions: {subscriptionCount}"))
                     .WithValue(issue.Content.Content.WithMaxLength(MaxTextLength)))
             .Build();
 
-        public static Embed NewIssueReply(IssueDTO issue, IssueDTO.IssueReplyDTO issueReply) => new EmbedBuilder()
+        public static Embed NewIssueReply(IssueDTO issue, IssueReplyDTO issueReply) => new EmbedBuilder()
             .WithTitle($"Bugs: [{issue.Title}] new reply")
             .WithDescription(issue.Status.Name)
             .WithAuthor(issueReply.Author, issueReply.AvatarUrl, issueReply.AuthorUrl)
@@ -142,7 +142,7 @@ Subscriptions: {subscriptionCount}"))
                 .WithValue(issueReply.Content.WithMaxLength(MaxTextLength)))
             .Build();
 
-        public static Embed DeletedIssueReply(IssueDTO issueEntity, IssueDTO.IssueReplyDTO issueReply) => new EmbedBuilder()
+        public static Embed DeletedIssueReply(IssueDTO issueEntity, IssueReplyDTO issueReply) => new EmbedBuilder()
             .WithTitle($"Bugs: [{issueEntity.Title}] reply was deleted")
             .WithDescription(issueEntity.Status.Name)
             .WithAuthor(issueReply.Author, issueReply.AvatarUrl, issueReply.AuthorUrl)
@@ -177,7 +177,7 @@ Subscriptions: {subscriptionCount}"))
                 .WithValue(issueReply.Content.WithMaxLength(MaxTextLength)))
             .Build();
 
-        public static Embed StatusChanged(IssueDTO issueEntity, IssueDTO.IssueStatusDTO oldIssueStatus) => new EmbedBuilder()
+        public static Embed StatusChanged(IssueDTO issueEntity, IssueStatusDTO oldIssueStatus) => new EmbedBuilder()
             .WithTitle($"Bugs: [{issueEntity.Title}] status changed")
             .WithCurrentTimestamp()
             .WithDescription($"{oldIssueStatus.Name} -> {issueEntity.Status.Name}")
@@ -207,7 +207,7 @@ Subscriptions: {subscriptionCount}"))
                     .WithIsInline(true))
             .Build();
 
-        public static Embed PriorityChanged(IssueDTO issueEntity, IssueDTO.IssuePriorityDTO oldIssuePriority) => new EmbedBuilder()
+        public static Embed PriorityChanged(IssueDTO issueEntity, IssuePriorityDTO oldIssuePriority) => new EmbedBuilder()
             .WithTitle($"Bugs: [{issueEntity.Title}] priority changed")
             .WithCurrentTimestamp()
             .WithDescription($"{oldIssuePriority.Name} -> {issueEntity.Priority.Name}")
@@ -339,7 +339,7 @@ Subscriptions: {subscriptionCount}"))
                     .WithValue(comment.Content.WithMaxLength(MaxTextLength)))
             .Build();
 
-        public static Embed NewCommentReply(CommentDTO comment, CommentDTO.CommentReplyDTO commentReply) => new EmbedBuilder()
+        public static Embed NewCommentReply(CommentDTO comment, CommentReplyDTO commentReply) => new EmbedBuilder()
             .WithTitle($"Posts: [{comment.Id}] new reply")
             .WithAuthor(commentReply.Author, commentReply.AvatarUrl, commentReply.AuthorUrl)
             .WithThumbnailUrl(commentReply.AvatarUrl)
@@ -361,7 +361,7 @@ Subscriptions: {subscriptionCount}"))
                     .WithValue(commentReply.Content.WithMaxLength(MaxTextLength)))
             .Build();
 
-        public static Embed DeletedCommentReply(CommentDTO comment, CommentDTO.CommentReplyDTO commentReply) => new EmbedBuilder()
+        public static Embed DeletedCommentReply(CommentDTO comment, CommentReplyDTO commentReply) => new EmbedBuilder()
             .WithTitle($"Posts: [{comment.Id}] reply was deleted")
             .WithAuthor(commentReply.Author, commentReply.AvatarUrl, commentReply.AuthorUrl)
             .WithThumbnailUrl(commentReply.AvatarUrl)

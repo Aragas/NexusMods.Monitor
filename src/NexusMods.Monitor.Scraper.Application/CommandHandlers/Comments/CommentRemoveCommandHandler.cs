@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+
 using Enbiso.NLib.EventBus;
 
 using MediatR;
@@ -16,7 +17,7 @@ using System.Threading.Tasks;
 
 namespace NexusMods.Monitor.Scraper.Application.CommandHandlers.Comments
 {
-    public class CommentRemoveCommandHandler : IRequestHandler<CommentRemoveCommand, bool>
+    public sealed class CommentRemoveCommandHandler : IRequestHandler<CommentRemoveCommand, bool>
     {
         private readonly ILogger _logger;
         private readonly ICommentRepository _commentRepository;
@@ -34,7 +35,11 @@ namespace NexusMods.Monitor.Scraper.Application.CommandHandlers.Comments
         public async Task<bool> Handle(CommentRemoveCommand message, CancellationToken cancellationToken)
         {
             var commentEntity = await _commentRepository.GetAsync(message.Id);
-            if (commentEntity is null) return false;
+            if (commentEntity is null)
+            {
+                _logger.LogError("Comment with Id {Id} was not found.", message.Id);
+                return false;
+            }
 
             commentEntity.Remove();
             _commentRepository.Update(commentEntity);

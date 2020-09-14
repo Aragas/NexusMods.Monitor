@@ -22,7 +22,7 @@ using System.Threading.Tasks;
 
 namespace NexusMods.Monitor.Scraper.Host.BackgroundServices
 {
-    public class NexusModsIssueMonitor : BackgroundService
+    public sealed class NexusModsIssueMonitor : BackgroundService
     {
         private readonly ILogger _logger;
         private readonly IClock _clock;

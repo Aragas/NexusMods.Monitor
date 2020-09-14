@@ -17,7 +17,7 @@ using System.Threading.Tasks;
 
 namespace NexusMods.Monitor.Scraper.Application.CommandHandlers.Issues
 {
-    public class IssueAddNewReplyCommandHandler : IRequestHandler<IssueAddNewReplyCommand, bool>
+    public sealed class IssueAddNewReplyCommandHandler : IRequestHandler<IssueAddNewReplyCommand, bool>
     {
         private readonly ILogger _logger;
         private readonly IIssueRepository _issueRepository;
@@ -35,7 +35,11 @@ namespace NexusMods.Monitor.Scraper.Application.CommandHandlers.Issues
         public async Task<bool> Handle(IssueAddNewReplyCommand message, CancellationToken cancellationToken)
         {
             var issueEntity = await _issueRepository.GetAsync(message.OwnerId);
-            if (issueEntity is null) return false;
+            if (issueEntity is null)
+            {
+                _logger.LogError("Issue with Id {Id} was not found! IssueReply Id {ReplyId}", message.OwnerId, message.Id);
+                return false;
+            }
 
             issueEntity.AddReplyEntity(
                 message.Id,

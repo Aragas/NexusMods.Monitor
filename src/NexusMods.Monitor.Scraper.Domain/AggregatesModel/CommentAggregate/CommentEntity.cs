@@ -81,10 +81,7 @@ namespace NexusMods.Monitor.Scraper.Domain.AggregatesModel.CommentAggregate
         public void RemoveReply(uint id)
         {
             var commentReplyEntity = Replies.SingleOrDefault(o => o.Id == id);
-            if (!(commentReplyEntity is null))
-            {
-                commentReplyEntity.Remove();
-            }
+            commentReplyEntity?.Remove();
         }
 
         public void SetIsSticky(bool isSticky)

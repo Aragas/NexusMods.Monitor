@@ -5,7 +5,7 @@ using System.Runtime.Serialization;
 namespace NexusMods.Monitor.Scraper.Application.Commands.Issues
 {
     [DataContract]
-    public class IssueChangePriorityCommand : IRequest<bool>
+    public sealed class IssueChangePriorityCommand : IRequest<bool>
     {
         [DataMember]
         public uint Id { get; private set; } = default!;

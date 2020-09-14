@@ -11,7 +11,7 @@ using System.Threading.Tasks;
 
 namespace NexusMods.Monitor.Bot.Slack.Application.IntegrationEventHandlers.Issues
 {
-    public class IssueRemovedReplyIntegrationEventHandler : Enbiso.NLib.EventBus.EventHandler<IssueRemovedReplyIntegrationEvent>
+    public sealed class IssueRemovedReplyIntegrationEventHandler : Enbiso.NLib.EventBus.EventHandler<IssueRemovedReplyIntegrationEvent>
     {
         private readonly ILogger _logger;
         private readonly ISubscriptionQueries _subscriptionQueries;

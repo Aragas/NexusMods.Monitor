@@ -22,7 +22,7 @@ using NexusMods.Monitor.Scraper.Application.Queries.Subscriptions;
 using NexusMods.Monitor.Scraper.Domain.AggregatesModel.CommentAggregate;
 using NexusMods.Monitor.Scraper.Domain.AggregatesModel.IssueAggregate;
 using NexusMods.Monitor.Scraper.Host.BackgroundServices;
-using NexusMods.Monitor.Scraper.Hosts.Options;
+using NexusMods.Monitor.Scraper.Host.Options;
 using NexusMods.Monitor.Scraper.Infrastructure.Contexts;
 using NexusMods.Monitor.Scraper.Infrastructure.Repositories;
 using NexusMods.Monitor.Shared.Application;
@@ -70,7 +70,7 @@ namespace NexusMods.Monitor.Scraper.Host
                 host.MigrateDbContext<NexusModsDb>((context, services) =>
                 {
                     var logger = services.GetRequiredService<ILogger<NexusModsDbSeed>>();
-                    new NexusModsDbSeed().SeedAsync(logger, context).Wait();
+                    NexusModsDbSeed.SeedAsync(logger, context).Wait();
                 });
 
                 await host.RunAsync();
@@ -114,13 +114,13 @@ namespace NexusMods.Monitor.Scraper.Host
                     cfg.CreateMap<Instant, DateTimeOffset>().ConvertUsing(i => i.ToDateTimeOffset());
 
                     cfg.CreateMap<CommentEntity, CommentDTO>();
-                    cfg.CreateMap<CommentReplyEntity, CommentDTO.CommentReplyDTO>();
+                    cfg.CreateMap<CommentReplyEntity, CommentReplyDTO>();
 
                     cfg.CreateMap<IssueEntity, IssueDTO>();
-                    cfg.CreateMap<IssueStatusEnumeration, IssueDTO.IssueStatusDTO>();
-                    cfg.CreateMap<IssuePriorityEnumeration, IssueDTO.IssuePriorityDTO>();
-                    cfg.CreateMap<IssueContentEntity, IssueDTO.IssueContentDTO>();
-                    cfg.CreateMap<IssueReplyEntity, IssueDTO.IssueReplyDTO>();
+                    cfg.CreateMap<IssueStatusEnumeration, IssueStatusDTO>();
+                    cfg.CreateMap<IssuePriorityEnumeration, IssuePriorityDTO>();
+                    cfg.CreateMap<IssueContentEntity, IssueContentDTO>();
+                    cfg.CreateMap<IssueReplyEntity, IssueReplyDTO>();
                 });
                 services.AddMediatR(typeof(CommentAddCommandHandler).Assembly);
                 services.AddMemoryCache();

@@ -12,7 +12,7 @@ using System.Runtime.Serialization;
 namespace NexusMods.Monitor.Scraper.Application.Commands.Issues
 {
     [DataContract]
-    public class IssueAddNewCommand : IRequest<bool>
+    public sealed class IssueAddNewCommand : IRequest<bool>
     {
         [DataMember]
         private readonly List<IssueReplyDTO> _replies = default!;
@@ -67,53 +67,83 @@ namespace NexusMods.Monitor.Scraper.Application.Commands.Issues
 
             if (!(nexusModsIssueRoot.NexusModsIssueContent is null))
             {
-                Content = new IssueContentDTO
-                {
-                    Id = nexusModsIssueRoot.NexusModsIssueContent.Id,
-                    Author = nexusModsIssueRoot.NexusModsIssueContent.Author,
-                    AuthorUrl = nexusModsIssueRoot.NexusModsIssueContent.AuthorUrl,
-                    AvatarUrl = nexusModsIssueRoot.NexusModsIssueContent.AvatarUrl,
-                    Content = nexusModsIssueRoot.NexusModsIssueContent.Content,
-                    IsDeleted = false,
-                    TimeOfPost = nexusModsIssueRoot.NexusModsIssueContent.Time
-                };
+                Content = new IssueContentDTO(
+                    nexusModsIssueRoot.NexusModsIssueContent.Id,
+                    nexusModsIssueRoot.NexusModsIssueContent.Author,
+                    nexusModsIssueRoot.NexusModsIssueContent.AuthorUrl,
+                    nexusModsIssueRoot.NexusModsIssueContent.AvatarUrl,
+                    nexusModsIssueRoot.NexusModsIssueContent.Content,
+                    nexusModsIssueRoot.NexusModsIssueContent.Time
+                );
             }
 
             if (!(nexusModsIssueRoot.NexusModsIssueReplies is null))
             {
-                _replies = nexusModsIssueRoot.NexusModsIssueReplies.Select(x => new IssueReplyDTO
-                {
-                    Id = x.Id,
-                    Author = x.Author,
-                    AuthorUrl = x.AuthorUrl,
-                    AvatarUrl = x.AvatarUrl,
-                    Content = x.Content,
-                    IsDeleted = false,
-                    TimeOfPost = x.Time
-                }).ToList();
+                _replies = nexusModsIssueRoot.NexusModsIssueReplies.Select(x => new IssueReplyDTO(
+                    x.Id,
+                    x.Author,
+                    x.AuthorUrl,
+                    x.AvatarUrl,
+                    x.Content,
+                    x.Time
+                )).ToList();
             }
         }
 
-        public class IssueContentDTO
+        [DataContract]
+        public sealed class IssueContentDTO
         {
-            public uint Id { get; set; } = default!;
-            public string Author { get; set; } = default!;
-            public string AuthorUrl { get; set; } = default!;
-            public string AvatarUrl { get; set; } = default!;
-            public string Content { get; set; } = default!;
-            public bool IsDeleted { get; set; } = default!;
-            public Instant TimeOfPost { get; set; } = default!;
+            [DataMember]
+            public uint Id { get; private set; } = default!;
+            [DataMember]
+            public string Author { get; private set; } = default!;
+            [DataMember]
+            public string AuthorUrl { get; private set; } = default!;
+            [DataMember]
+            public string AvatarUrl { get; private set; } = default!;
+            [DataMember]
+            public string Content { get; private set; } = default!;
+            [DataMember]
+            public Instant TimeOfPost { get; private set; } = default!;
+
+            private IssueContentDTO() { }
+            public IssueContentDTO(uint id, string author, string authorUrl, string avatarUrl, string content, Instant time) : this()
+            {
+                Id = id;
+                Author = author;
+                AuthorUrl = authorUrl;
+                AvatarUrl = avatarUrl;
+                Content = content;
+                TimeOfPost = time;
+            }
         }
 
-        public class IssueReplyDTO
+        [DataContract]
+        public sealed class IssueReplyDTO
         {
-            public uint Id { get; set; } = default!;
-            public string Author { get; set; } = default!;
-            public string AuthorUrl { get; set; } = default!;
-            public string AvatarUrl { get; set; } = default!;
-            public string Content { get; set; } = default!;
-            public bool IsDeleted { get; set; } = default!;
-            public Instant TimeOfPost { get; set; } = default!;
+            [DataMember]
+            public uint Id { get; private set; } = default!;
+            [DataMember]
+            public string Author { get; private set; } = default!;
+            [DataMember]
+            public string AuthorUrl { get; private set; } = default!;
+            [DataMember]
+            public string AvatarUrl { get; private set; } = default!;
+            [DataMember]
+            public string Content { get; private set; } = default!;
+            [DataMember]
+            public Instant TimeOfPost { get; private set; } = default!;
+
+            private IssueReplyDTO() { }
+            public IssueReplyDTO(uint id, string author, string authorUrl, string avatarUrl, string content, Instant time) : this()
+            {
+                Id = id;
+                Author = author;
+                AuthorUrl = authorUrl;
+                AvatarUrl = avatarUrl;
+                Content = content;
+                TimeOfPost = time;
+            }
         }
     }
 }

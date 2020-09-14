@@ -54,6 +54,12 @@ namespace NexusMods.Monitor.Scraper.Domain.AggregatesModel.IssueAggregate
             Content?.Remove();
             AddDomainEvent(new IssueRemovedEvent(Id));
         }
+        public void Return()
+        {
+            IsDeleted = false;
+            Content?.Return();
+            AddDomainEvent(new IssueAddedEvent(Id));
+        }
 
         public void SetContent(string author, string authorUrl, string avatarUrl, string content, bool isDeleted, Instant timeOfPost)
         {

@@ -30,5 +30,9 @@ namespace NexusMods.Monitor.Scraper.Domain.AggregatesModel.IssueAggregate
         {
             IsDeleted = true;
         }
+        public void Return()
+        {
+            IsDeleted = true;
+        }
     }
 }
