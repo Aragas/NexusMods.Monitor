@@ -1,5 +1,5 @@
 # Stage 1: Build application
-FROM mcr.microsoft.com/dotnet/sdk:6.0 AS build-env
+FROM mcr.microsoft.com/dotnet/sdk:6.0-alpine AS build-env
 
 WORKDIR /build
 
@@ -23,12 +23,12 @@ COPY ["src/NexusMods.Monitor.Shared.Application/", "NexusMods.Monitor.Shared.App
 COPY ["src/NexusMods.Monitor.Shared.Infrastructure/", "NexusMods.Monitor.Shared.Infrastructure/"]
 COPY ["src/NexusMods.Monitor.Shared.Domain/", "NexusMods.Monitor.Shared.Domain/"]
 
-RUN /bin/sh -c 'set -ex && \
+RUN /bin/ash -c 'set -ex && \
     ARCH=`uname -m` && \
-    if [ "$ARCH" == "amd64" ] || [ "$ARCH" == "x86_64" ]; then \
+    if [[ "$ARCH" == "amd64" || "$ARCH" == "x86_64" ]]; then \
        echo "x86_64" && \
        dotnet publish "NexusMods.Monitor.Scraper.Host/NexusMods.Monitor.Scraper.Host.csproj" -c Release -o ./output -r alpine-x64 --self-contained true; \
-    elif [ "$ARCH" == "aarch64" ] || [ "$ARCH" == "arm64" ]; then \
+    elif [[ "$ARCH" == "aarch64" || "$ARCH" == "arm64" ]]; then \
        echo "aarch64" && \
        dotnet publish "NexusMods.Monitor.Scraper.Host/NexusMods.Monitor.Scraper.Host.csproj" -c Release -o ./output -r alpine-arm --self-contained true; \
     else \
@@ -37,7 +37,7 @@ RUN /bin/sh -c 'set -ex && \
     fi'
 
 # Stage 2: Copy application artifacts into a smaller runtime environment, which is then used as our final image
-FROM mcr.microsoft.com/dotnet/runtime-deps:6.0
+FROM mcr.microsoft.com/dotnet/runtime-deps:6.0-alpine
 
 WORKDIR /app
 
