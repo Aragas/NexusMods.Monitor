@@ -12,19 +12,19 @@ networks:
   logging_syslog:
 
 services:
-  nexusmods.monitor.bot.discord:
+  nexusmods_monitor_bot_discord:
     image: ${DOCKER_REGISTRY-}nexusmods_monitor_bot_discord
     environment:
       Serilog__WriteTo__1__Args__serverUrl: http://seq:5341
       Discord__BotToken: PLACEHOLDER
-      Subscriptions__APIEndpointV1: http://nexusmods.monitor.subscriptions/api/v1/subscriptions
+      Subscriptions__APIEndpointV1: http://nexusmods_monitor_subscriptions/api/v1/subscriptions
       EventBus__Servers__0: nats://nats:4222
     build:
       context: ../../.
       dockerfile: src/NexusMods.Monitor.Bot.Discord.Host/Dockerfile
     depends_on:
-      - nexusmods.monitor.subscriptions
-      - nexusmods.monitor.scraper
+      - nexusmods_monitor_subscriptions
+      - nexusmods_monitor_scraper
       - nats
       - seq
     networks:
@@ -32,19 +32,19 @@ services:
       - eventbus
       - logging
 
-  nexusmods.monitor.bot.slack:
+  nexusmods_monitor_bot_slack:
     image: ${DOCKER_REGISTRY-}nexusmods_monitor_bot_slack
     environment:
       Serilog__WriteTo__1__Args__serverUrl: http://seq:5341
       Slack__BotToken: PLACEHOLDER
-      Subscriptions__APIEndpointV1: http://nexusmods.monitor.subscriptions/api/v1/subscriptions
+      Subscriptions__APIEndpointV1: http://nexusmods_monitor_subscriptions/api/v1/subscriptions
       EventBus__Servers__0: nats://nats:4222
     build:
       context: ../../.
       dockerfile: src/NexusMods.Monitor.Bot.Slack.Host/Dockerfile
     depends_on:
-      - nexusmods.monitor.subscriptions
-      - nexusmods.monitor.scraper
+      - nexusmods_monitor_subscriptions
+      - nexusmods_monitor_scraper
       - nats
       - seq
     networks:
@@ -52,19 +52,19 @@ services:
       - eventbus
       - logging
 
-  nexusmods.monitor.scraper:
+  nexusmods_monitor_scraper:
     image: ${DOCKER_REGISTRY-}nexusmods_monitor_scraper
     environment:
       Serilog__WriteTo__1__Args__serverUrl: http://seq:5341
       NexusMods__APIKey: PLACEHOLDER
-      Subscriptions__APIEndpointV1: http://nexusmods.monitor.subscriptions/api/v1/subscriptions
+      Subscriptions__APIEndpointV1: http://nexusmods_monitor_subscriptions/api/v1/subscriptions
       EventBus__Servers__0: nats://nats:4222
       ConnectionStrings__NexusMods: Host=postgres;Port=5432;Database=nexusmods;Username=nexusmodsmonitor;Password=nexusmodsmonitor;Include Error Detail=true;
     build:
       context: ../../.
       dockerfile: src/NexusMods.Monitor.Scraper.Host/Dockerfile
     depends_on:
-      - nexusmods.monitor.subscriptions
+      - nexusmods_monitor_subscriptions
       - postgres
       - nats
       - seq
@@ -74,7 +74,7 @@ services:
       - database
       - logging
 
-  nexusmods.monitor.subscriptions:
+  nexusmods_monitor_subscriptions:
     image: ${DOCKER_REGISTRY-}nexusmods_monitor_subscriptions
     environment:
       Serilog__WriteTo__1__Args__serverUrl: http://seq:5341
@@ -98,7 +98,7 @@ services:
     #  - 36222:6222
     #  - 38222:8222
     depends_on:
-      - seq.syslog
+      - seq_syslog
     networks:
       - eventbus
       - logging_syslog
@@ -127,7 +127,7 @@ services:
       - logging
       - logging_syslog
 
-  seq.syslog:
+  seq_syslog:
     image: datalust/seq-input-syslog:latest
     environment:
       SEQ_ADDRESS: http://seq:5341

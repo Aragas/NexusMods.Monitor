@@ -1,5 +1,5 @@
 # Stage 1: Build application
-FROM mcr.microsoft.com/dotnet/sdk:6.0-alpine AS build-env
+FROM mcr.microsoft.com/dotnet/sdk:6.0 AS build-env
 
 WORKDIR /build
 
@@ -37,7 +37,7 @@ RUN /bin/ash -c 'set -ex && \
     fi'
 
 # Stage 2: Copy application artifacts into a smaller runtime environment, which is then used as our final image
-FROM mcr.microsoft.com/dotnet/runtime-deps:6.0-alpine
+FROM mcr.microsoft.com/dotnet/runtime-deps:6.0
 
 WORKDIR /app
 
