@@ -5,16 +5,18 @@ using NexusMods.Monitor.Scraper.Application.Queries.NexusModsComments;
 using NodaTime;
 
 using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.Linq;
 using System.Runtime.Serialization;
 
 namespace NexusMods.Monitor.Scraper.Application.Commands.Comments
 {
+    // TODO:
     [DataContract]
-    public sealed class CommentAddNewCommand : IRequest<bool>
+    public sealed record CommentAddNewCommand : IRequest<bool>
     {
         [DataMember]
-        private readonly List<CommentReplyDTO> _commentReplies;
+        private readonly IReadOnlyList<CommentReplyDTO> _commentReplies;
 
         [DataMember]
         public uint Id { get; private set; } = default!;
@@ -72,30 +74,9 @@ namespace NexusMods.Monitor.Scraper.Application.Commands.Comments
                 x.AvatarUrl,
                 x.Content,
                 x.Post
-            )).ToList();
+            )).ToImmutableArray();
         }
 
-        public sealed class CommentReplyDTO
-        {
-            public uint Id { get; private set; } = default!;
-            public string Url { get; private set; } = default!;
-            public string Author { get; private set; } = default!;
-            public string AuthorUrl { get; private set; } = default!;
-            public string AvatarUrl { get; private set; } = default!;
-            public string Content { get; private set; } = default!;
-            public Instant TimeOfPost { get; private set; } = default!;
-
-            private CommentReplyDTO() { }
-            public CommentReplyDTO(uint id, string url, string author, string authorUrl, string avatarUrl, string content, Instant time) : this()
-            {
-                Id = id;
-                Url = url;
-                Author = author;
-                AuthorUrl = authorUrl;
-                AvatarUrl = avatarUrl;
-                Content = content;
-                TimeOfPost = time;
-            }
-        }
+        public sealed record CommentReplyDTO(uint Id, string Url, string Author, string AuthorUrl, string AvatarUrl, string Content, Instant TimeOfPost);
     }
 }

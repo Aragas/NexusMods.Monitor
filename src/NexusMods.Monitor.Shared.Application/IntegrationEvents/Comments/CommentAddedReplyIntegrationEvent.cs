@@ -8,7 +8,7 @@ namespace NexusMods.Monitor.Shared.Application.IntegrationEvents.Comments
         public uint ReplyId { get; private set; } = default!;
 
         private CommentAddedReplyIntegrationEvent() { }
-        public CommentAddedReplyIntegrationEvent(CommentDTO comment, uint replyId): this()
+        public CommentAddedReplyIntegrationEvent(CommentDTO comment, uint replyId) : this()
         {
             Comment = comment;
             ReplyId = replyId;

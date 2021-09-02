@@ -66,7 +66,7 @@ namespace NexusMods.Monitor.Bot.Discord.Host.BackgroundServices
             await _discordSocketClient.LoginAsync(TokenType.Bot, token);
             await _discordSocketClient.StartAsync();
 
-            await _eventSubscriber.Subscribe();
+            await _eventSubscriber.Subscribe(cancellationToken);
 
             _logger.LogWarning("Started Discord Bot.");
         }
@@ -105,7 +105,7 @@ namespace NexusMods.Monitor.Bot.Discord.Host.BackgroundServices
                     break;
 
                 default:
-                    _logger.LogWarning("Incorrect LogMessage.Severity - {arg}, {message}", (int)arg.Severity, arg.Message);
+                    _logger.LogWarning("Incorrect LogMessage.Severity - {arg}, {message}", (int) arg.Severity, arg.Message);
                     break;
             }
 
@@ -114,8 +114,7 @@ namespace NexusMods.Monitor.Bot.Discord.Host.BackgroundServices
 
         private async Task Bot_MessageReceived(SocketMessage arg)
         {
-            if (!(arg is SocketUserMessage message)) return;
-            if (message.Source != MessageSource.User) return;
+            if (arg is not SocketUserMessage { Source: MessageSource.User } message) return;
             if (message.Channel is IPrivateChannel) return;
 
             var argPos = 0;
@@ -130,7 +129,7 @@ namespace NexusMods.Monitor.Bot.Discord.Host.BackgroundServices
                     _logger.LogError(result.ToString());
                     await context.Message.AddReactionAsync(new Emoji("⁉️"));
                 }
-                else if (result.Error.HasValue && result.Error.Value == CommandError.UnknownCommand)
+                else if (result.Error is CommandError.UnknownCommand)
                 {
                     await context.Message.AddReactionAsync(new Emoji("❓"));
                 }

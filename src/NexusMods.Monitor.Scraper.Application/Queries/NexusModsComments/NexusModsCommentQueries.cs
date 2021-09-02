@@ -48,7 +48,7 @@ namespace NexusMods.Monitor.Scraper.Application.Queries.NexusModsComments
             if (!_memoryCache.TryGetValue(key, out NexusModsCommentRootViewModel[] cacheEntry))
             {
                 var commentRoots = new List<NexusModsCommentRootViewModel>();
-                for (var page = 1;; page++)
+                for (var page = 1; ; page++)
                 {
                     await _timeLimiterComments;
 
@@ -63,7 +63,7 @@ namespace NexusMods.Monitor.Scraper.Application.Queries.NexusModsComments
                     var commentContainer = document.GetElementById("comment-container");
                     foreach (var commentElement in commentContainer?.GetElementsByTagName("ol")?.FirstOrDefault()?.Children ?? Enumerable.Empty<IElement>())
                     {
-                        var comment = new NexusModsCommentRootViewModel(gameIdText, gameId, modId, new NexusModsCommentViewModel(commentElement));
+                        var comment = new NexusModsCommentRootViewModel(gameIdText, gameId, modId, NexusModsCommentViewModel.FromElement(commentElement));
                         commentRoots.Add(comment);
                         yield return comment;
                     }

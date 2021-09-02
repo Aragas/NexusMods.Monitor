@@ -1,12 +1,12 @@
 ﻿using Microsoft.Extensions.Options;
 
-using Newtonsoft.Json;
-
 using NexusMods.Monitor.Scraper.Application.Options;
+using NexusMods.Monitor.Shared.Application;
 
 using System;
 using System.Collections.Generic;
 using System.Net.Http;
+using System.Net.Sockets;
 
 namespace NexusMods.Monitor.Scraper.Application.Queries.Subscriptions
 {
@@ -14,32 +14,26 @@ namespace NexusMods.Monitor.Scraper.Application.Queries.Subscriptions
     {
         private readonly IHttpClientFactory _httpClientFactory;
         private readonly SubscriptionsOptions _options;
+        private readonly DefaultJsonSerializer _jsonSerializer;
 
-        public SubscriptionQueries(IHttpClientFactory httpClientFactory, IOptions<SubscriptionsOptions> options)
+        public SubscriptionQueries(IHttpClientFactory httpClientFactory, IOptions<SubscriptionsOptions> options, DefaultJsonSerializer jsonSerializer)
         {
             _httpClientFactory = httpClientFactory ?? throw new ArgumentNullException(nameof(httpClientFactory));
             _options = options.Value ?? throw new ArgumentNullException(nameof(options));
+            _jsonSerializer = jsonSerializer ?? throw new ArgumentNullException(nameof(jsonSerializer));
         }
 
         public async IAsyncEnumerable<SubscriptionViewModel> GetAllAsync()
         {
-            using var response = await _httpClientFactory.CreateClient().GetAsync($"{_options.APIEndpointV1}/all");
+            using var response = await _httpClientFactory.CreateClient("RetryClient").GetAsync($"{_options.APIEndpointV1}/all");
             var content = await response.Content.ReadAsStringAsync();
-            var subscriptionDTOs = JsonConvert.DeserializeObject<SubscriptionDTO[]?>(content);
-            foreach (var subscriptionDTO in subscriptionDTOs ?? Array.Empty<SubscriptionDTO>())
+            var subscriptions = _jsonSerializer.Deserialize<SubscriptionDTO[]?>(content) ?? Array.Empty<SubscriptionDTO>();
+            foreach (var (nexusModsGameId, nexusModsModId) in subscriptions)
             {
-                yield return new SubscriptionViewModel(subscriptionDTO.NexusModsGameId, subscriptionDTO.NexusModsModId);
+                yield return new SubscriptionViewModel(nexusModsGameId, nexusModsModId);
             }
         }
 
-        private class SubscriptionDTO
-        {
-            [JsonProperty("nexusModsGameId")]
-            public uint NexusModsGameId { get; private set; } = default!;
-            [JsonProperty("nexusModsModId")]
-            public uint NexusModsModId { get; private set; } = default!;
-
-            private SubscriptionDTO() { }
-        }
+        private sealed record SubscriptionDTO(uint NexusModsGameId, uint NexusModsModId);
     }
 }

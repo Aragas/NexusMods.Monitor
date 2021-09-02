@@ -4,6 +4,7 @@ using Microsoft.EntityFrameworkCore;
 
 using NexusMods.Monitor.Shared.Domain.SeedWork;
 
+using System.Collections.Immutable;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -15,14 +16,15 @@ namespace NexusMods.Monitor.Shared.Infrastructure.Extensions
         {
             var domainEntities = ctx.ChangeTracker
                 .Entries<Entity>()
-                .Where(x => x.Entity.DomainEvents.Count > 0);
+                .Where(x => x.Entity.DomainEvents.Count > 0)
+                .ToImmutableArray();
 
             var domainEvents = domainEntities
                 .SelectMany(x => x.Entity.DomainEvents)
-                .ToList();
+                .ToImmutableArray();
 
-            domainEntities.ToList()
-                .ForEach(entity => entity.Entity.ClearDomainEvents());
+            foreach (var domainEntity in domainEntities)
+                domainEntity.Entity.ClearDomainEvents();
 
             foreach (var domainEvent in domainEvents)
                 await mediator.Publish(domainEvent);

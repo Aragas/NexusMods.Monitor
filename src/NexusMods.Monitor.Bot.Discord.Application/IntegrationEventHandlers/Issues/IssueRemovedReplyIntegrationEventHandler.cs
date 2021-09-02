@@ -17,7 +17,7 @@ namespace NexusMods.Monitor.Bot.Discord.Application.IntegrationEventHandlers.Iss
         private readonly ISubscriptionQueries _subscriptionQueries;
         private readonly IDiscordClient _discordClient;
 
-        public IssueRemovedReplyIntegrationEventHandler(ILogger<IssueChangedStatusIntegrationEventHandler> logger,
+        public IssueRemovedReplyIntegrationEventHandler(ILogger<IssueRemovedReplyIntegrationEventHandler> logger,
             ISubscriptionQueries subscriptionQueries,
             IDiscordClient discordClient)
         {
@@ -32,7 +32,7 @@ namespace NexusMods.Monitor.Bot.Discord.Application.IntegrationEventHandlers.Iss
 
             foreach (var subscriptionEntity in await _subscriptionQueries.GetAllAsync().ToListAsync())
             {
-                if (!(await _discordClient.GetChannelAsync(subscriptionEntity.ChannelId) is IMessageChannel channel)) continue;
+                if (await _discordClient.GetChannelAsync(subscriptionEntity.ChannelId) is not IMessageChannel channel) continue;
                 if (subscriptionEntity.NexusModsGameId != command.Issue.NexusModsGameId || subscriptionEntity.NexusModsModId != command.Issue.NexusModsModId) continue;
                 await channel.SendMessageAsync(embed: embed);
             }

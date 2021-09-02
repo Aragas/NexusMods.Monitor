@@ -16,6 +16,7 @@ using Polly;
 using RateLimiter;
 
 using System;
+using System.Collections.Immutable;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -65,25 +66,25 @@ namespace NexusMods.Monitor.Scraper.Host.BackgroundServices
             var nexusModsIssueQueries = scope.ServiceProvider.GetRequiredService<INexusModsIssueQueries>();
             var mediator = scope.ServiceProvider.GetRequiredService<IMediator>();
 
-            await foreach (var subscription in subscriptionQueries.GetAllAsync().Distinct(new SubscriptionViewModelComparer()).WithCancellation(ct))
+            await foreach (var (nexusModsGameId, nexusModsModId) in subscriptionQueries.GetAllAsync().Distinct(new SubscriptionViewModelComparer()).WithCancellation(ct))
             {
-                var nexusModsIssues = await nexusModsIssueQueries.GetAllAsync(subscription.NexusModsGameId, subscription.NexusModsModId).ToListAsync(ct);
+                var nexusModsIssues = await nexusModsIssueQueries.GetAllAsync(nexusModsGameId, nexusModsModId).ToListAsync(ct);
                 var databaseIssues = await issueQueries.GetAllAsync().Where(x =>
-                    x.NexusModsGameId == subscription.NexusModsGameId &&
-                    x.NexusModsModId == subscription.NexusModsModId).ToListAsync(ct);
+                    x.NexusModsGameId == nexusModsGameId &&
+                    x.NexusModsModId == nexusModsModId).ToListAsync(ct);
 
                 var newIssues = nexusModsIssues.Where(x => databaseIssues.All(y => y.Id != x.NexusModsIssue.Id));
-                var deletedIssues = databaseIssues.Where(x => nexusModsIssues.All(y => y.NexusModsIssue.Id != x.Id)).ToList();
+                var deletedIssues = databaseIssues.Where(x => nexusModsIssues.All(y => y.NexusModsIssue.Id != x.Id)).ToImmutableArray();
                 var existingIssues = nexusModsIssues.Select(nmie => databaseIssues.Find(y => y.Id == nmie.NexusModsIssue.Id) is { } die
                     ? (DatabaseIssueEntity: die, NexusModsIssueEntity: nmie)
-                    : default).Where(tuple => tuple != default).ToList();
+                    : default).Where(tuple => tuple != default).ToImmutableArray();
 
                 var now = _clock.GetCurrentInstant();
 
                 foreach (var issueRoot in newIssues)
                 {
                     issueRoot.SetContent(await nexusModsIssueQueries.GetContentAsync(issueRoot.NexusModsIssue.Id));
-                    await issueRoot.SetReplies(nexusModsIssueQueries.GetRepliesAsync(issueRoot.NexusModsIssue.Id));
+                    await issueRoot.SetRepliesAsync(nexusModsIssueQueries.GetRepliesAsync(issueRoot.NexusModsIssue.Id));
 
                     if (now - issueRoot.NexusModsIssue.LastPost < Duration.FromDays(1))
                         await mediator.Send(new IssueAddNewCommand(issueRoot), ct);
@@ -116,10 +117,10 @@ namespace NexusMods.Monitor.Scraper.Host.BackgroundServices
                     if (/*databaseIssueEntity.Replies.Count() < nexusModsIssueRoot.NexusModsIssue.ReplyCount ||*/databaseIssue.TimeOfLastPost < nexusModsIssueRoot.NexusModsIssue.LastPost)
                     {
                         if (nexusModsIssueRoot.NexusModsIssueReplies is null)
-                            await nexusModsIssueRoot.SetReplies(nexusModsIssueQueries.GetRepliesAsync(nexusModsIssueRoot.NexusModsIssue.Id));
+                            await nexusModsIssueRoot.SetRepliesAsync(nexusModsIssueQueries.GetRepliesAsync(nexusModsIssueRoot.NexusModsIssue.Id));
 
                         var newReplies = nexusModsIssueRoot.NexusModsIssueReplies!.Where(x => databaseIssue.Replies.All(y => y.Id != x.Id));
-                        var deletedReplies = databaseIssue.Replies.Where(x => nexusModsIssueRoot.NexusModsIssueReplies!.All(y => y.Id != x.Id)).ToList();
+                        var deletedReplies = databaseIssue.Replies.Where(x => nexusModsIssueRoot.NexusModsIssueReplies!.All(y => y.Id != x.Id)).ToImmutableArray();
 
                         foreach (var issueReply in newReplies)
                         {

@@ -71,7 +71,7 @@ namespace NexusMods.Monitor.Bot.Slack.Application
             return this;
         }
 
-        public AttachmentBuilder WithFields(params  AttachmentFieldBuilder[] builders)
+        public AttachmentBuilder WithFields(params AttachmentFieldBuilder[] builders)
         {
             foreach (var fieldBuilder in builders)
                 _attachment.Fields.Add(fieldBuilder.Build());

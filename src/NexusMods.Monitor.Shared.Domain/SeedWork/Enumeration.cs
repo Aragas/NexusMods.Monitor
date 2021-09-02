@@ -31,9 +31,9 @@ namespace NexusMods.Monitor.Shared.Domain.SeedWork
             }
         }
 
-        public override bool Equals(object obj)
+        public override bool Equals(object? obj)
         {
-            if (!(obj is Enumeration otherValue))
+            if (obj is not Enumeration otherValue)
                 return false;
 
             var typeMatches = GetType() == obj.GetType();
@@ -72,6 +72,6 @@ namespace NexusMods.Monitor.Shared.Domain.SeedWork
             return matchingItem;
         }
 
-        public int CompareTo(object other) => Id.CompareTo(((Enumeration)other).Id);
+        public int CompareTo(object? other) => Id.CompareTo(((Enumeration) other).Id);
     }
 }

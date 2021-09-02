@@ -50,7 +50,7 @@ namespace NexusMods.Monitor.Scraper.Application.Queries.NexusModsIssues
             if (!_memoryCache.TryGetValue(key, out NexusModsIssueRootViewModel[] cacheEntry))
             {
                 var issueRoots = new List<NexusModsIssueRootViewModel>();
-                for (var page = 1;; page++)
+                for (var page = 1; ; page++)
                 {
                     await _timeLimiterIssues;
 
@@ -62,10 +62,10 @@ namespace NexusMods.Monitor.Scraper.Application.Queries.NexusModsIssues
                     var context = BrowsingContext.New(config);
                     var document = await context.OpenAsync(request => request.Content(content));
 
-                    var forumBugs = document.Body.GetElementsByClassName("forum-bugs").FirstOrDefault();
+                    var forumBugs = document.Body?.GetElementsByClassName("forum-bugs").FirstOrDefault();
                     foreach (var issueElement in forumBugs?.GetElementsByTagName("tbody").FirstOrDefault()?.Children ?? Enumerable.Empty<IElement>())
                     {
-                        var comment = new NexusModsIssueRootViewModel(gameIdText, gameId, modId, new NexusModsIssueViewModel(issueElement));
+                        var comment = new NexusModsIssueRootViewModel(gameIdText, gameId, modId, NexusModsIssueViewModel.FromElement(issueElement));
                         issueRoots.Add(comment);
                         yield return comment;
                     }
@@ -89,16 +89,16 @@ namespace NexusMods.Monitor.Scraper.Application.Queries.NexusModsIssues
         public async Task<NexusModsIssueContentViewModel?> GetContentAsync(uint issueId)
         {
             var document = await GetModBugReplyListAsync(issueId);
-            var commentTags = document.Body.GetElementsByClassName("comments").FirstOrDefault()?.GetElementsByClassName("comment") ?? Enumerable.Empty<IElement>();
-            return commentTags.Select(x => new NexusModsIssueContentViewModel(x)).FirstOrDefault();
+            var commentTags = document.Body?.GetElementsByClassName("comments").FirstOrDefault()?.GetElementsByClassName("comment") ?? Enumerable.Empty<IElement>();
+            return commentTags.Select(NexusModsIssueContentViewModel.FromElement).FirstOrDefault();
         }
 
         public async IAsyncEnumerable<NexusModsIssueReplyViewModel> GetRepliesAsync(uint issueId)
         {
             var document = await GetModBugReplyListAsync(issueId);
-            var commentTags = document.Body.GetElementsByClassName("comments").FirstOrDefault()?.GetElementsByClassName("comment") ?? Enumerable.Empty<IElement>();
+            var commentTags = document.Body?.GetElementsByClassName("comments").FirstOrDefault()?.GetElementsByClassName("comment") ?? Enumerable.Empty<IElement>();
             foreach (var issueReply in commentTags.Skip(1))
-                yield return new NexusModsIssueReplyViewModel(issueReply);
+                yield return NexusModsIssueReplyViewModel.FromElement(issueReply);
         }
 
 
@@ -110,7 +110,7 @@ namespace NexusMods.Monitor.Scraper.Application.Queries.NexusModsIssues
 
                 using var response = await _httpClientFactory.CreateClient().PostAsync(
                     "https://www.nexusmods.com/Core/Libs/Common/Widgets/ModBugReplyList",
-                    new FormUrlEncodedContent(new[] { new KeyValuePair<string, string>("issue_id", issueId.ToString()) }));
+                    new FormUrlEncodedContent(new[] { new KeyValuePair<string?, string?>("issue_id", issueId.ToString()) }));
                 var content = await response.Content.ReadAsStringAsync();
 
                 var config = Configuration.Default.WithDefaultLoader();

@@ -24,7 +24,7 @@ namespace NexusMods.Monitor.Shared.Host.Extensions
             services.AddSingleton<IEventPublisher, NatsEventPublisher>();
             services.AddSingleton<IEventSubscriber, NatsEventSubscriber>();
 
-            services.Replace(new ServiceDescriptor(typeof(IEventProcessor), typeof(EventProcessorNewtonsoftJson), ServiceLifetime.Singleton));
+            services.Replace(new ServiceDescriptor(typeof(IEventProcessor), typeof(EventProcessorJson), ServiceLifetime.Singleton));
             foreach (var type in assembly.GetTypes().Where(typeof(IEventHandler).IsAssignableFrom))
             {
                 services.AddTransient(typeof(IEventHandler), type);

@@ -6,16 +6,18 @@ using NexusMods.Monitor.Scraper.Domain.AggregatesModel.IssueAggregate;
 using NodaTime;
 
 using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.Linq;
 using System.Runtime.Serialization;
 
 namespace NexusMods.Monitor.Scraper.Application.Commands.Issues
 {
+    // TODO:
     [DataContract]
-    public sealed class IssueAddCommand : IRequest<bool>
+    public sealed record IssueAddCommand : IRequest<bool>
     {
         [DataMember]
-        private readonly List<IssueReplyDTO> _replies = default!;
+        private readonly IReadOnlyList<IssueReplyDTO> _replies = default!;
 
         [DataMember]
         public uint Id { get; private set; } = default!;
@@ -65,7 +67,7 @@ namespace NexusMods.Monitor.Scraper.Application.Commands.Issues
             IsDeleted = false;
             TimeOfLastPost = nexusModsIssueRoot.NexusModsIssue.LastPost;
 
-            if (!(nexusModsIssueRoot.NexusModsIssueContent is null))
+            if (nexusModsIssueRoot.NexusModsIssueContent is not null)
             {
                 Content = new IssueContentDTO(
                     nexusModsIssueRoot.NexusModsIssueContent.Id,
@@ -78,7 +80,7 @@ namespace NexusMods.Monitor.Scraper.Application.Commands.Issues
                 );
             }
 
-            if (!(nexusModsIssueRoot.NexusModsIssueReplies is null))
+            if (nexusModsIssueRoot.NexusModsIssueReplies is not null)
             {
                 _replies = nexusModsIssueRoot.NexusModsIssueReplies.Select(x => new IssueReplyDTO(
                     x.Id,
@@ -88,70 +90,12 @@ namespace NexusMods.Monitor.Scraper.Application.Commands.Issues
                     x.Content,
                     false,
                     x.Time
-                )).ToList();
+                )).ToImmutableArray();
             }
         }
 
-        [DataContract]
-        public sealed class IssueContentDTO
-        {
-            [DataMember]
-            public uint Id { get; private set; } = default!;
-            [DataMember]
-            public string Author { get; private set; } = default!;
-            [DataMember]
-            public string AuthorUrl { get; private set; } = default!;
-            [DataMember]
-            public string AvatarUrl { get; private set; } = default!;
-            [DataMember]
-            public string Content { get; private set; } = default!;
-            [DataMember]
-            public bool IsDeleted { get; private set; } = default!;
-            [DataMember]
-            public Instant TimeOfPost { get; private set; } = default!;
+        public sealed record IssueContentDTO(uint Id, string Author, string AuthorUrl, string AvatarUrl, string Content, bool IsDeleted, Instant TimeOfPost);
 
-            private IssueContentDTO() { }
-            public IssueContentDTO(uint id, string author, string authorUrl, string avatarUrl, string content, bool isDeleted, Instant time) : this()
-            {
-                Id = id;
-                Author = author;
-                AuthorUrl = authorUrl;
-                AvatarUrl = avatarUrl;
-                Content = content;
-                IsDeleted = isDeleted;
-                TimeOfPost = time;
-            }
-        }
-
-        [DataContract]
-        public sealed class IssueReplyDTO
-        {
-            [DataMember]
-            public uint Id { get; private set; } = default!;
-            [DataMember]
-            public string Author { get; private set; } = default!;
-            [DataMember]
-            public string AuthorUrl { get; private set; } = default!;
-            [DataMember]
-            public string AvatarUrl { get; private set; } = default!;
-            [DataMember]
-            public string Content { get; private set; } = default!;
-            [DataMember]
-            public bool IsDeleted { get; private set; } = default!;
-            [DataMember]
-            public Instant TimeOfPost { get; private set; } = default!;
-
-            private IssueReplyDTO() { }
-            public IssueReplyDTO(uint id, string author, string authorUrl, string avatarUrl, string content, bool isDeleted, Instant time) : this()
-            {
-                Id = id;
-                Author = author;
-                AuthorUrl = authorUrl;
-                AvatarUrl = avatarUrl;
-                Content = content;
-                IsDeleted = isDeleted;
-                TimeOfPost = time;
-            }
-        }
+        public sealed record IssueReplyDTO(uint Id, string Author, string AuthorUrl, string AvatarUrl, string Content, bool IsDeleted, Instant TimeOfPost);
     }
 }

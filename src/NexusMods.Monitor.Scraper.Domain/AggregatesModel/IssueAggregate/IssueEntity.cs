@@ -105,7 +105,7 @@ namespace NexusMods.Monitor.Scraper.Domain.AggregatesModel.IssueAggregate
         public void RemoveReply(uint id)
         {
             var issueReplyEntity = Replies.SingleOrDefault(o => o.Id == id);
-            if (!(issueReplyEntity is null))
+            if (issueReplyEntity is not null)
             {
                 issueReplyEntity.Remove();
                 AddDomainEvent(new IssueRemovedReplyEvent(Id, id));

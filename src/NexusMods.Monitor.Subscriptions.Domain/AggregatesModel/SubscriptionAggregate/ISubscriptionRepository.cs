@@ -1,5 +1,6 @@
-﻿using System.Threading.Tasks;
-using NexusMods.Monitor.Shared.Domain.SeedWork;
+﻿using NexusMods.Monitor.Shared.Domain.SeedWork;
+
+using System.Threading.Tasks;
 
 namespace NexusMods.Monitor.Subscriptions.Domain.AggregatesModel.SubscriptionAggregate
 {

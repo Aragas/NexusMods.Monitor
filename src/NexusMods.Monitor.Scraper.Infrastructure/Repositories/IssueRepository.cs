@@ -23,7 +23,7 @@ namespace NexusMods.Monitor.Scraper.Infrastructure.Repositories
 
         public IssueEntity Add(IssueEntity issueEntity)
         {
-            return  _context.IssueEntities.Add(issueEntity).Entity;
+            return _context.Add(issueEntity).Entity;
         }
 
         public async Task<IssueEntity?> GetAsync(uint issueEntityId)
@@ -78,7 +78,7 @@ namespace NexusMods.Monitor.Scraper.Infrastructure.Repositories
 
         public IssueEntity Update(IssueEntity issueEntity)
         {
-            return  _context.IssueEntities.Update(issueEntity).Entity;
+            return _context.Update(issueEntity).Entity;
         }
     }
 }

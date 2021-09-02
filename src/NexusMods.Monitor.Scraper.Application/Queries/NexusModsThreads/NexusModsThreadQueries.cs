@@ -40,7 +40,7 @@ namespace NexusMods.Monitor.Scraper.Application.Queries.NexusModsThreads
                 var document = await context.OpenAsync(request => request.Content(content));
 
                 var element = document.GetElementById("mod-page-tab-posts");
-                var dataTarget = element.Children[0]?.GetAttribute("data-target");
+                var dataTarget = element?.Children[0]?.GetAttribute("data-target");
                 var split = dataTarget?.Split("thread_id=", StringSplitOptions.RemoveEmptyEntries);
                 if (split?.Length > 1)
                 {

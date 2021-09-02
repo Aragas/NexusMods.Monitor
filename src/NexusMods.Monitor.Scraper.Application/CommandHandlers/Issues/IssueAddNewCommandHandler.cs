@@ -54,14 +54,14 @@ namespace NexusMods.Monitor.Scraper.Application.CommandHandlers.Issues
                 message.Title,
                 message.Url,
                 message.ModVersion,
-                message.Status,
-                message.Priority,
+                await _issueRepository.GetStatusAsync(message.Status.Id),
+                await _issueRepository.GetPriorityAsync(message.Priority.Id),
                 message.IsPrivate,
                 message.IsClosed,
                 message.IsDeleted,
                 message.TimeOfLastPost);
 
-            if (!(message.Content is null))
+            if (message.Content is not null)
             {
                 issueEntity.SetContent(
                     message.Content.Author,

@@ -8,8 +8,9 @@ using System.Runtime.Serialization;
 
 namespace NexusMods.Monitor.Scraper.Application.Commands.Comments
 {
+    // TODO:
     [DataContract]
-    public sealed class CommentAddReplyCommand : IRequest<bool>
+    public sealed record CommentAddReplyCommand : IRequest<bool>
     {
         [DataMember]
         public uint Id { get; private set; } = default!;

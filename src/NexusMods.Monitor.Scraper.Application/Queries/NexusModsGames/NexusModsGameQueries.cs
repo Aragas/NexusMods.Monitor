@@ -1,8 +1,6 @@
 ﻿using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Logging;
 
-using NexusMods.Monitor.Scraper.Infrastructure.Repositories;
-
 using NexusModsNET;
 using NexusModsNET.Inquirers;
 

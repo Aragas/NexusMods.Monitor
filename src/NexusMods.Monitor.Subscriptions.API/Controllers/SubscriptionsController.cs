@@ -32,17 +32,22 @@ namespace NexusMods.Monitor.Subscriptions.API.Controllers
         [HttpPut]
         [ProducesResponseType((int) HttpStatusCode.OK)]
         [ProducesResponseType((int) HttpStatusCode.BadRequest)]
-        public async Task<IActionResult> SubscribeAsync([FromBody] SubscriptionAddCommand command) => await _mediator.Send(command) ?  (IActionResult) Ok() : (IActionResult) BadRequest();
+        public async Task<IActionResult> SubscribeAsync([FromBody] SubscriptionAddCommand command) => await _mediator.Send(command) ? Ok() : BadRequest();
 
         [Route("unsubscribe")]
         [HttpPut]
         [ProducesResponseType((int) HttpStatusCode.OK)]
         [ProducesResponseType((int) HttpStatusCode.BadRequest)]
-        public async Task<IActionResult> UnsubscribeAsync([FromBody] SubscriptionRemoveCommand command) => await _mediator.Send(command) ?  (IActionResult) Ok() : (IActionResult) BadRequest();
+        public async Task<IActionResult> UnsubscribeAsync([FromBody] SubscriptionRemoveCommand command) => await _mediator.Send(command) ? Ok() : BadRequest();
 
         [Route("all")]
         [HttpGet]
         [ProducesResponseType((int) HttpStatusCode.OK)]
+#if NET6_0
+        public IActionResult GetAllAsync() => Ok(_subscriptionQueries.GetSubscriptionsAsync());
+#else
         public async Task<IActionResult> GetAllAsync() => Ok(await _subscriptionQueries.GetSubscriptionsAsync().ToListAsync());
+#endif
+
     }
 }

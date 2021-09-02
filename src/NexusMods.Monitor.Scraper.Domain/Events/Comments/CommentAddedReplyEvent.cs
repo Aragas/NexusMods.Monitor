@@ -2,15 +2,5 @@
 
 namespace NexusMods.Monitor.Scraper.Domain.Events.Comments
 {
-    public sealed class CommentAddedReplyEvent : INotification
-    {
-        public uint Id { get; }
-        public uint ReplyId { get; }
-
-        public CommentAddedReplyEvent(uint id, uint replyId)
-        {
-            Id = id;
-            ReplyId = replyId;
-        }
-    }
+    public sealed record CommentAddedReplyEvent(uint Id, uint ReplyId) : INotification;
 }

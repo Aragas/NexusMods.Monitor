@@ -3,14 +3,14 @@
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using Microsoft.Extensions.Options;
 
+using NexusMods.Monitor.Bot.Slack.Application;
 using NexusMods.Monitor.Bot.Slack.Application.CommandHandlers;
 using NexusMods.Monitor.Bot.Slack.Application.IntegrationEventHandlers.Comments;
 using NexusMods.Monitor.Bot.Slack.Application.Options;
 using NexusMods.Monitor.Bot.Slack.Application.Queries;
 using NexusMods.Monitor.Bot.Slack.Host.BackgroundServices;
-using NexusMods.Monitor.Bot.Slack.Host.Options;
+using NexusMods.Monitor.Shared.Application;
 using NexusMods.Monitor.Shared.Host.Extensions;
 
 using NodaTime;
@@ -86,10 +86,12 @@ namespace NexusMods.Monitor.Bot.Slack.Host
                 services.AddTransient<IClock, SystemClock>(_ => SystemClock.Instance);
                 services.AddEventBusNatsAndEventHandlers(context.Configuration.GetSection("EventBus"), typeof(CommentAddedNewIntegrationEventHandler).Assembly);
 
+                services.AddSingleton<DefaultJsonSerializer>();
+
                 services.Configure<SlackOptions>(context.Configuration.GetSection("Slack"));
                 services.Configure<SubscriptionsOptions>(context.Configuration.GetSection("Subscriptions"));
 
-                services.AddSingleton<ISlackBot, SlackBot>(sp => new SlackBot(sp.GetRequiredService<IOptions<SlackOptions>>().Value.BotToken));
+                services.AddSingleton<ISlackBot, SlackBotWrapper>();
 
                 services.AddHostedService<SlackService>();
 

@@ -1,14 +1,12 @@
-﻿using AutoMapper;
-
-using MediatR;
+﻿using MediatR;
 
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Options;
 
+using NexusMods.Monitor.Scraper.Application;
 using NexusMods.Monitor.Scraper.Application.CommandHandlers.Comments;
 using NexusMods.Monitor.Scraper.Application.Extensions;
 using NexusMods.Monitor.Scraper.Application.Options;
@@ -22,7 +20,6 @@ using NexusMods.Monitor.Scraper.Application.Queries.Subscriptions;
 using NexusMods.Monitor.Scraper.Domain.AggregatesModel.CommentAggregate;
 using NexusMods.Monitor.Scraper.Domain.AggregatesModel.IssueAggregate;
 using NexusMods.Monitor.Scraper.Host.BackgroundServices;
-using NexusMods.Monitor.Scraper.Host.Options;
 using NexusMods.Monitor.Scraper.Infrastructure.Contexts;
 using NexusMods.Monitor.Scraper.Infrastructure.Repositories;
 using NexusMods.Monitor.Shared.Application;
@@ -32,12 +29,19 @@ using NexusModsNET;
 
 using NodaTime;
 
+using Polly;
+using Polly.Extensions.Http;
+using Polly.Timeout;
+
 using Serilog;
 using Serilog.Exceptions;
 using Serilog.Exceptions.Core;
 using Serilog.Exceptions.EntityFrameworkCore.Destructurers;
 
 using System;
+using System.Net;
+using System.Net.Http;
+using System.Net.Sockets;
 using System.Threading.Tasks;
 
 namespace NexusMods.Monitor.Scraper.Host
@@ -61,7 +65,7 @@ namespace NexusMods.Monitor.Scraper.Host
 
             try
             {
-                Log.Warning("Starting.");
+                Log.Warning("Starting");
 
                 var hostBuilder = CreateHostBuilder(args);
 
@@ -77,7 +81,7 @@ namespace NexusMods.Monitor.Scraper.Host
             }
             catch (Exception ex)
             {
-                Log.Fatal(ex, "Fatal exception.");
+                Log.Fatal(ex, "Fatal exception");
                 throw;
             }
             finally
@@ -125,8 +129,23 @@ namespace NexusMods.Monitor.Scraper.Host
                 services.AddMediatR(typeof(CommentAddCommandHandler).Assembly);
                 services.AddMemoryCache();
                 services.AddHttpClient();
+                services.AddHttpClient("RetryClient", client =>
+                {
+                    client.Timeout = TimeSpan.FromSeconds(100);
+                }).AddPolicyHandler((sp, request) => Policy
+                    .HandleResult<HttpResponseMessage>(r => !r.IsSuccessStatusCode)
+                    .OrTransientHttpError()
+                    .Or<SocketException>(exception => exception.SocketErrorCode is SocketError.ConnectionRefused)
+                    .WaitAndRetryAsync(5, retryAttempt => TimeSpan.FromSeconds(retryAttempt),
+                        onRetry: (exception, timespan, retryAttempt, context) =>
+                        {
+                            // using servs to log // });
+                        })
+                    .WrapAsync(Policy.TimeoutAsync(1)));
                 services.AddTransient<IClock, SystemClock>(_ => SystemClock.Instance);
                 services.AddEventBusNatsAndEventHandlers(context.Configuration.GetSection("EventBus"), typeof(NexusModsOptions).Assembly);
+
+                services.AddSingleton<DefaultJsonSerializer>();
 
                 services.Configure<NexusModsOptions>(context.Configuration.GetSection("NexusMods"));
                 services.Configure<SubscriptionsOptions>(context.Configuration.GetSection("Subscriptions"));
@@ -136,7 +155,7 @@ namespace NexusMods.Monitor.Scraper.Host
                 services.AddHostedService<NexusModsIssueMonitor>();
                 services.AddHostedService<NexusModsCommentsMonitor>();
 
-                services.AddTransient<INexusModsClient>(sp => NexusModsClient.Create(sp.GetRequiredService<IOptions<NexusModsOptions>>().Value.APIKey));
+                services.AddTransient<INexusModsClient, NexusModsClientWrapper>();
 
                 services.AddTransient<ICommentRepository, CommentRepository>();
                 services.AddTransient<IIssueRepository, IssueRepository>();

@@ -1,5 +1,6 @@
-﻿using System.Collections.Generic;
-using MediatR;
+﻿using MediatR;
+
+using System.Collections.Generic;
 
 namespace NexusMods.Monitor.Shared.Domain.SeedWork
 {
@@ -10,7 +11,7 @@ namespace NexusMods.Monitor.Shared.Domain.SeedWork
         private uint _Id;
         public virtual uint Id { get => _Id; protected set => _Id = value; }
 
-        private readonly List<INotification> _domainEvents = new List<INotification>();
+        private readonly List<INotification> _domainEvents = new();
         public IReadOnlyCollection<INotification> DomainEvents => _domainEvents.AsReadOnly();
 
         public void AddDomainEvent(INotification eventItem)
@@ -30,18 +31,16 @@ namespace NexusMods.Monitor.Shared.Domain.SeedWork
 
         public bool IsTransient() => Id == default;
 
-        public override bool Equals(object obj)
+        public override bool Equals(object? obj)
         {
-            if (!(obj is Entity))
+            if (obj is not Entity item)
                 return false;
 
-            if (ReferenceEquals(this, obj))
+            if (ReferenceEquals(this, item))
                 return true;
 
-            if (GetType() != obj.GetType())
+            if (GetType() != item.GetType())
                 return false;
-
-            Entity item = (Entity)obj;
 
             if (item.IsTransient() || IsTransient())
                 return false;

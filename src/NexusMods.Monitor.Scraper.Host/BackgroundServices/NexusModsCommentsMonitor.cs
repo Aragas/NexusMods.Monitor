@@ -16,10 +16,10 @@ using Polly;
 using RateLimiter;
 
 using System;
+using System.Collections.Immutable;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
-using NodaTime.Extensions;
 
 namespace NexusMods.Monitor.Scraper.Host.BackgroundServices
 {
@@ -66,18 +66,18 @@ namespace NexusMods.Monitor.Scraper.Host.BackgroundServices
             var nexusModsCommentQueries = scope.ServiceProvider.GetRequiredService<INexusModsCommentQueries>();
             var mediator = scope.ServiceProvider.GetRequiredService<IMediator>();
 
-            await foreach (var subscription in subscriptionQueries.GetAllAsync().Distinct(new SubscriptionViewModelComparer()).WithCancellation(ct))
+            await foreach (var (nexusModsGameId, nexusModsModId) in subscriptionQueries.GetAllAsync().Distinct(new SubscriptionViewModelComparer()).WithCancellation(ct))
             {
-                var nexusModsComments = await nexusModsCommentQueries.GetAllAsync(subscription.NexusModsGameId, subscription.NexusModsModId).ToListAsync(ct);
+                var nexusModsComments = await nexusModsCommentQueries.GetAllAsync(nexusModsGameId, nexusModsModId).ToListAsync(ct);
                 var databaseComments = await commentQueries.GetAllAsync().Where(x =>
-                    x.NexusModsGameId == subscription.NexusModsGameId &&
-                    x.NexusModsModId == subscription.NexusModsModId).ToListAsync(ct);
+                    x.NexusModsGameId == nexusModsGameId &&
+                    x.NexusModsModId == nexusModsModId).ToListAsync(ct);
 
                 var newComments = nexusModsComments.Where(x => databaseComments.All(y => y.Id != x.NexusModsComment.Id));
-                var deletedComments = databaseComments.Where(x => nexusModsComments.All(y => y.NexusModsComment.Id != x.Id)).ToList();
+                var deletedComments = databaseComments.Where(x => nexusModsComments.All(y => y.NexusModsComment.Id != x.Id)).ToImmutableArray();
                 var existingComments = nexusModsComments.Select(nmce => databaseComments.Find(y => y.Id == nmce.NexusModsComment.Id) is { } dce
                     ? (DatabaseCommentEntity: dce, NexusModsCommentEntity: nmce)
-                    : default).Where(tuple => tuple != default).ToList();
+                    : default).Where(tuple => tuple != default).ToImmutableArray();
 
                 var now = _clock.GetCurrentInstant();
 
@@ -86,7 +86,7 @@ namespace NexusMods.Monitor.Scraper.Host.BackgroundServices
                     if (now - commentRoot.NexusModsComment.Post < Duration.FromDays(1))
                         await mediator.Send(new CommentAddNewCommand(commentRoot), ct);
                     else
-                        await mediator.Send(new CommentAddCommand(commentRoot), ct);
+                        await mediator.Send(CommentAddCommand.FromViewModel(commentRoot), ct);
                 }
 
                 foreach (var (databaseComment, nexusModsCommentRoot) in existingComments)
@@ -103,7 +103,7 @@ namespace NexusMods.Monitor.Scraper.Host.BackgroundServices
 
 
                     var newReplies = nexusModsCommentRoot.NexusModsComment.Replies.Where(x => databaseComment.Replies.All(y => y.Id != x.Id));
-                    var deletedReplies = databaseComment.Replies.Where(x => nexusModsCommentRoot.NexusModsComment.Replies.All(y => y.Id != x.Id)).ToList();
+                    var deletedReplies = databaseComment.Replies.Where(x => nexusModsCommentRoot.NexusModsComment.Replies.All(y => y.Id != x.Id)).ToImmutableArray();
 
                     foreach (var commentReply in newReplies)
                     {
@@ -113,9 +113,9 @@ namespace NexusMods.Monitor.Scraper.Host.BackgroundServices
                             await mediator.Send(new CommentAddReplyCommand(nexusModsCommentRoot, commentReply), ct);
                     }
 
-                    foreach (var commentReply in deletedReplies)
+                    foreach (var (id, ownerId) in deletedReplies)
                     {
-                        await mediator.Send(new CommentRemoveReplyCommand(commentReply.OwnerId, commentReply.Id), ct);
+                        await mediator.Send(new CommentRemoveReplyCommand(ownerId, id), ct);
                     }
                 }
 

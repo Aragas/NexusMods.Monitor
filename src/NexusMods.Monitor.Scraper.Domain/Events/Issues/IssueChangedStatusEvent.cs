@@ -2,15 +2,5 @@
 
 namespace NexusMods.Monitor.Scraper.Domain.Events.Issues
 {
-    public sealed class IssueChangedStatusEvent : INotification
-    {
-        public uint Id { get; }
-        public int OldIssueStatusId { get; }
-
-        public IssueChangedStatusEvent(uint id, int oldIssueStatusId)
-        {
-            Id = id;
-            OldIssueStatusId = oldIssueStatusId;
-        }
-    }
+    public sealed record IssueChangedStatusEvent(uint Id, int OldIssueStatusId) : INotification;
 }

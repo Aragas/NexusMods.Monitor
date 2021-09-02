@@ -16,7 +16,7 @@ namespace NexusMods.Monitor.Scraper.Application.CommandHandlers.Comments
         private readonly ILogger _logger;
         private readonly ICommentRepository _commentRepository;
 
-        public CommentAddCommandHandler(ILogger<CommentAddNewCommandHandler> logger, ICommentRepository commentRepository)
+        public CommentAddCommandHandler(ILogger<CommentAddCommandHandler> logger, ICommentRepository commentRepository)
         {
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
             _commentRepository = commentRepository ?? throw new ArgumentNullException(nameof(commentRepository));

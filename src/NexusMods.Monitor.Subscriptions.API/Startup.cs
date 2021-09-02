@@ -1,4 +1,4 @@
-using MediatR;
+﻿using MediatR;
 
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
@@ -7,11 +7,15 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 
+using NexusMods.Monitor.Shared.Application;
 using NexusMods.Monitor.Subscriptions.Application.Commands;
 using NexusMods.Monitor.Subscriptions.Application.Queries;
 using NexusMods.Monitor.Subscriptions.Domain.AggregatesModel.SubscriptionAggregate;
 using NexusMods.Monitor.Subscriptions.Infrastructure.Contexts;
 using NexusMods.Monitor.Subscriptions.Infrastructure.Repositories;
+
+using System.Text.Json;
+using System.Text.Json.Serialization;
 
 namespace NexusMods.Monitor.Subscriptions.API
 {
@@ -35,7 +39,14 @@ namespace NexusMods.Monitor.Subscriptions.API
 
             services.AddTransient<ISubscriptionQueries, SubscriptionQueries>();
 
-            services.AddControllers().AddNewtonsoftJson();
+            services.AddSingleton<DefaultJsonSerializer>();
+
+            services.AddControllers().AddJsonOptions(opts =>
+            {
+                opts.JsonSerializerOptions.PropertyNameCaseInsensitive = true;
+                opts.JsonSerializerOptions.PropertyNamingPolicy = JsonNamingPolicy.CamelCase;
+                opts.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter(JsonNamingPolicy.CamelCase));
+            });
         }
 
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)

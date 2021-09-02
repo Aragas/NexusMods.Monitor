@@ -55,7 +55,7 @@ namespace NexusMods.Monitor.Bot.Slack.Host.BackgroundServices
 
             await _bot.Connect(cancellationToken);
 
-            await _eventSubscriber.Subscribe();
+            await _eventSubscriber.Subscribe(cancellationToken);
 
             _logger.LogWarning("Started Slack Bot.");
         }

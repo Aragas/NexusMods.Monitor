@@ -5,7 +5,7 @@ using System.Runtime.Serialization;
 namespace NexusMods.Monitor.Scraper.Application.Commands.Issues
 {
     [DataContract]
-    public sealed class IssueChangeIsPrivateCommand : IRequest<bool>
+    public sealed record IssueChangeIsPrivateCommand : IRequest<bool>
     {
         [DataMember]
         public uint Id { get; private set; }

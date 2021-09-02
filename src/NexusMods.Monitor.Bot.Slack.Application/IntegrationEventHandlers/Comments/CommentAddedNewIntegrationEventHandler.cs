@@ -32,9 +32,9 @@ namespace NexusMods.Monitor.Bot.Slack.Application.IntegrationEventHandlers.Comme
 
             foreach (var subscriptionEntity in await _subscriptionQueries.GetAllAsync().ToListAsync())
             {
-                if (!(await _slackBot.GetConversationById(subscriptionEntity.ChannelId) is { } channel)) continue;
+                if (await _slackBot.GetConversationById(subscriptionEntity.ChannelId) is not { } channel) continue;
                 if (subscriptionEntity.NexusModsGameId != command.Comment.NexusModsGameId || subscriptionEntity.NexusModsModId != command.Comment.NexusModsModId) continue;
-                await _slackBot.Send(new BotMessage {Conversation = new ConversationByRef(channel), Attachments = { embed }} );
+                await _slackBot.Send(new BotMessage { Conversation = new ConversationByRef(channel), Attachments = { embed } });
             }
         }
     }

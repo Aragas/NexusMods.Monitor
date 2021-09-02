@@ -11,12 +11,12 @@ using System.Data.Common;
 
 namespace NexusMods.Monitor.Scraper.Application.Extensions
 {
-    public static  class HostExtensions
+    public static class HostExtensions
     {
         public static bool IsInKubernetes(this IHost host)
         {
-            var cfg = host.Services.GetService<IConfiguration>();
-            var orchestratorType = cfg.GetValue<string>("OrchestratorType");
+            var cfg = host.Services.GetRequiredService<IConfiguration>();
+            var orchestratorType = cfg["OrchestratorType"];
             return orchestratorType?.ToUpper() == "K8S";
         }
 
@@ -43,15 +43,15 @@ namespace NexusMods.Monitor.Scraper.Application.Extensions
                     else
                     {
                         var retry = Policy.Handle<DbException>()
-                             .WaitAndRetry(new TimeSpan[]
-                             {
-                             TimeSpan.FromSeconds(3),
-                             TimeSpan.FromSeconds(5),
-                             TimeSpan.FromSeconds(8),
-                             });
+                            .WaitAndRetry(new[]
+                            {
+                                TimeSpan.FromSeconds(3),
+                                TimeSpan.FromSeconds(5),
+                                TimeSpan.FromSeconds(8),
+                            });
 
                         //if the sql server container is not created on run docker compose this
-                        //migration can't fail for network related exception. The retry options for DbContext only 
+                        //migration can't fail for network related exception. The retry options for DbContext only
                         //apply to transient exceptions
                         // Note that this is NOT applied when running some orchestrators (let the orchestrator to recreate the failing service)
                         retry.Execute(() => InvokeSeeder(seeder, context, services));
@@ -64,7 +64,7 @@ namespace NexusMods.Monitor.Scraper.Application.Extensions
                     logger.LogError(ex, "An error occurred while migrating the database used on context {DbContextName}", typeof(TContext).Name);
                     if (underK8s)
                     {
-                        throw;          // Rethrow under k8s because we rely on k8s to re-run the pod
+                        throw; // Rethrow under k8s because we rely on k8s to re-run the pod
                     }
                 }
             }
@@ -72,10 +72,10 @@ namespace NexusMods.Monitor.Scraper.Application.Extensions
             return host;
         }
 
-        private static void InvokeSeeder<TContext>(Action<TContext, IServiceProvider> seeder, TContext context, IServiceProvider services)
+        private static void InvokeSeeder<TContext>(Action<TContext, IServiceProvider> seeder, TContext? context, IServiceProvider services)
             where TContext : DbContext
         {
-            context.Database.Migrate();
+            context!.Database.Migrate();
             seeder(context, services);
         }
     }

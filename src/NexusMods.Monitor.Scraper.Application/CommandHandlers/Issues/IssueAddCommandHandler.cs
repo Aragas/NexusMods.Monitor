@@ -2,7 +2,6 @@
 
 using Microsoft.Extensions.Logging;
 
-using NexusMods.Monitor.Scraper.Application.CommandHandlers.Comments;
 using NexusMods.Monitor.Scraper.Application.Commands.Issues;
 using NexusMods.Monitor.Scraper.Domain.AggregatesModel.IssueAggregate;
 
@@ -17,7 +16,7 @@ namespace NexusMods.Monitor.Scraper.Application.CommandHandlers.Issues
         private readonly ILogger _logger;
         private readonly IIssueRepository _issueRepository;
 
-        public IssueAddCommandHandler(ILogger<CommentAddNewCommandHandler> logger, IIssueRepository issueRepository)
+        public IssueAddCommandHandler(ILogger<IssueAddCommandHandler> logger, IIssueRepository issueRepository)
         {
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
             _issueRepository = issueRepository ?? throw new ArgumentNullException(nameof(issueRepository));
@@ -45,8 +44,8 @@ namespace NexusMods.Monitor.Scraper.Application.CommandHandlers.Issues
                 message.Title,
                 message.Url,
                 message.ModVersion,
-                message.Status,
-                message.Priority,
+                await _issueRepository.GetStatusAsync(message.Status.Id),
+                await _issueRepository.GetPriorityAsync(message.Priority.Id),
                 message.IsPrivate,
                 message.IsClosed,
                 message.IsDeleted,

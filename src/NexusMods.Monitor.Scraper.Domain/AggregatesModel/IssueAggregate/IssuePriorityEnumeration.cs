@@ -9,11 +9,11 @@ namespace NexusMods.Monitor.Scraper.Domain.AggregatesModel.IssueAggregate
 {
     public sealed class IssuePriorityEnumeration : Enumeration
     {
-        public static readonly IssuePriorityEnumeration None = new IssuePriorityEnumeration(1, "ERROR");
-        public static readonly IssuePriorityEnumeration NotSet = new IssuePriorityEnumeration(2, "Not Set");
-        public static readonly IssuePriorityEnumeration Low = new IssuePriorityEnumeration(3, "Low");
-        public static readonly IssuePriorityEnumeration Medium = new IssuePriorityEnumeration(4, "Medium");
-        public static readonly IssuePriorityEnumeration High = new IssuePriorityEnumeration(5, "High");
+        public static readonly IssuePriorityEnumeration None = new(1, "ERROR");
+        public static readonly IssuePriorityEnumeration NotSet = new(2, "Not Set");
+        public static readonly IssuePriorityEnumeration Low = new(3, "Low");
+        public static readonly IssuePriorityEnumeration Medium = new(4, "Medium");
+        public static readonly IssuePriorityEnumeration High = new(5, "High");
 
         private IssuePriorityEnumeration() { }
         public IssuePriorityEnumeration(int id, string name) : base(id, name) { }

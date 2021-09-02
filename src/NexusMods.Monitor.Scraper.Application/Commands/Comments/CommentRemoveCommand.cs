@@ -1,19 +1,6 @@
 ﻿using MediatR;
 
-using System.Runtime.Serialization;
-
 namespace NexusMods.Monitor.Scraper.Application.Commands.Comments
 {
-    [DataContract]
-    public sealed class CommentRemoveCommand : IRequest<bool>
-    {
-        [DataMember]
-        public uint Id { get; private set; }
-
-        private CommentRemoveCommand() { }
-        public CommentRemoveCommand(uint id) : this()
-        {
-            Id = id;
-        }
-    }
+    public sealed record CommentRemoveCommand(uint Id) : IRequest<bool>;
 }

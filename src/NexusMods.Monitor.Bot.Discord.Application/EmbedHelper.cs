@@ -11,7 +11,7 @@ namespace NexusMods.Monitor.Bot.Discord.Application
 {
     public static class EmbedHelper
     {
-        private static readonly Color Color = new Color(218, 142, 53);
+        private static readonly Color Color = new(218, 142, 53);
         private static readonly int MaxTextLength = 400;
 
         public static Embed About(int serverCount, int subscriptionCount, Duration uptime) => new EmbedBuilder()

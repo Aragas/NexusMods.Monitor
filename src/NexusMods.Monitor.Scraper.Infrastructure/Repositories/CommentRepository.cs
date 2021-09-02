@@ -23,7 +23,7 @@ namespace NexusMods.Monitor.Scraper.Infrastructure.Repositories
 
         public CommentEntity Add(CommentEntity commentEntity)
         {
-            return  _context.CommentEntities.Add(commentEntity).Entity;
+            return _context.CommentEntities.Add(commentEntity).Entity;
         }
 
         public async Task<CommentEntity?> GetAsync(uint commentEntityId)
@@ -55,7 +55,7 @@ namespace NexusMods.Monitor.Scraper.Infrastructure.Repositories
 
         public CommentEntity Update(CommentEntity commentEntity)
         {
-            return  _context.CommentEntities.Update(commentEntity).Entity;
+            return _context.CommentEntities.Update(commentEntity).Entity;
         }
     }
 }

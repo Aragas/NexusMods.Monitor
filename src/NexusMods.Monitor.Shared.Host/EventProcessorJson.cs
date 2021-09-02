@@ -1,6 +1,6 @@
 ﻿using Enbiso.NLib.EventBus;
 
-using Newtonsoft.Json;
+using NexusMods.Monitor.Shared.Application;
 
 using System;
 using System.Collections.Generic;
@@ -9,14 +9,17 @@ using System.Threading.Tasks;
 
 namespace NexusMods.Monitor.Shared.Host
 {
-    public class EventProcessorNewtonsoftJson : IEventProcessor
+    public class EventProcessorJson : IEventProcessor
     {
-        private readonly Dictionary<string, List<IEventHandler>> _subscriptions = new Dictionary<string, List<IEventHandler>>();
+        private readonly Dictionary<string, List<IEventHandler>> _subscriptions = new();
 
         private readonly IEnumerable<IEventHandler> _eventHandlers;
 
-        public EventProcessorNewtonsoftJson(IEnumerable<IEventHandler> eventHandlers)
+        private readonly DefaultJsonSerializer _jsonSerializer;
+
+        public EventProcessorJson(DefaultJsonSerializer jsonSerializer, IEnumerable<IEventHandler> eventHandlers)
         {
+            _jsonSerializer = jsonSerializer;
             _eventHandlers = eventHandlers;
         }
 
@@ -29,7 +32,7 @@ namespace NexusMods.Monitor.Shared.Host
             foreach (var eventHandler in _subscriptions[eventName])
             {
                 var eventType = eventHandler.GetEventType();
-                var @event = JsonConvert.DeserializeObject(message, eventType);
+                var @event = _jsonSerializer.Deserialize(message, eventType);
                 await eventHandler.Handle(@event);
             }
         }

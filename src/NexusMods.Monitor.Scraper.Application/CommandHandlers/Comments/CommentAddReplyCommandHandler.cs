@@ -7,6 +7,7 @@ using NexusMods.Monitor.Scraper.Domain.AggregatesModel.CommentAggregate;
 using NexusMods.Monitor.Scraper.Domain.Events.Comments;
 
 using System;
+using System.Collections.Immutable;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -18,7 +19,7 @@ namespace NexusMods.Monitor.Scraper.Application.CommandHandlers.Comments
         private readonly ILogger _logger;
         private readonly ICommentRepository _commentRepository;
 
-        public CommentAddReplyCommandHandler(ILogger<CommentAddNewCommandHandler> logger, ICommentRepository commentRepository)
+        public CommentAddReplyCommandHandler(ILogger<CommentAddReplyCommandHandler> logger, ICommentRepository commentRepository)
         {
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
             _commentRepository = commentRepository ?? throw new ArgumentNullException(nameof(commentRepository));
@@ -43,7 +44,7 @@ namespace NexusMods.Monitor.Scraper.Application.CommandHandlers.Comments
                 message.IsDeleted,
                 message.TimeOfPost);
 
-            foreach (var @event in commentEntity.DomainEvents.OfType<CommentAddedReplyEvent>().ToList())
+            foreach (var @event in commentEntity.DomainEvents.OfType<CommentAddedReplyEvent>().ToImmutableArray())
                 commentEntity.RemoveDomainEvent(@event);
 
             _commentRepository.Update(commentEntity);
