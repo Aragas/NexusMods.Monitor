@@ -27,13 +27,13 @@ RUN /bin/ash -c 'set -ex && \
     ARCH=`uname -m` && \
     if [ "$ARCH" == "amd64" ] || [ "$ARCH" == "x86_64" ]; then \
        echo "x86_64" && \
-       dotnet publish "NexusMods.Monitor.Scraper.Host/NexusMods.Monitor.Scraper.Host.csproj" -c Release -o ./output -r alpine-x64 --self-contained true /p:PublishReadyToRun=true /p:PublishReadyToRunShowWarnings=true; \
+       dotnet publish "NexusMods.Monitor.Scraper.Host/NexusMods.Monitor.Scraper.Host.csproj" -c Release -o ./output -r alpine-x64 --self-contained true; \
     elif [ "$ARCH" == "aarch64" ] || [ "$ARCH" == "arm64" ]; then \
        echo "aarch64" && \
-       dotnet publish "NexusMods.Monitor.Scraper.Host/NexusMods.Monitor.Scraper.Host.csproj" -c Release -o ./output -r alpine-arm --self-contained true /p:PublishReadyToRun=true /p:PublishReadyToRunShowWarnings=true; \
+       dotnet publish "NexusMods.Monitor.Scraper.Host/NexusMods.Monitor.Scraper.Host.csproj" -c Release -o ./output -r alpine-arm --self-contained true; \
     else \
        echo "unknown arch" && \
-       dotnet publish "NexusMods.Monitor.Scraper.Host/NexusMods.Monitor.Scraper.Host.csproj" -c Release -o ./output -r alpine --self-contained true /p:PublishReadyToRun=true /p:PublishReadyToRunShowWarnings=true; \
+       dotnet publish "NexusMods.Monitor.Scraper.Host/NexusMods.Monitor.Scraper.Host.csproj" -c Release -o ./output -r alpine --self-contained true; \
     fi'
 
 # Stage 2: Copy application artifacts into a smaller runtime environment, which is then used as our final image
