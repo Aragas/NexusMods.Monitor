@@ -1,4 +1,4 @@
-version: '3.4'
+version: '3.8'
 
 volumes:
   postgresql_data: { }
@@ -20,8 +20,8 @@ services:
       Subscriptions__APIEndpointV1: http://nexusmods.monitor.subscriptions/api/v1/subscriptions
       EventBus__Servers__0: nats://nats:4222
     build:
-      context: ../.
-      dockerfile: NexusMods.Monitor.Bot.Discord.Host/Dockerfile
+      context: ../../.
+      dockerfile: src/NexusMods.Monitor.Bot.Discord.Host/Dockerfile
     depends_on:
       - nexusmods.monitor.subscriptions
       - nexusmods.monitor.scraper
@@ -40,8 +40,8 @@ services:
       Subscriptions__APIEndpointV1: http://nexusmods.monitor.subscriptions/api/v1/subscriptions
       EventBus__Servers__0: nats://nats:4222
     build:
-      context: ../.
-      dockerfile: NexusMods.Monitor.Bot.Slack.Host/Dockerfile
+      context: ../../.
+      dockerfile: src/NexusMods.Monitor.Bot.Slack.Host/Dockerfile
     depends_on:
       - nexusmods.monitor.subscriptions
       - nexusmods.monitor.scraper
@@ -59,10 +59,10 @@ services:
       NexusMods__APIKey: PLACEHOLDER
       Subscriptions__APIEndpointV1: http://nexusmods.monitor.subscriptions/api/v1/subscriptions
       EventBus__Servers__0: nats://nats:4222
-      ConnectionStrings__NexusMods: Host=postgres;Port=5432;Database=nexusmods;Username=nexusmodsmonitor;Password=nexusmodsmonitor;
+      ConnectionStrings__NexusMods: Host=postgres;Port=5432;Database=nexusmods;Username=nexusmodsmonitor;Password=nexusmodsmonitor;Include Error Detail=true;
     build:
-      context: ../.
-      dockerfile: NexusMods.Monitor.Scraper.Host/Dockerfile
+      context: ../../.
+      dockerfile: src/NexusMods.Monitor.Scraper.Host/Dockerfile
     depends_on:
       - nexusmods.monitor.subscriptions
       - postgres
@@ -78,10 +78,10 @@ services:
     image: ${DOCKER_REGISTRY-}nexusmods_monitor_subscriptions
     environment:
       Serilog__WriteTo__1__Args__serverUrl: http://seq:5341
-      ConnectionStrings__Subscriptions: Host=postgres;Port=5432;Database=subscriptions;Username=nexusmodsmonitor;Password=nexusmodsmonitor;
+      ConnectionStrings__Subscriptions: Host=postgres;Port=5432;Database=subscriptions;Username=nexusmodsmonitor;Password=nexusmodsmonitor;Include Error Detail=true;
     build:
-      context: ../.
-      dockerfile: NexusMods.Monitor.Subscriptions.API/Dockerfile
+      context: ../../.
+      dockerfile: src/NexusMods.Monitor.Subscriptions.API/Dockerfile
     depends_on:
       - postgres
       - seq
@@ -110,8 +110,8 @@ services:
      POSTGRES_PASSWORD: nexusmodsmonitor
     volumes:
       - postgresql_data:/var/lib/postgresql
-    #ports:
-    #  - 35432:5432
+    ports:
+      - 35432:5432
     networks:
       - database
 
@@ -120,7 +120,7 @@ services:
     ports:
       - 30080:80
     environment:
-      ACCEPT_EULA: Y
+      - ACCEPT_EULA=Y
     volumes:
       - seq_data:/data
     networks:

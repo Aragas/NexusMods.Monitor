@@ -1,4 +1,5 @@
 ﻿using NexusMods.Monitor.Scraper.Domain.Events.Issues;
+using NexusMods.Monitor.Shared.Domain;
 using NexusMods.Monitor.Shared.Domain.SeedWork;
 
 using NodaTime;
@@ -8,29 +9,26 @@ using System.Linq;
 
 namespace NexusMods.Monitor.Scraper.Domain.AggregatesModel.IssueAggregate
 {
-    public sealed class IssueEntity : Entity, IAggregateRoot
+    public sealed record IssueEntity : Entity, IAggregateRoot
     {
-        public uint NexusModsModId { get; private set; } = default!;
-        public uint NexusModsGameId { get; private set; } = default!;
-        public string Title { get; private set; } = default!;
-        public string Url { get; private set; } = default!;
-        public string ModVersion { get; private set; } = default!;
-        public IssueStatusEnumeration Status { get; private set; } = default!;
-        public IssuePriorityEnumeration Priority { get; private set; } = default!;
-        public bool IsPrivate { get; private set; } = default!;
-        public bool IsClosed { get; private set; } = default!;
-        public bool IsDeleted { get; private set; } = default!;
-        public Instant TimeOfLastPost { get; private set; } = default!;
-        public IssueContentEntity? Content { get; private set; } = default!;
+        public uint NexusModsModId { get; private set; }
+        public uint NexusModsGameId { get; private set; }
+        public string Title { get; private set; }
+        public string Url { get; private set; }
+        public string ModVersion { get; private set; }
+        public IssueStatusEnumeration Status { get; private set; }
+        public IssuePriorityEnumeration Priority { get; private set; }
+        public bool IsPrivate { get; private set; }
+        public bool IsClosed { get; private set; }
+        public bool IsDeleted { get; private set; }
+        public Instant TimeOfLastPost { get; private set; }
+        public IssueContentEntity? Content { get; private set; }
 
         private readonly List<IssueReplyEntity> _replies = default!;
         public IEnumerable<IssueReplyEntity> Replies => _replies;
 
-        private IssueEntity()
-        {
-            _replies = new List<IssueReplyEntity>();
-        }
-        public IssueEntity(uint id, uint nexusModsGameId, uint nexusModsModId, string title, string url, string modVersion, IssueStatusEnumeration status, IssuePriorityEnumeration priority, bool isPrivate, bool isClosed, bool isDeleted, Instant timeOfLastPost) : this()
+        private IssueEntity() : this(RecordUtils.Default<IssueEntity>()) { }
+        public IssueEntity(uint id, uint nexusModsGameId, uint nexusModsModId, string title, string url, string modVersion, IssueStatusEnumeration status, IssuePriorityEnumeration priority, bool isPrivate, bool isClosed, bool isDeleted, Instant timeOfLastPost) : base(id)
         {
             Id = id;
             NexusModsGameId = nexusModsGameId;
@@ -44,6 +42,7 @@ namespace NexusMods.Monitor.Scraper.Domain.AggregatesModel.IssueAggregate
             IsClosed = isClosed;
             IsDeleted = isDeleted;
             TimeOfLastPost = timeOfLastPost;
+            _replies = new List<IssueReplyEntity>();
 
             AddDomainEvent(new IssueAddedEvent(Id));
         }

@@ -1,21 +1,22 @@
-﻿using NexusMods.Monitor.Shared.Domain.SeedWork;
+﻿using NexusMods.Monitor.Shared.Domain;
+using NexusMods.Monitor.Shared.Domain.SeedWork;
 
 using NodaTime;
 
 namespace NexusMods.Monitor.Scraper.Domain.AggregatesModel.IssueAggregate
 {
     // Should be a ValueObject
-    public sealed class IssueContentEntity : Entity
+    public sealed record IssueContentEntity : Entity
     {
-        public string Author { get; private set; } = default!;
-        public string AuthorUrl { get; private set; } = default!;
-        public string AvatarUrl { get; private set; } = default!;
-        public string Content { get; private set; } = default!;
-        public bool IsDeleted { get; private set; } = default!;
-        public Instant TimeOfPost { get; private set; } = default!;
+        public string Author { get; private set; }
+        public string AuthorUrl { get; private set; }
+        public string AvatarUrl { get; private set; }
+        public string Content { get; private set; }
+        public bool IsDeleted { get; private set; }
+        public Instant TimeOfPost { get; private set; }
 
-        private IssueContentEntity() { }
-        public IssueContentEntity(uint id, string author, string authorUrl, string avatarUrl, string content, bool isDeleted, Instant timeOfPost)
+        private IssueContentEntity() : this(RecordUtils.Default<IssueContentEntity>()) { }
+        public IssueContentEntity(uint id, string author, string authorUrl, string avatarUrl, string content, bool isDeleted, Instant timeOfPost) : base(id)
         {
             Id = id;
             Author = author;

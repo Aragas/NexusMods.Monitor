@@ -1,7 +1,7 @@
 ﻿using MediatR;
 
 using NexusMods.Monitor.Scraper.Application.Queries.NexusModsComments;
-using NexusMods.Monitor.Shared.Application;
+using NexusMods.Monitor.Shared.Domain;
 
 using NodaTime;
 

@@ -1,7 +1,7 @@
 ﻿using AngleSharp.Dom;
 
 using NexusMods.Monitor.Scraper.Application.Extensions;
-using NexusMods.Monitor.Shared.Application;
+using NexusMods.Monitor.Shared.Domain;
 
 using NodaTime;
 using NodaTime.Text;

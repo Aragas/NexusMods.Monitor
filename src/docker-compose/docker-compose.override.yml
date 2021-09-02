@@ -1,6 +1,13 @@
-version: '3.4'
+version: '3.8'
 services:
   nexusmods.monitor.bot.discord:
+    environment:
+      Discord__BotToken: PLACEHOLDER
+
   nexusmods.monitor.bot.slack:
+    environment:
+      Slack__BotToken: PLACEHOLDER
+
   nexusmods.monitor.scraper:
-  nexusmods.monitor.subscriptions:
+    environment:
+      NexusMods__APIKey: PLACEHOLDER

@@ -1,25 +1,46 @@
-FROM mcr.microsoft.com/dotnet/runtime:5.0-alpine AS base
-WORKDIR /app
+# Stage 1: Build application
+FROM mcr.microsoft.com/dotnet/sdk:5.0-alpine AS build-env
 
-FROM mcr.microsoft.com/dotnet/sdk:5.0-alpine AS build
-WORKDIR /src
-COPY ["NexusMods.Monitor.Scraper.Host/NexusMods.Monitor.Scraper.Host.csproj", "NexusMods.Monitor.Scraper.Host/"]
-COPY ["NexusMods.Monitor.Shared.Host/NexusMods.Monitor.Shared.Host.csproj", "NexusMods.Monitor.Shared.Host/"]
-COPY ["NexusMods.Monitor.Scraper.Application/NexusMods.Monitor.Scraper.Application.csproj", "NexusMods.Monitor.Scraper.Application/"]
-COPY ["NexusMods.Monitor.Shared.Application/NexusMods.Monitor.Shared.Application.csproj", "NexusMods.Monitor.Shared.Application/"]
-COPY ["NexusMods.Monitor.Scraper.Infrastructure/NexusMods.Monitor.Scraper.Infrastructure.csproj", "NexusMods.Monitor.Scraper.Infrastructure/"]
-COPY ["NexusMods.Monitor.Scraper.Domain/NexusMods.Monitor.Scraper.Domain.csproj", "NexusMods.Monitor.Scraper.Domain/"]
-COPY ["NexusMods.Monitor.Shared.Domain/NexusMods.Monitor.Shared.Domain.csproj", "NexusMods.Monitor.Shared.Domain/"]
-COPY ["NexusMods.Monitor.Shared.Infrastructure/NexusMods.Monitor.Shared.Infrastructure.csproj", "NexusMods.Monitor.Shared.Infrastructure/"]
+WORKDIR /build
+
+COPY ["src/NexusMods.Monitor.Scraper.Host/NexusMods.Monitor.Scraper.Host.csproj", "NexusMods.Monitor.Scraper.Host/"]
+COPY ["src/NexusMods.Monitor.Scraper.Application/NexusMods.Monitor.Scraper.Application.csproj", "NexusMods.Monitor.Scraper.Application/"]
+COPY ["src/NexusMods.Monitor.Scraper.Infrastructure/NexusMods.Monitor.Scraper.Infrastructure.csproj", "NexusMods.Monitor.Scraper.Infrastructure/"]
+COPY ["src/NexusMods.Monitor.Scraper.Domain/NexusMods.Monitor.Scraper.Domain.csproj", "NexusMods.Monitor.Scraper.Domain/"]
+COPY ["src/NexusMods.Monitor.Shared.Host/NexusMods.Monitor.Shared.Host.csproj", "NexusMods.Monitor.Shared.Host/"]
+COPY ["src/NexusMods.Monitor.Shared.Application/NexusMods.Monitor.Shared.Application.csproj", "NexusMods.Monitor.Shared.Application/"]
+COPY ["src/NexusMods.Monitor.Shared.Infrastructure/NexusMods.Monitor.Shared.Infrastructure.csproj", "NexusMods.Monitor.Shared.Infrastructure/"]
+COPY ["src/NexusMods.Monitor.Shared.Domain/NexusMods.Monitor.Shared.Domain.csproj", "NexusMods.Monitor.Shared.Domain/"]
+
 RUN dotnet restore "NexusMods.Monitor.Scraper.Host/NexusMods.Monitor.Scraper.Host.csproj"
-COPY . .
-WORKDIR "/src/NexusMods.Monitor.Scraper.Host"
-RUN dotnet build "NexusMods.Monitor.Scraper.Host.csproj" -c Release -o /app/build
 
-FROM build AS publish
-RUN dotnet publish "NexusMods.Monitor.Scraper.Host.csproj" -c Release -o /app/publish
+COPY ["src/NexusMods.Monitor.Scraper.Host/", "NexusMods.Monitor.Scraper.Host/"]
+COPY ["src/NexusMods.Monitor.Scraper.Application/", "NexusMods.Monitor.Scraper.Application/"]
+COPY ["src/NexusMods.Monitor.Scraper.Infrastructure/", "NexusMods.Monitor.Scraper.Infrastructure/"]
+COPY ["src/NexusMods.Monitor.Scraper.Domain/", "NexusMods.Monitor.Scraper.Domain/"]
+COPY ["src/NexusMods.Monitor.Shared.Host/", "NexusMods.Monitor.Shared.Host/"]
+COPY ["src/NexusMods.Monitor.Shared.Application/", "NexusMods.Monitor.Shared.Application/"]
+COPY ["src/NexusMods.Monitor.Shared.Infrastructure/", "NexusMods.Monitor.Shared.Infrastructure/"]
+COPY ["src/NexusMods.Monitor.Shared.Domain/", "NexusMods.Monitor.Shared.Domain/"]
 
-FROM base AS final
+RUN /bin/ash -c 'set -ex && \
+    ARCH=`uname -m` && \
+    if [ "$ARCH" == "x86_64" ]; then \
+       echo "x86_64" && \
+       dotnet publish "NexusMods.Monitor.Scraper.Host/NexusMods.Monitor.Scraper.Host.csproj" -c Release -o ./output -r alpine-x64 --self-contained true /p:PublishReadyToRun=true /p:PublishReadyToRunShowWarnings=true; \
+    elif [ "$ARCH" == "aarch64" || "$ARCH" == "arm64" ]; then \
+       echo "aarch64" && \
+       dotnet publish "NexusMods.Monitor.Scraper.Host/NexusMods.Monitor.Scraper.Host.csproj" -c Release -o ./output -r alpine-arm --self-contained true /p:PublishReadyToRun=true /p:PublishReadyToRunShowWarnings=true; \
+    else \
+       echo "unknown arch" && \
+       dotnet publish "NexusMods.Monitor.Scraper.Host/NexusMods.Monitor.Scraper.Host.csproj" -c Release -o ./output -r alpine --self-contained true /p:PublishReadyToRun=true /p:PublishReadyToRunShowWarnings=true; \
+    fi'
+
+# Stage 2: Copy application artifacts into a smaller runtime environment, which is then used as our final image
+FROM mcr.microsoft.com/dotnet/runtime-deps:5.0-alpine
+
 WORKDIR /app
-COPY --from=publish /app/publish .
-ENTRYPOINT ["dotnet", "NexusMods.Monitor.Scraper.Host.dll"]
+
+COPY --from=build-env /build/output .
+
+ENTRYPOINT ["./NexusMods.Monitor.Scraper.Host"]

@@ -1,4 +1,5 @@
 ﻿using NexusMods.Monitor.Scraper.Domain.Events.Comments;
+using NexusMods.Monitor.Shared.Domain;
 using NexusMods.Monitor.Shared.Domain.SeedWork;
 
 using NodaTime;
@@ -8,29 +9,24 @@ using System.Linq;
 
 namespace NexusMods.Monitor.Scraper.Domain.AggregatesModel.CommentAggregate
 {
-    public sealed class CommentEntity : Entity, IAggregateRoot
+    public sealed record CommentEntity : Entity, IAggregateRoot
     {
-        public uint NexusModsGameId { get; private set; } = default!;
-        public uint NexusModsModId { get; private set; } = default!;
-        public string Url { get; private set; } = default!;
-        public string Author { get; private set; } = default!;
-        public string AuthorUrl { get; private set; } = default!;
-        public string AvatarUrl { get; private set; } = default!;
-        public string Content { get; private set; } = default!;
-        public bool IsSticky { get; private set; } = default!;
-        public bool IsLocked { get; private set; } = default!;
-        public bool IsDeleted { get; private set; } = default!;
-        public Instant TimeOfPost { get; private set; } = default!;
+        public uint NexusModsGameId { get; private set; }
+        public uint NexusModsModId { get; private set; }
+        public string Url { get; private set; }
+        public string Author { get; private set; }
+        public string AuthorUrl { get; private set; }
+        public string AvatarUrl { get; private set; }
+        public string Content { get; private set; }
+        public bool IsSticky { get; private set; }
+        public bool IsLocked { get; private set; }
+        public bool IsDeleted { get; private set; }
+        public Instant TimeOfPost { get; private set; }
+        private readonly List<CommentReplyEntity> _replies = new();
+        public IReadOnlyList<CommentReplyEntity> Replies => _replies.AsReadOnly();
 
-        private readonly List<CommentReplyEntity> _replies;
-        public IEnumerable<CommentReplyEntity> Replies => _replies.AsReadOnly();
-
-        private CommentEntity()
-        {
-            _replies = new List<CommentReplyEntity>();
-        }
-
-        public CommentEntity(uint id, uint nexusModsGameId, uint nexusModsModId, string url, string author, string authorUrl, string avatarUrl, string content, bool isSticky, bool isLocked, bool isDeleted, Instant timeOfPost) : this()
+        private CommentEntity() : this(RecordUtils.Default<CommentEntity>()) { }
+        public CommentEntity(uint id, uint nexusModsGameId, uint nexusModsModId, string url, string author, string authorUrl, string avatarUrl, string content, bool isSticky, bool isLocked, bool isDeleted, Instant timeOfPost) : base(id)
         {
             Id = id;
             NexusModsGameId = nexusModsGameId;

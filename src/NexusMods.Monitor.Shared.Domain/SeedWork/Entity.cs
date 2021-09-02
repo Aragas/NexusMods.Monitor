@@ -5,11 +5,8 @@ using System.Collections.Generic;
 
 namespace NexusMods.Monitor.Shared.Domain.SeedWork
 {
-    public abstract class Entity : IComparable<Entity>, IEquatable<Entity>
+    public abstract record Entity(uint Id) : IComparable<Entity>
     {
-        private uint _Id;
-        public virtual uint Id { get => _Id; protected set => _Id = value; }
-
         public bool IsTransient => Id == default;
 
         private readonly List<INotification> _domainEvents = new();
@@ -22,15 +19,7 @@ namespace NexusMods.Monitor.Shared.Domain.SeedWork
 
         public override int GetHashCode() => !IsTransient ? HashCode.Combine(Id) : base.GetHashCode();
 
-        public override bool Equals(object? obj)
-        {
-            if (ReferenceEquals(null, obj)) return false;
-            if (ReferenceEquals(this, obj)) return true;
-            if (obj.GetType() != GetType()) return false;
-            return Equals((Entity) obj);
-        }
-
-        public bool Equals(Entity? other)
+        public virtual bool Equals(Entity? other)
         {
             if (ReferenceEquals(null, other)) return false;
             if (ReferenceEquals(this, other)) return true;
@@ -41,7 +30,7 @@ namespace NexusMods.Monitor.Shared.Domain.SeedWork
         {
             if (ReferenceEquals(this, other)) return 0;
             if (ReferenceEquals(null, other)) return 1;
-            return _Id.CompareTo(other._Id);
+            return Id.CompareTo(other.Id);
         }
     }
 }

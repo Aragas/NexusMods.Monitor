@@ -2,7 +2,7 @@
 
 using NexusMods.Monitor.Scraper.Application.Extensions;
 using NexusMods.Monitor.Scraper.Domain.AggregatesModel.IssueAggregate;
-using NexusMods.Monitor.Shared.Application;
+using NexusMods.Monitor.Shared.Domain;
 
 using NodaTime;
 using NodaTime.Extensions;
