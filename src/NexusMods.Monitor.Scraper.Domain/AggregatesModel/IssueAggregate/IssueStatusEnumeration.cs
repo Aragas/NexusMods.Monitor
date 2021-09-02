@@ -7,7 +7,7 @@ using System.Linq;
 
 namespace NexusMods.Monitor.Scraper.Domain.AggregatesModel.IssueAggregate
 {
-    public sealed class IssueStatusEnumeration : Enumeration
+    public sealed record IssueStatusEnumeration(int Id, string Name) : Enumeration(Id, Name)
     {
         public static readonly IssueStatusEnumeration None = new(1, "ERROR");
         public static readonly IssueStatusEnumeration NewIssue = new(2, "New Issue");
@@ -19,8 +19,6 @@ namespace NexusMods.Monitor.Scraper.Domain.AggregatesModel.IssueAggregate
         public static readonly IssueStatusEnumeration WontFix = new(8, "Won't Fix");
         public static readonly IssueStatusEnumeration NeedsMoreInfo = new(9, "Needs More Info");
 
-        private IssueStatusEnumeration() { }
-        public IssueStatusEnumeration(int id, string name) : base(id, name) { }
 
         public static IEnumerable<IssueStatusEnumeration> List() => new[] { None, NewIssue, BeingLookedAt, Fixed, KnownIssue, Duplicate, NotABug, WontFix, NeedsMoreInfo };
 

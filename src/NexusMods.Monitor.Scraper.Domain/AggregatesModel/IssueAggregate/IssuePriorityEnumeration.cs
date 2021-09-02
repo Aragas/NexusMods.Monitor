@@ -7,7 +7,7 @@ using System.Linq;
 
 namespace NexusMods.Monitor.Scraper.Domain.AggregatesModel.IssueAggregate
 {
-    public sealed class IssuePriorityEnumeration : Enumeration
+    public sealed record IssuePriorityEnumeration(int Id, string Name) : Enumeration(Id, Name)
     {
         public static readonly IssuePriorityEnumeration None = new(1, "ERROR");
         public static readonly IssuePriorityEnumeration NotSet = new(2, "Not Set");
@@ -15,8 +15,6 @@ namespace NexusMods.Monitor.Scraper.Domain.AggregatesModel.IssueAggregate
         public static readonly IssuePriorityEnumeration Medium = new(4, "Medium");
         public static readonly IssuePriorityEnumeration High = new(5, "High");
 
-        private IssuePriorityEnumeration() { }
-        public IssuePriorityEnumeration(int id, string name) : base(id, name) { }
 
         public static IEnumerable<IssuePriorityEnumeration> List() => new[] { None, NotSet, Low, Medium, High };
 

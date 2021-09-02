@@ -17,9 +17,7 @@ namespace NexusMods.Monitor.Bot.Slack.Application.IntegrationEventHandlers.Comme
         private readonly ISubscriptionQueries _subscriptionQueries;
         private readonly ISlackBot _slackBot;
 
-        public CommentChangedIsLockedIntegrationEventHandler(ILogger<CommentChangedIsLockedIntegrationEventHandler> logger,
-            ISubscriptionQueries subscriptionQueries,
-            ISlackBot slackBot)
+        public CommentChangedIsLockedIntegrationEventHandler(ILogger<CommentChangedIsLockedIntegrationEventHandler> logger, ISubscriptionQueries subscriptionQueries, ISlackBot slackBot)
         {
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
             _subscriptionQueries = subscriptionQueries ?? throw new ArgumentNullException(nameof(subscriptionQueries));

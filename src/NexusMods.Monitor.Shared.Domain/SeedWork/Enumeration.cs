@@ -5,18 +5,8 @@ using System.Reflection;
 
 namespace NexusMods.Monitor.Shared.Domain.SeedWork
 {
-    public abstract class Enumeration : IComparable
+    public abstract record Enumeration(int Id, string Name) : IComparable<Enumeration>
     {
-        public int Id { get; private set; } = default!;
-        public string Name { get; private set; } = default!;
-
-        protected Enumeration() { }
-        protected Enumeration(int id, string name)
-        {
-            Id = id;
-            Name = name;
-        }
-
         public override string ToString() => Name;
 
         public static IEnumerable<T> GetAll<T>() where T : Enumeration, new()
@@ -30,19 +20,6 @@ namespace NexusMods.Monitor.Shared.Domain.SeedWork
                     yield return locatedValue;
             }
         }
-
-        public override bool Equals(object? obj)
-        {
-            if (obj is not Enumeration otherValue)
-                return false;
-
-            var typeMatches = GetType() == obj.GetType();
-            var valueMatches = Id.Equals(otherValue.Id);
-
-            return typeMatches && valueMatches;
-        }
-
-        public override int GetHashCode() => Id.GetHashCode();
 
         public static int AbsoluteDifference(Enumeration firstValue, Enumeration secondValue)
         {
@@ -72,6 +49,20 @@ namespace NexusMods.Monitor.Shared.Domain.SeedWork
             return matchingItem;
         }
 
-        public int CompareTo(object? other) => Id.CompareTo(((Enumeration) other).Id);
+        public override int GetHashCode() => HashCode.Combine(Id);
+
+        public virtual bool Equals(Enumeration? other)
+        {
+            if (ReferenceEquals(null, other)) return false;
+            if (ReferenceEquals(this, other)) return true;
+            return Id == other.Id;
+        }
+
+        public int CompareTo(Enumeration? other)
+        {
+            if (ReferenceEquals(this, other)) return 0;
+            if (ReferenceEquals(null, other)) return 1;
+            return Id.CompareTo(other.Id);
+        }
     }
 }

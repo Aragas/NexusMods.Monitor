@@ -49,15 +49,25 @@ namespace NexusMods.Monitor.Bot.Slack.Application
         public Task Send(BotMessage message, CancellationToken? cancellationToken = null) => _implementation.Send(message, cancellationToken);
         public Task WhileTyping(string channelId, Func<Task> action) => _implementation.WhileTyping(channelId, action);
         public void ClearCache() => _implementation.ClearCache();
+        [Obsolete("Use GetConversationById instead")]
         public Task<Hub> GetHubById(string hubId) => _implementation.GetHubById(hubId);
+        [Obsolete("Use GetConversationByName instead")]
         public Task<Hub> GetHubByName(string channel) => _implementation.GetHubByName(channel);
+        [Obsolete("Use GetConversationByName instead")]
         public Task<Hub> GetChannelByName(string name) => _implementation.GetChannelByName(name);
+        [Obsolete("Use GetConversationByName instead")]
         public Task<Hub> GetGroupByName(string name) => _implementation.GetGroupByName(name);
+        [Obsolete("Use GetConversationByName instead")]
         public Task<Im> GetImByName(string username) => _implementation.GetImByName(username);
+        [Obsolete("Use GetConversationByUserId instead")]
         public Task<Im> GetImByUserId(string userId) => _implementation.GetImByUserId(userId);
+        [Obsolete("Use GetConversations instead")]
         public Task<IReadOnlyList<Channel>> GetChannels() => _implementation.GetChannels();
+        [Obsolete("Use GetConversations instead")]
         public Task<IReadOnlyList<Channel>> GetGroups() => _implementation.GetGroups();
+        [Obsolete("Use GetConversations instead")]
         public Task<IReadOnlyList<Channel>> GetMpIms() => _implementation.GetMpIms();
+        [Obsolete("Use GetConversations instead")]
         public Task<IReadOnlyList<Im>> GetIms() => _implementation.GetIms();
     }
 }
