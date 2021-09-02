@@ -21,10 +21,10 @@ COPY ["src/NexusMods.Monitor.Shared.Domain/", "NexusMods.Monitor.Shared.Domain/"
 
 RUN /bin/ash -c 'set -ex && \
     ARCH=`uname -m` && \
-    if [ "$ARCH" == "x86_64" ]; then \
+    if [ "$ARCH" == "amd64" ] || [ "$ARCH" == "x86_64" ]; then \
        echo "x86_64" && \
        dotnet publish "NexusMods.Monitor.Bot.Slack.Host/NexusMods.Monitor.Bot.Slack.Host.csproj" -c Release -o ./output -r alpine-x64 --self-contained true /p:PublishReadyToRun=true /p:PublishReadyToRunShowWarnings=true; \
-    elif [ "$ARCH" == "aarch64" || "$ARCH" == "arm64" ]; then \
+    elif [ "$ARCH" == "aarch64" ] || [ "$ARCH" == "arm64" ]; then \
        echo "aarch64" && \
        dotnet publish "NexusMods.Monitor.Bot.Slack.Host/NexusMods.Monitor.Bot.Slack.Host.csproj" -c Release -o ./output -r alpine-arm --self-contained true /p:PublishReadyToRun=true /p:PublishReadyToRunShowWarnings=true; \
     else \
