@@ -19,7 +19,7 @@ COPY ["src/NexusMods.Monitor.Shared.Application/", "NexusMods.Monitor.Shared.App
 COPY ["src/NexusMods.Monitor.Shared.Infrastructure/", "NexusMods.Monitor.Shared.Infrastructure/"]
 COPY ["src/NexusMods.Monitor.Shared.Domain/", "NexusMods.Monitor.Shared.Domain/"]
 
-RUN /bin/ash -c 'set -ex && \
+RUN /bin/sh -c 'set -ex && \
     ARCH=`uname -m` && \
     if [ "$ARCH" == "amd64" ] || [ "$ARCH" == "x86_64" ]; then \
        echo "x86_64" && \
