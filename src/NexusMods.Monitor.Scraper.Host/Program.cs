@@ -145,8 +145,7 @@ namespace NexusMods.Monitor.Scraper.Host
                             (delegateResult, time) =>
                             {
                                 logger.LogError("Exception during NATS connection. Waiting {time}...", time);
-                            })
-                        .WrapAsync(Policy.TimeoutAsync(1));
+                            });
                 });
                 services.AddTransient<IClock, SystemClock>(_ => SystemClock.Instance);
                 services.AddEventBusNatsAndEventHandlers(context.Configuration.GetSection("EventBus"), typeof(NexusModsOptions).Assembly);

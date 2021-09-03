@@ -3,33 +3,36 @@ FROM mcr.microsoft.com/dotnet/sdk:6.0-alpine AS build-env
 
 WORKDIR /build
 
-COPY ["src/NexusMods.Monitor.Bot.Discord.Host/NexusMods.Monitor.Bot.Discord.Host.csproj", "NexusMods.Monitor.Bot.Discord.Host/"]
-COPY ["src/NexusMods.Monitor.Bot.Discord.Application/NexusMods.Monitor.Bot.Discord.Application.csproj", "NexusMods.Monitor.Bot.Discord.Application/"]
-COPY ["src/NexusMods.Monitor.Shared.Host/NexusMods.Monitor.Shared.Host.csproj", "NexusMods.Monitor.Shared.Host/"]
-COPY ["src/NexusMods.Monitor.Shared.Application/NexusMods.Monitor.Shared.Application.csproj", "NexusMods.Monitor.Shared.Application/"]
-COPY ["src/NexusMods.Monitor.Shared.Infrastructure/NexusMods.Monitor.Shared.Infrastructure.csproj", "NexusMods.Monitor.Shared.Infrastructure/"]
-COPY ["src/NexusMods.Monitor.Shared.Domain/NexusMods.Monitor.Shared.Domain.csproj", "NexusMods.Monitor.Shared.Domain/"]
+COPY ["build/", "build/"]
+COPY ["src/Directory.Build.props", "src/"]
+COPY ["src/Directory.Build.targets", "src/"]
+COPY ["src/NexusMods.Monitor.Bot.Discord.Host/NexusMods.Monitor.Bot.Discord.Host.csproj", "src/NexusMods.Monitor.Bot.Discord.Host/"]
+COPY ["src/NexusMods.Monitor.Bot.Discord.Application/NexusMods.Monitor.Bot.Discord.Application.csproj", "src/NexusMods.Monitor.Bot.Discord.Application/"]
+COPY ["src/NexusMods.Monitor.Shared.Host/NexusMods.Monitor.Shared.Host.csproj", "src/NexusMods.Monitor.Shared.Host/"]
+COPY ["src/NexusMods.Monitor.Shared.Application/NexusMods.Monitor.Shared.Application.csproj", "src/NexusMods.Monitor.Shared.Application/"]
+COPY ["src/NexusMods.Monitor.Shared.Infrastructure/NexusMods.Monitor.Shared.Infrastructure.csproj", "src/NexusMods.Monitor.Shared.Infrastructure/"]
+COPY ["src/NexusMods.Monitor.Shared.Domain/NexusMods.Monitor.Shared.Domain.csproj", "src/NexusMods.Monitor.Shared.Domain/"]
 
-RUN dotnet restore "NexusMods.Monitor.Bot.Discord.Host/NexusMods.Monitor.Bot.Discord.Host.csproj"
+RUN dotnet restore "src/NexusMods.Monitor.Bot.Discord.Host/NexusMods.Monitor.Bot.Discord.Host.csproj"
 
-COPY ["src/NexusMods.Monitor.Bot.Discord.Host/", "NexusMods.Monitor.Bot.Discord.Host/"]
-COPY ["src/NexusMods.Monitor.Bot.Discord.Application/", "NexusMods.Monitor.Bot.Discord.Application/"]
-COPY ["src/NexusMods.Monitor.Shared.Host/", "NexusMods.Monitor.Shared.Host/"]
-COPY ["src/NexusMods.Monitor.Shared.Application/", "NexusMods.Monitor.Shared.Application/"]
-COPY ["src/NexusMods.Monitor.Shared.Infrastructure/", "NexusMods.Monitor.Shared.Infrastructure/"]
-COPY ["src/NexusMods.Monitor.Shared.Domain/", "NexusMods.Monitor.Shared.Domain/"]
+COPY ["src/NexusMods.Monitor.Bot.Discord.Host/", "src/NexusMods.Monitor.Bot.Discord.Host/"]
+COPY ["src/NexusMods.Monitor.Bot.Discord.Application/", "src/NexusMods.Monitor.Bot.Discord.Application/"]
+COPY ["src/NexusMods.Monitor.Shared.Host/", "src/NexusMods.Monitor.Shared.Host/"]
+COPY ["src/NexusMods.Monitor.Shared.Application/", "src/NexusMods.Monitor.Shared.Application/"]
+COPY ["src/NexusMods.Monitor.Shared.Infrastructure/", "src/NexusMods.Monitor.Shared.Infrastructure/"]
+COPY ["src/NexusMods.Monitor.Shared.Domain/", "src/NexusMods.Monitor.Shared.Domain/"]
 
 RUN /bin/ash -c 'set -ex && \
     ARCH=`uname -m` && \
     if [[ "$ARCH" == "amd64" || "$ARCH" == "x86_64" ]]; then \
        echo "x86_64" && \
-       dotnet publish "NexusMods.Monitor.Bot.Discord.Host/NexusMods.Monitor.Bot.Discord.Host.csproj" -c Release -o ./output --os alpine --arch x64 --self-contained true /p:PublishReadyToRun=true /p:PublishReadyToRunShowWarnings=true; \
+       dotnet publish "src/NexusMods.Monitor.Bot.Discord.Host/NexusMods.Monitor.Bot.Discord.Host.csproj" -c Release -o ./output --os alpine --arch x64 --self-contained true /p:PublishReadyToRun=true /p:PublishReadyToRunShowWarnings=true; \
     elif [[ "$ARCH" == "aarch64" || "$ARCH" == "arm64" ]]; then \
        echo "aarch64" && \
-       dotnet publish "NexusMods.Monitor.Bot.Discord.Host/NexusMods.Monitor.Bot.Discord.Host.csproj" -c Release -o ./output --os alpine --arch arm64 --self-contained true; \
+       dotnet publish "src/NexusMods.Monitor.Bot.Discord.Host/NexusMods.Monitor.Bot.Discord.Host.csproj" -c Release -o ./output --os alpine --arch arm64 --self-contained true; \
     else \
        echo "unknown arch" && \
-       dotnet publish "NexusMods.Monitor.Bot.Discord.Host/NexusMods.Monitor.Bot.Discord.Host.csproj" -c Release -o ./output --os alpine --arch $ARCH --self-contained true; \
+       dotnet publish "src/NexusMods.Monitor.Bot.Discord.Host/NexusMods.Monitor.Bot.Discord.Host.csproj" -c Release -o ./output --os alpine --arch $ARCH --self-contained true; \
     fi'
 
 # Stage 2: Copy application artifacts into a smaller runtime environment, which is then used as our final image
