@@ -9,6 +9,8 @@ using Microsoft.Extensions.Logging;
 using NexusMods.Monitor.Bot.Slack.Application;
 using NexusMods.Monitor.Bot.Slack.Application.Commands;
 using NexusMods.Monitor.Bot.Slack.Application.Queries;
+using NexusMods.Monitor.Shared.Application;
+using NexusMods.Monitor.Shared.Domain;
 
 using NodaTime;
 using NodaTime.Extensions;
@@ -140,8 +142,8 @@ namespace NexusMods.Monitor.Bot.Slack.Host.BackgroundServices
                 const string subscriptions = "subscriptions";
                 if (command.StartsWith(subscriptions))
                 {
-                    var subscriptionList = await _subscriptionQueries.GetAllAsync().Where(s => s.ChannelId == message.Conversation.Id).ToListAsync();
-                    if (subscriptionList.Count > 0)
+                    var subscriptionList = await _subscriptionQueries.GetAllAsync().Where(s => s.ChannelId == message.Conversation.Id).ToImmutableArrayAsync();
+                    if (subscriptionList.Length > 0)
                     {
                         await message.ReplyWith($@"Subscriptions:
 ```

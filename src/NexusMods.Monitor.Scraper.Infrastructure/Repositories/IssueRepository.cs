@@ -60,12 +60,12 @@ namespace NexusMods.Monitor.Scraper.Infrastructure.Repositories
             return issueEntity;
         }
 
-        public async Task<IssueStatusEnumeration> GetStatusAsync(int issueStatusEnumerationId)
+        public async Task<IssueStatusEnumeration> GetStatusAsync(uint issueStatusEnumerationId)
         {
             return await _context.IssueStatusEnumerations.FindAsync(issueStatusEnumerationId);
         }
 
-        public async Task<IssuePriorityEnumeration> GetPriorityAsync(int issuePriorityEnumerationId)
+        public async Task<IssuePriorityEnumeration> GetPriorityAsync(uint issuePriorityEnumerationId)
         {
             return await _context.IssuePriorityEnumerations.FindAsync(issuePriorityEnumerationId);
         }

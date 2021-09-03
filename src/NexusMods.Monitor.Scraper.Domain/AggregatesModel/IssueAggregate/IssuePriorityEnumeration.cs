@@ -7,7 +7,7 @@ using System.Linq;
 
 namespace NexusMods.Monitor.Scraper.Domain.AggregatesModel.IssueAggregate
 {
-    public sealed record IssuePriorityEnumeration(int Id, string Name) : Enumeration(Id, Name)
+    public sealed record IssuePriorityEnumeration(uint Id, string Name) : Enumeration(Id, Name)
     {
         public static readonly IssuePriorityEnumeration None = new(1, "ERROR");
         public static readonly IssuePriorityEnumeration NotSet = new(2, "Not Set");

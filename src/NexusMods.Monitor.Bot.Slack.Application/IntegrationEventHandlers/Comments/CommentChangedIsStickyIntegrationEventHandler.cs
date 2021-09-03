@@ -28,7 +28,7 @@ namespace NexusMods.Monitor.Bot.Slack.Application.IntegrationEventHandlers.Comme
         {
             var embed = AttachmentHelper.IsStickyChanged(command.Comment);
 
-            foreach (var (channelId, nexusModsGameId, nexusModsModId) in await _subscriptionQueries.GetAllAsync().ToListAsync())
+            await foreach (var (channelId, nexusModsGameId, nexusModsModId) in _subscriptionQueries.GetAllAsync())
             {
                 if (await _slackBot.GetConversationById(channelId) is not { } channel) continue;
                 if (nexusModsGameId != command.Comment.NexusModsGameId || nexusModsModId != command.Comment.NexusModsModId) continue;

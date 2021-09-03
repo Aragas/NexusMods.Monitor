@@ -8,6 +8,8 @@ using Microsoft.Extensions.Logging;
 using NexusMods.Monitor.Bot.Discord.Application;
 using NexusMods.Monitor.Bot.Discord.Application.Commands;
 using NexusMods.Monitor.Bot.Discord.Application.Queries;
+using NexusMods.Monitor.Shared.Application;
+using NexusMods.Monitor.Shared.Domain;
 
 using NodaTime;
 using NodaTime.Extensions;
@@ -78,8 +80,8 @@ unsubscribe [Game Id] [Mod Id]");
             _loggerService.LogInformation("Received 'subscriptions' command from user '{User}'.", Context.User.ToString());
 
 
-            var subscriptions = await _subscriptionQueries.GetAllAsync().Where(s => s.ChannelId == Context.Channel.Id).ToListAsync();
-            if (subscriptions.Count > 0)
+            var subscriptions = await _subscriptionQueries.GetAllAsync().Where(s => s.ChannelId == Context.Channel.Id).ToImmutableArrayAsync();
+            if (subscriptions.Length > 0)
             {
                 await Context.Channel.SendMessageAsync($@"Subscriptions:
 ```

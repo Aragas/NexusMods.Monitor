@@ -9,6 +9,8 @@ using NexusMods.Monitor.Scraper.Application.Commands.Comments;
 using NexusMods.Monitor.Scraper.Application.Queries.Comments;
 using NexusMods.Monitor.Scraper.Application.Queries.NexusModsComments;
 using NexusMods.Monitor.Scraper.Application.Queries.Subscriptions;
+using NexusMods.Monitor.Shared.Application;
+using NexusMods.Monitor.Shared.Domain;
 
 using NodaTime;
 
@@ -69,14 +71,12 @@ namespace NexusMods.Monitor.Scraper.Host.BackgroundServices
 
             await foreach (var (nexusModsGameId, nexusModsModId) in subscriptionQueries.GetAllAsync().Distinct(new SubscriptionViewModelComparer()).WithCancellation(ct))
             {
-                var nexusModsComments = await nexusModsCommentQueries.GetAllAsync(nexusModsGameId, nexusModsModId).ToListAsync(ct);
-                var databaseComments = await commentQueries.GetAllAsync().Where(x =>
-                    x.NexusModsGameId == nexusModsGameId &&
-                    x.NexusModsModId == nexusModsModId).ToListAsync(ct);
+                var nexusModsComments = await nexusModsCommentQueries.GetAllAsync(nexusModsGameId, nexusModsModId).ToImmutableArrayAsync(ct);
+                var databaseComments = await commentQueries.GetAllAsync().Where(x => x.NexusModsGameId == nexusModsGameId && x.NexusModsModId == nexusModsModId).ToImmutableArrayAsync(ct);
 
                 var newComments = nexusModsComments.Where(x => databaseComments.All(y => y.Id != x.NexusModsComment.Id));
                 var deletedComments = databaseComments.Where(x => nexusModsComments.All(y => y.NexusModsComment.Id != x.Id)).ToImmutableArray();
-                var existingComments = nexusModsComments.Select(nmce => databaseComments.Find(y => y.Id == nmce.NexusModsComment.Id) is { } dce
+                var existingComments = nexusModsComments.Select(nmce => databaseComments.FirstOrDefault(y => y.Id == nmce.NexusModsComment.Id) is { } dce
                     ? (DatabaseCommentEntity: dce, NexusModsCommentEntity: nmce)
                     : default).Where(tuple => tuple != default).ToImmutableArray();
 

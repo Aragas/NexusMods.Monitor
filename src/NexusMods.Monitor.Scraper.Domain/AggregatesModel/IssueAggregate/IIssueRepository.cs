@@ -12,8 +12,8 @@ namespace NexusMods.Monitor.Scraper.Domain.AggregatesModel.IssueAggregate
         IssueEntity Update(IssueEntity issueEntity);
 
         Task<IssueEntity?> GetAsync(uint issueEntityId);
-        Task<IssueStatusEnumeration> GetStatusAsync(int issueStatusEnumerationId);
-        Task<IssuePriorityEnumeration> GetPriorityAsync(int issuePriorityEnumerationId);
+        Task<IssueStatusEnumeration> GetStatusAsync(uint issueStatusEnumerationId);
+        Task<IssuePriorityEnumeration> GetPriorityAsync(uint issuePriorityEnumerationId);
         IQueryable<IssueEntity> GetAll();
     }
 }

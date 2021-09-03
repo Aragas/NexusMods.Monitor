@@ -5,7 +5,7 @@ using System.Reflection;
 
 namespace NexusMods.Monitor.Shared.Domain.SeedWork
 {
-    public abstract record Enumeration(int Id, string Name) : IComparable<Enumeration>
+    public abstract record Enumeration(uint Id, string Name) : Entity(Id), IComparable<Enumeration>
     {
         public override string ToString() => Name;
 
@@ -21,7 +21,7 @@ namespace NexusMods.Monitor.Shared.Domain.SeedWork
             }
         }
 
-        public static int AbsoluteDifference(Enumeration firstValue, Enumeration secondValue)
+        public static long AbsoluteDifference(Enumeration firstValue, Enumeration secondValue)
         {
             var absoluteDifference = Math.Abs(firstValue.Id - secondValue.Id);
             return absoluteDifference;

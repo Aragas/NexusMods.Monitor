@@ -29,7 +29,7 @@ namespace NexusMods.Monitor.Bot.Slack.Application.IntegrationEventHandlers.Issue
         {
             var embed = AttachmentHelper.StatusChanged(command.Issue, command.OldIssueStatus);
 
-            foreach (var (channelId, nexusModsGameId, nexusModsModId) in await _subscriptionQueries.GetAllAsync().ToListAsync())
+            await foreach (var (channelId, nexusModsGameId, nexusModsModId) in _subscriptionQueries.GetAllAsync())
             {
                 if (await _slackBot.GetConversationById(channelId) is not { } channel) continue;
                 if (nexusModsGameId != command.Issue.NexusModsGameId || nexusModsModId != command.Issue.NexusModsModId) continue;

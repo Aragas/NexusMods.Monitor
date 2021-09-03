@@ -30,10 +30,10 @@ namespace NexusMods.Monitor.Bot.Discord.Application.IntegrationEventHandlers.Com
         {
             var embed = EmbedHelper.NewComment(command.Comment);
 
-            foreach (var subscriptionEntity in await _subscriptionQueries.GetAllAsync().ToListAsync())
+            await foreach (var (channelId, nexusModsGameId, nexusModsModId) in _subscriptionQueries.GetAllAsync())
             {
-                if (await _discordClient.GetChannelAsync(subscriptionEntity.ChannelId) is not IMessageChannel channel) continue;
-                if (subscriptionEntity.NexusModsGameId != command.Comment.NexusModsGameId || subscriptionEntity.NexusModsModId != command.Comment.NexusModsModId) continue;
+                if (await _discordClient.GetChannelAsync(channelId) is not IMessageChannel channel) continue;
+                if (nexusModsGameId != command.Comment.NexusModsGameId || nexusModsModId != command.Comment.NexusModsModId) continue;
                 await channel.SendMessageAsync(embed: embed);
             }
         }

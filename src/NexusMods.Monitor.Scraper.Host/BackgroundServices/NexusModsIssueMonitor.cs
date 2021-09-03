@@ -9,6 +9,8 @@ using NexusMods.Monitor.Scraper.Application.Commands.Issues;
 using NexusMods.Monitor.Scraper.Application.Queries.Issues;
 using NexusMods.Monitor.Scraper.Application.Queries.NexusModsIssues;
 using NexusMods.Monitor.Scraper.Application.Queries.Subscriptions;
+using NexusMods.Monitor.Shared.Application;
+using NexusMods.Monitor.Shared.Domain;
 
 using NodaTime;
 
@@ -69,14 +71,12 @@ namespace NexusMods.Monitor.Scraper.Host.BackgroundServices
 
             await foreach (var (nexusModsGameId, nexusModsModId) in subscriptionQueries.GetAllAsync().Distinct(new SubscriptionViewModelComparer()).WithCancellation(ct))
             {
-                var nexusModsIssues = await nexusModsIssueQueries.GetAllAsync(nexusModsGameId, nexusModsModId).ToListAsync(ct);
-                var databaseIssues = await issueQueries.GetAllAsync().Where(x =>
-                    x.NexusModsGameId == nexusModsGameId &&
-                    x.NexusModsModId == nexusModsModId).ToListAsync(ct);
+                var nexusModsIssues = await nexusModsIssueQueries.GetAllAsync(nexusModsGameId, nexusModsModId).ToImmutableArrayAsync(ct);//.ToDictionaryAsync(x => x.NexusModsIssue.Id, x => x, ct);
+                var databaseIssues = await issueQueries.GetAllAsync().Where(x => x.NexusModsGameId == nexusModsGameId && x.NexusModsModId == nexusModsModId).ToImmutableArrayAsync(ct);
 
                 var newIssues = nexusModsIssues.Where(x => databaseIssues.All(y => y.Id != x.NexusModsIssue.Id));
                 var deletedIssues = databaseIssues.Where(x => nexusModsIssues.All(y => y.NexusModsIssue.Id != x.Id)).ToImmutableArray();
-                var existingIssues = nexusModsIssues.Select(nmie => databaseIssues.Find(y => y.Id == nmie.NexusModsIssue.Id) is { } die
+                var existingIssues = nexusModsIssues.Select(nmie => databaseIssues.FirstOrDefault(y => y.Id == nmie.NexusModsIssue.Id) is { } die
                     ? (DatabaseIssueEntity: die, NexusModsIssueEntity: nmie)
                     : default).Where(tuple => tuple != default).ToImmutableArray();
 
@@ -115,12 +115,9 @@ namespace NexusMods.Monitor.Scraper.Host.BackgroundServices
                         await mediator.Send(new IssueChangeIsPrivateCommand(databaseIssue.Id, nexusModsIssueRoot.NexusModsIssue.IsPrivate), ct);
                     }
 
-                    if (/*databaseIssueEntity.Replies.Count() < nexusModsIssueRoot.NexusModsIssue.ReplyCount ||*/databaseIssue.TimeOfLastPost < nexusModsIssueRoot.NexusModsIssue.LastPost)
+                    if (databaseIssue.TimeOfLastPost < nexusModsIssueRoot.NexusModsIssue.LastPost)
                     {
-                        if (nexusModsIssueRoot.NexusModsIssueReplies is null)
-                            await nexusModsIssueRoot.SetRepliesAsync(nexusModsIssueQueries.GetRepliesAsync(nexusModsIssueRoot.NexusModsIssue.Id));
-
-                        var newReplies = nexusModsIssueRoot.NexusModsIssueReplies!.Where(x => databaseIssue.Replies.All(y => y.Id != x.Id));
+                        var newReplies = nexusModsIssueRoot.NexusModsIssueReplies.Where(x => databaseIssue.Replies.All(y => y.Id != x.Id));
                         var deletedReplies = databaseIssue.Replies.Where(x => nexusModsIssueRoot.NexusModsIssueReplies!.All(y => y.Id != x.Id)).ToImmutableArray();
 
                         foreach (var issueReply in newReplies)
