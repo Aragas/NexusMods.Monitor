@@ -48,7 +48,7 @@ using System.Threading.Tasks;
 
 namespace NexusMods.Monitor.Scraper.Host
 {
-    public static class Program
+    public class Program
     {
         public static async Task Main(string[] args)
         {
@@ -134,16 +134,20 @@ namespace NexusMods.Monitor.Scraper.Host
                 services.AddHttpClient("RetryClient", client =>
                 {
                     client.Timeout = TimeSpan.FromSeconds(100);
-                }).AddPolicyHandler((sp, request) => Policy
-                    .HandleResult<HttpResponseMessage>(r => !r.IsSuccessStatusCode)
-                    .OrTransientHttpError()
-                    .Or<SocketException>(exception => exception.SocketErrorCode is SocketError.ConnectionRefused)
-                    .WaitAndRetryAsync(5, retryAttempt => TimeSpan.FromSeconds(retryAttempt),
-                        onRetry: (exception, timespan, retryAttempt, context) =>
-                        {
-                            // using servs to log // });
-                        })
-                    .WrapAsync(Policy.TimeoutAsync(1)));
+                }).AddPolicyHandler((sp, request) =>
+                {
+                    var logger = sp.GetRequiredService<ILogger<Program>>();
+                    return Policy
+                        .HandleResult<HttpResponseMessage>(r => !r.IsSuccessStatusCode)
+                        .OrTransientHttpError()
+                        .Or<SocketException>()
+                        .WaitAndRetryAsync(10, _ => TimeSpan.FromSeconds(2),
+                            (delegateResult, time) =>
+                            {
+                                logger.LogError("Exception during NATS connection. Waiting {time}...", time);
+                            })
+                        .WrapAsync(Policy.TimeoutAsync(1));
+                });
                 services.AddTransient<IClock, SystemClock>(_ => SystemClock.Instance);
                 services.AddEventBusNatsAndEventHandlers(context.Configuration.GetSection("EventBus"), typeof(NexusModsOptions).Assembly);
 

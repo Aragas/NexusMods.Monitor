@@ -50,7 +50,7 @@ namespace NexusMods.Monitor.Bot.Discord.Host.BackgroundServices
 
             _discordSocketClient = discordSocketClient;
             _retryPolicy = Policy.Handle<Exception>(ex => ex.GetType() != typeof(TaskCanceledException))
-                .WaitAndRetryAsync(10, retryAttempt => TimeSpan.FromSeconds(2),
+                .WaitAndRetryAsync(10, _ => TimeSpan.FromSeconds(2),
                     (ex, time) =>
                     {
                         _logger.LogError(ex, "Exception during NATS connection. Waiting {time}...", time);

@@ -54,7 +54,7 @@ namespace NexusMods.Monitor.Bot.Slack.Host.BackgroundServices
             _subscriptionQueries = subscriptionQueries ?? throw new ArgumentNullException(nameof(subscriptionQueries));
             _eventSubscriber = eventSubscriber ?? throw new ArgumentNullException(nameof(eventSubscriber));
             _retryPolicy = Policy.Handle<Exception>(ex => ex.GetType() != typeof(TaskCanceledException))
-                .WaitAndRetryAsync(10, retryAttempt => TimeSpan.FromSeconds(2),
+                .WaitAndRetryAsync(10, _ => TimeSpan.FromSeconds(2),
                     (ex, time) =>
                     {
                         _logger.LogError(ex, "Exception during NATS connection. Waiting {time}...", time);
