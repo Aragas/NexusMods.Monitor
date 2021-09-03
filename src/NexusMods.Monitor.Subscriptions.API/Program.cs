@@ -2,8 +2,11 @@
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Logging;
 
 using NexusMods.Monitor.Subscriptions.Infrastructure.Contexts;
+
+using Polly;
 
 using Serilog;
 using Serilog.Exceptions;
@@ -11,11 +14,12 @@ using Serilog.Exceptions.Core;
 using Serilog.Exceptions.EntityFrameworkCore.Destructurers;
 
 using System;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace NexusMods.Monitor.Subscriptions.API
 {
-    public static class Program
+    public class Program
     {
         public static async Task Main(string[] args)
         {
@@ -58,9 +62,21 @@ namespace NexusMods.Monitor.Subscriptions.API
         private static async Task EnsureDatabasesCreated(IHost host)
         {
             using var scope = host.Services.CreateScope();
-            using var subscriptionDb = scope.ServiceProvider.GetRequiredService<SubscriptionDb>();
-            //await subscriptionDb.Database.EnsureDeletedAsync();
-            await subscriptionDb.Database.EnsureCreatedAsync();
+
+            var logger = scope.ServiceProvider.GetRequiredService<ILogger<Program>>();
+            var retryPolicy = Policy.Handle<Exception>(ex => ex.GetType() != typeof(TaskCanceledException))
+                .WaitAndRetryAsync(10, retryAttempt => TimeSpan.FromSeconds(2),
+                    (ex, time) =>
+                    {
+                        logger.LogError(ex, "Exception during PostgreSQL connection. Waiting {time}...", time);
+                    });
+
+            await retryPolicy.ExecuteAsync(async token =>
+            {
+                await using var subscriptionDb = scope.ServiceProvider.GetRequiredService<SubscriptionDb>();
+                //await subscriptionDb.Database.EnsureDeletedAsync(token);
+                await subscriptionDb.Database.EnsureCreatedAsync(token);
+            }, CancellationToken.None);
         }
 
         private static IConfigurationRoot GetInitialConfiguration()

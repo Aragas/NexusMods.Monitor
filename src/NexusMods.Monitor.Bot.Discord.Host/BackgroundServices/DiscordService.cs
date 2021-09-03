@@ -24,7 +24,7 @@ namespace NexusMods.Monitor.Bot.Discord.Host.BackgroundServices
     /// <summary>
     /// Manages the Discord connection.
     /// </summary>
-    public sealed class DiscordService : CriticalBackgroundService, IDisposable
+    public sealed class DiscordService : CriticalBackgroundService
     {
         private readonly DiscordSocketClient _discordSocketClient;
         private readonly CommandService _commands;
@@ -149,9 +149,10 @@ namespace NexusMods.Monitor.Bot.Discord.Host.BackgroundServices
             }
         }
 
-        public void Dispose()
+        public override void Dispose()
         {
             _discordSocketClient.Dispose();
+            base.Dispose();
         }
     }
 }
