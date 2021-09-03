@@ -13,6 +13,9 @@ using NexusMods.Monitor.Bot.Slack.Application.Queries;
 using NodaTime;
 using NodaTime.Extensions;
 
+using Polly;
+using Polly.Retry;
+
 using SlackNet.Bot;
 
 using System;
@@ -34,6 +37,7 @@ namespace NexusMods.Monitor.Bot.Slack.Host.BackgroundServices
         private readonly IMediator _mediator;
         private readonly ISubscriptionQueries _subscriptionQueries;
         private readonly IEventSubscriber _eventSubscriber;
+        private readonly AsyncRetryPolicy _retryPolicy;
 
         public SlackService(ILogger<SlackService> logger,
             ISlackBot bot,
@@ -49,6 +53,12 @@ namespace NexusMods.Monitor.Bot.Slack.Host.BackgroundServices
             _mediator = mediator ?? throw new ArgumentNullException(nameof(mediator));
             _subscriptionQueries = subscriptionQueries ?? throw new ArgumentNullException(nameof(subscriptionQueries));
             _eventSubscriber = eventSubscriber ?? throw new ArgumentNullException(nameof(eventSubscriber));
+            _retryPolicy = Policy.Handle<Exception>(ex => ex.GetType() != typeof(TaskCanceledException))
+                .WaitAndRetryAsync(10, retryAttempt => TimeSpan.FromSeconds(2),
+                    (ex, time) =>
+                    {
+                        _logger.LogError(ex, "Exception during NATS connection. Waiting {time}...", time);
+                    });
         }
 
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)
@@ -62,7 +72,7 @@ namespace NexusMods.Monitor.Bot.Slack.Host.BackgroundServices
 
             _bot.OnMessage += Bot_OnMessageReceived;
             await _bot.Connect(stoppingToken);
-            await _eventSubscriber.Subscribe(stoppingToken);
+            await _retryPolicy.ExecuteAsync(async token => await _eventSubscriber.Subscribe(token), stoppingToken);
             _logger.LogWarning("Started Slack Bot.");
             stoppingToken.Register(OnCancellation, null);
         }

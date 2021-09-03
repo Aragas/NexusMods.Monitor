@@ -12,6 +12,9 @@ using Microsoft.Extensions.Options;
 
 using NexusMods.Monitor.Bot.Discord.Host.Options;
 
+using Polly;
+using Polly.Retry;
+
 using System;
 using System.Threading;
 using System.Threading.Tasks;
@@ -29,6 +32,7 @@ namespace NexusMods.Monitor.Bot.Discord.Host.BackgroundServices
         private readonly ILogger _logger;
         private readonly DiscordOptions _options;
         private readonly IEventSubscriber _eventSubscriber;
+        private readonly AsyncRetryPolicy _retryPolicy;
 
         public DiscordService(DiscordSocketClient discordSocketClient,
             CommandService commands,
@@ -45,7 +49,12 @@ namespace NexusMods.Monitor.Bot.Discord.Host.BackgroundServices
             _eventSubscriber = eventSubscriber;
 
             _discordSocketClient = discordSocketClient;
-        }
+            _retryPolicy = Policy.Handle<Exception>(ex => ex.GetType() != typeof(TaskCanceledException))
+                .WaitAndRetryAsync(10, retryAttempt => TimeSpan.FromSeconds(2),
+                    (ex, time) =>
+                    {
+                        _logger.LogError(ex, "Exception during NATS connection. Waiting {time}...", time);
+                    });}
 
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)
         {
@@ -78,7 +87,7 @@ namespace NexusMods.Monitor.Bot.Discord.Host.BackgroundServices
             await _discordSocketClient.LoginAsync(TokenType.Bot, token);
             await _discordSocketClient.StartAsync();
 
-            await _eventSubscriber.Subscribe(stoppingToken);
+            await _retryPolicy.ExecuteAsync(async token => await _eventSubscriber.Subscribe(token), stoppingToken);
 
             _logger.LogWarning("Started Discord Bot.");
 
