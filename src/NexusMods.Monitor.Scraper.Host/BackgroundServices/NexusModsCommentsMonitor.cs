@@ -1,7 +1,8 @@
-﻿using MediatR;
+﻿using BetterHostedServices;
+
+using MediatR;
 
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 
 using NexusMods.Monitor.Scraper.Application.Commands.Comments;
@@ -23,14 +24,14 @@ using System.Threading.Tasks;
 
 namespace NexusMods.Monitor.Scraper.Host.BackgroundServices
 {
-    public sealed class NexusModsCommentsMonitor : BackgroundService
+    public sealed class NexusModsCommentsMonitor : CriticalBackgroundService
     {
         private readonly ILogger _logger;
         private readonly IClock _clock;
         private readonly IServiceScopeFactory _scopeFactory;
         private readonly TimeLimiter _timeLimiter;
 
-        public NexusModsCommentsMonitor(ILogger<NexusModsCommentsMonitor> logger, IClock clock, IServiceScopeFactory scopeFactory)
+        public NexusModsCommentsMonitor(ILogger<NexusModsCommentsMonitor> logger, IClock clock, IServiceScopeFactory scopeFactory, IApplicationEnder applicationEnder) : base(applicationEnder)
         {
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
             _clock = clock ?? throw new ArgumentNullException(nameof(clock));

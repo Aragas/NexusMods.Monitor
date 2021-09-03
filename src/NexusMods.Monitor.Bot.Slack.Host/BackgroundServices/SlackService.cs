@@ -1,8 +1,9 @@
-﻿using Enbiso.NLib.EventBus;
+﻿using BetterHostedServices;
+
+using Enbiso.NLib.EventBus;
 
 using MediatR;
 
-using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 
 using NexusMods.Monitor.Bot.Slack.Application;
@@ -25,7 +26,7 @@ namespace NexusMods.Monitor.Bot.Slack.Host.BackgroundServices
     /// <summary>
     /// Manages the Discord connection.
     /// </summary>
-    public sealed class SlackService : IHostedService
+    public sealed class SlackService : CriticalBackgroundService
     {
         private readonly ILogger _logger;
         private readonly ISlackBot _bot;
@@ -39,7 +40,8 @@ namespace NexusMods.Monitor.Bot.Slack.Host.BackgroundServices
             IClock clock,
             IMediator mediator,
             ISubscriptionQueries subscriptionQueries,
-            IEventSubscriber eventSubscriber)
+            IEventSubscriber eventSubscriber,
+            IApplicationEnder applicationEnder) : base(applicationEnder)
         {
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
             _bot = bot ?? throw new ArgumentNullException(nameof(bot));
@@ -49,27 +51,22 @@ namespace NexusMods.Monitor.Bot.Slack.Host.BackgroundServices
             _eventSubscriber = eventSubscriber ?? throw new ArgumentNullException(nameof(eventSubscriber));
         }
 
-        public async Task StartAsync(CancellationToken cancellationToken)
+        protected override async Task ExecuteAsync(CancellationToken stoppingToken)
         {
+            void OnCancellation(object? _, CancellationToken ct)
+            {
+                _bot.OnMessage -= Bot_OnMessageReceived;
+                _logger.LogWarning("Stopped Slack Bot.");
+                _eventSubscriber.Dispose();
+            }
+
             _bot.OnMessage += Bot_OnMessageReceived;
-
-            await _bot.Connect(cancellationToken);
-
-            await _eventSubscriber.Subscribe(cancellationToken);
-
+            await _bot.Connect(stoppingToken);
+            await _eventSubscriber.Subscribe(stoppingToken);
             _logger.LogWarning("Started Slack Bot.");
+            stoppingToken.Register(OnCancellation, null);
         }
 
-        public Task StopAsync(CancellationToken cancellationToken)
-        {
-            _bot.OnMessage -= Bot_OnMessageReceived;
-
-            _logger.LogWarning("Stopped Slack Bot.");
-
-            _eventSubscriber.Dispose();
-
-            return Task.CompletedTask;
-        }
 
         private async void Bot_OnMessageReceived(object? sender, IMessage message)
         {

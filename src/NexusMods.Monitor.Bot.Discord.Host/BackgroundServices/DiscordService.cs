@@ -1,11 +1,12 @@
-﻿using Discord;
+﻿using BetterHostedServices;
+
+using Discord;
 using Discord.Commands;
 using Discord.WebSocket;
 
 using Enbiso.NLib.EventBus;
 
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 
@@ -20,7 +21,7 @@ namespace NexusMods.Monitor.Bot.Discord.Host.BackgroundServices
     /// <summary>
     /// Manages the Discord connection.
     /// </summary>
-    public sealed class DiscordService : IHostedService, IDisposable
+    public sealed class DiscordService : CriticalBackgroundService, IDisposable
     {
         private readonly DiscordSocketClient _discordSocketClient;
         private readonly CommandService _commands;
@@ -34,7 +35,8 @@ namespace NexusMods.Monitor.Bot.Discord.Host.BackgroundServices
             IServiceScopeFactory scopeFactory,
             ILogger<DiscordService> loggerService,
             IOptions<DiscordOptions> options,
-            IEventSubscriber eventSubscriber)
+            IEventSubscriber eventSubscriber,
+            IApplicationEnder applicationEnder) : base(applicationEnder)
         {
             _commands = commands;
             _scopeFactory = scopeFactory;
@@ -45,8 +47,18 @@ namespace NexusMods.Monitor.Bot.Discord.Host.BackgroundServices
             _discordSocketClient = discordSocketClient;
         }
 
-        public async Task StartAsync(CancellationToken cancellationToken)
+        protected override async Task ExecuteAsync(CancellationToken stoppingToken)
         {
+            async void OnCancellation(object? _, CancellationToken ct)
+            {
+                _discordSocketClient.MessageReceived -= Bot_MessageReceived;
+                _discordSocketClient.Log -= Bot_Log;
+                await _discordSocketClient.StopAsync();
+                _logger.LogWarning("Stopped Discord Bot.");
+
+                _eventSubscriber.Dispose();
+            }
+
             using var scope = _scopeFactory.CreateScope();
             await _commands.AddModulesAsync(typeof(DiscordCommands).Assembly, scope.ServiceProvider);
 
@@ -66,19 +78,11 @@ namespace NexusMods.Monitor.Bot.Discord.Host.BackgroundServices
             await _discordSocketClient.LoginAsync(TokenType.Bot, token);
             await _discordSocketClient.StartAsync();
 
-            await _eventSubscriber.Subscribe(cancellationToken);
+            await _eventSubscriber.Subscribe(stoppingToken);
 
             _logger.LogWarning("Started Discord Bot.");
-        }
 
-        public async Task StopAsync(CancellationToken cancellationToken)
-        {
-            _discordSocketClient.MessageReceived -= Bot_MessageReceived;
-            _discordSocketClient.Log -= Bot_Log;
-            await _discordSocketClient.StopAsync();
-            _logger.LogWarning("Stopped Discord Bot.");
-
-            _eventSubscriber.Dispose();
+            stoppingToken.Register(OnCancellation, null);
         }
 
         private Task Bot_Log(LogMessage arg)

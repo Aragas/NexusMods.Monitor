@@ -1,7 +1,8 @@
-﻿using MediatR;
+﻿using BetterHostedServices;
+
+using MediatR;
 
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 
 using NexusMods.Monitor.Scraper.Application.Commands.Issues;
@@ -23,14 +24,14 @@ using System.Threading.Tasks;
 
 namespace NexusMods.Monitor.Scraper.Host.BackgroundServices
 {
-    public sealed class NexusModsIssueMonitor : BackgroundService
+    public sealed class NexusModsIssueMonitor : CriticalBackgroundService
     {
         private readonly ILogger _logger;
         private readonly IClock _clock;
         private readonly IServiceScopeFactory _scopeFactory;
         private readonly TimeLimiter _timeLimiter;
 
-        public NexusModsIssueMonitor(ILogger<NexusModsIssueMonitor> logger, IClock clock, IServiceScopeFactory scopeFactory)
+        public NexusModsIssueMonitor(ILogger<NexusModsIssueMonitor> logger, IClock clock, IServiceScopeFactory scopeFactory, IApplicationEnder applicationEnder) : base(applicationEnder)
         {
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
             _clock = clock ?? throw new ArgumentNullException(nameof(clock));
@@ -130,9 +131,9 @@ namespace NexusMods.Monitor.Scraper.Host.BackgroundServices
                                 await mediator.Send(new IssueAddReplyCommand(nexusModsIssueRoot, issueReply), ct);
                         }
 
-                        foreach (var issueReply in deletedReplies)
+                        foreach (var (id, ownerId) in deletedReplies)
                         {
-                            await mediator.Send(new IssueRemoveReplyCommand(issueReply.OwnerId, issueReply.Id), ct);
+                            await mediator.Send(new IssueRemoveReplyCommand(ownerId, id), ct);
                         }
                     }
                 }
