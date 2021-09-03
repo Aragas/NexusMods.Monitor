@@ -41,6 +41,12 @@ namespace NexusMods.Monitor.Scraper.Application.CommandHandlers.Issues
                 return false;
             }
 
+            if (issueEntity.IsClosed != message.IsClosed)
+            {
+                _logger.LogError("Issue with Id {Id} has already the correct IsClosed value.", message.Id);
+                return false;
+            }
+
             var oldIsClosed = issueEntity.IsClosed;
             issueEntity.SetIsClosed(message.IsClosed);
 

@@ -12,6 +12,7 @@ using NexusMods.Monitor.Shared.Application;
 using NexusMods.Monitor.Shared.Application.IntegrationEvents.Issues;
 
 using System;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -38,6 +39,12 @@ namespace NexusMods.Monitor.Scraper.Application.CommandHandlers.Issues
             if (issueEntity is null)
             {
                 _logger.LogError("Issue with Id {Id} was not found! IssueReply Id {ReplyId}", message.OwnerId, message.Id);
+                return false;
+            }
+
+            if (issueEntity.Replies.Any(r => r.Id == message.Id))
+            {
+                _logger.LogError("Issue with Id {Id} has already the reply! IssueReply Id {ReplyId}", message.OwnerId, message.Id);
                 return false;
             }
 

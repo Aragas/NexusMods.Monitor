@@ -12,6 +12,7 @@ using NexusMods.Monitor.Shared.Application;
 using NexusMods.Monitor.Shared.Application.IntegrationEvents.Comments;
 
 using System;
+using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -38,6 +39,12 @@ namespace NexusMods.Monitor.Scraper.Application.CommandHandlers.Comments
             if (commentEntity is null)
             {
                 _logger.LogError("Comment with Id {Id} was not found. CommentReply Id {ReplyId}.", message.Id, message.ReplyId);
+                return false;
+            }
+
+            if (commentEntity.Replies.Any(r => r.Id == message.Id))
+            {
+                _logger.LogError("Comment with Id {Id} has already the reply! CommentReply Id {ReplyId}", message.Id, message.ReplyId);
                 return false;
             }
 

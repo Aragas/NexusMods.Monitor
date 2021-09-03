@@ -41,6 +41,12 @@ namespace NexusMods.Monitor.Scraper.Application.CommandHandlers.Issues
                 return false;
             }
 
+            if (issueEntity.Priority.Id != message.PriorityId)
+            {
+                _logger.LogError("Issue with Id {Id} has already the correct Priority value.", message.Id);
+                return false;
+            }
+
             var oldPriority = _mapper.Map<IssuePriorityEnumeration, IssuePriorityDTO>(issueEntity.Priority);
             issueEntity.SetPriority(await _issueRepository.GetPriorityAsync(message.PriorityId));
 

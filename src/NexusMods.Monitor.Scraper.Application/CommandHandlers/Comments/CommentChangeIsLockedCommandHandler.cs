@@ -41,6 +41,12 @@ namespace NexusMods.Monitor.Scraper.Application.CommandHandlers.Comments
                 return false;
             }
 
+            if (commentEntity.IsLocked != message.IsLocked)
+            {
+                _logger.LogError("Comment with Id {Id} has already the correct IsLocked value.", message.Id);
+                return false;
+            }
+
             var oldIsLocked = commentEntity.IsLocked;
             commentEntity.SetIsLocked(message.IsLocked);
             _commentRepository.Update(commentEntity);

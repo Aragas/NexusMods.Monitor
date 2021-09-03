@@ -41,6 +41,12 @@ namespace NexusMods.Monitor.Scraper.Application.CommandHandlers.Issues
                 return false;
             }
 
+            if (issueEntity.IsPrivate != message.IsPrivate)
+            {
+                _logger.LogError("Issue with Id {Id} has already the correct IsPrivate value.", message.Id);
+                return false;
+            }
+
             var oldIsPrivate = issueEntity.IsPrivate;
             issueEntity.SetIsPrivate(message.IsPrivate);
 

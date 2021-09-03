@@ -42,6 +42,12 @@ namespace NexusMods.Monitor.Scraper.Application.CommandHandlers.Issues
                 return false;
             }
 
+            if (issueEntity.Replies.All(r => r.Id != message.Id))
+            {
+                _logger.LogError("Issue with Id {Id} doesn't have the reply! IssueReply Id {ReplyId}", message.Id, message.ReplyId);
+                return false;
+            }
+
             var issueReplyDTO = _mapper.Map<IssueReplyEntity, IssueReplyDTO>(issueEntity.Replies.First(x => x.Id == message.ReplyId));
 
             issueEntity.RemoveReply(message.ReplyId);

@@ -42,6 +42,12 @@ namespace NexusMods.Monitor.Scraper.Application.CommandHandlers.Comments
                 return false;
             }
 
+            if (commentEntity.Replies.All(r => r.Id != message.Id))
+            {
+                _logger.LogError("Comment with Id {Id} doesn't have the reply! CommentReply Id {ReplyId}", message.Id, message.ReplyId);
+                return false;
+            }
+
             var commentReplyDTO = _mapper.Map<CommentReplyEntity, CommentReplyDTO>(commentEntity.Replies.First(x => x.Id == message.ReplyId));
 
             commentEntity.RemoveReply(message.ReplyId);

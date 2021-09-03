@@ -41,6 +41,12 @@ namespace NexusMods.Monitor.Scraper.Application.CommandHandlers.Issues
                 return false;
             }
 
+            if (issueEntity.Status.Id != message.StatusId)
+            {
+                _logger.LogError("Issue with Id {Id} has already the correct Status value.", message.Id);
+                return false;
+            }
+
             var oldStatus = _mapper.Map<IssueStatusEnumeration, IssueStatusDTO>(issueEntity.Status);
             issueEntity.SetStatus(await _issueRepository.GetStatusAsync(message.StatusId));
 

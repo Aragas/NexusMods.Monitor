@@ -41,6 +41,12 @@ namespace NexusMods.Monitor.Scraper.Application.CommandHandlers.Comments
                 return false;
             }
 
+            if (commentEntity.IsSticky != message.IsSticky)
+            {
+                _logger.LogError("Comment with Id {Id} has already the correct IsSticky value.", message.Id);
+                return false;
+            }
+
             var oldIsSticky = commentEntity.IsSticky;
             commentEntity.SetIsSticky(message.IsSticky);
             _commentRepository.Update(commentEntity);
