@@ -1,4 +1,6 @@
-﻿using MediatR;
+﻿using BetterHostedServices;
+
+using MediatR;
 
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -86,6 +88,8 @@ namespace NexusMods.Monitor.Bot.Slack.Host
                 services.AddTransient<IClock, SystemClock>(_ => SystemClock.Instance);
                 services.AddEventBusNatsAndEventHandlers(context.Configuration.GetSection("EventBus"), typeof(CommentAddedNewIntegrationEventHandler).Assembly);
 
+                services.AddBetterHostedServices();
+
                 services.AddSingleton<DefaultJsonSerializer>();
 
                 services.Configure<SlackOptions>(context.Configuration.GetSection("Slack"));
@@ -93,7 +97,7 @@ namespace NexusMods.Monitor.Bot.Slack.Host
 
                 services.AddSingleton<ISlackBot, SlackBotWrapper>();
 
-                services.AddHostedService<SlackService>();
+                services.AddHostedServiceAsSingleton<SlackService>();
 
                 services.AddTransient<ISubscriptionQueries, SubscriptionQueries>();
             })

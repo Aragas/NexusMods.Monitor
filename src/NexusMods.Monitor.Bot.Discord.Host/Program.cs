@@ -1,4 +1,6 @@
-﻿using Discord;
+﻿using BetterHostedServices;
+
+using Discord;
 using Discord.Commands;
 using Discord.WebSocket;
 
@@ -88,6 +90,8 @@ namespace NexusMods.Monitor.Bot.Discord.Host
                 services.AddTransient<IClock, SystemClock>(_ => SystemClock.Instance);
                 services.AddEventBusNatsAndEventHandlers(context.Configuration.GetSection("EventBus"), typeof(CommentAddedNewIntegrationEventHandler).Assembly);
 
+                services.AddBetterHostedServices();
+
                 services.AddSingleton<DefaultJsonSerializer>();
 
                 services.Configure<DiscordOptions>(context.Configuration.GetSection("Discord"));
@@ -97,7 +101,7 @@ namespace NexusMods.Monitor.Bot.Discord.Host
                 services.AddSingleton<IDiscordClient, DiscordSocketClient>(sp => sp.GetRequiredService<DiscordSocketClient>());
                 services.AddSingleton<CommandService>();
 
-                services.AddHostedService<DiscordService>();
+                services.AddHostedServiceAsSingleton<DiscordService>();
 
                 services.AddTransient<ISubscriptionQueries, SubscriptionQueries>();
             })

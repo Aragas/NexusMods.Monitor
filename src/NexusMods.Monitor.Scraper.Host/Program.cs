@@ -1,4 +1,6 @@
-﻿using MediatR;
+﻿using BetterHostedServices;
+
+using MediatR;
 
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
@@ -145,6 +147,8 @@ namespace NexusMods.Monitor.Scraper.Host
                 services.AddTransient<IClock, SystemClock>(_ => SystemClock.Instance);
                 services.AddEventBusNatsAndEventHandlers(context.Configuration.GetSection("EventBus"), typeof(NexusModsOptions).Assembly);
 
+                services.AddBetterHostedServices();
+
                 services.AddSingleton<DefaultJsonSerializer>();
 
                 services.Configure<NexusModsOptions>(context.Configuration.GetSection("NexusMods"));
@@ -152,8 +156,8 @@ namespace NexusMods.Monitor.Scraper.Host
 
                 services.AddDbContext<NexusModsDb>(opt => opt.UseNpgsql(context.Configuration.GetConnectionString("NexusMods"), o => o.UseNodaTime()));
 
-                services.AddHostedService<NexusModsIssueMonitor>();
-                services.AddHostedService<NexusModsCommentsMonitor>();
+                services.AddHostedServiceAsSingleton<NexusModsIssueMonitor>();
+                services.AddHostedServiceAsSingleton<NexusModsCommentsMonitor>();
 
                 services.AddTransient<INexusModsClient, NexusModsClientWrapper>();
 
