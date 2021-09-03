@@ -79,6 +79,7 @@ services:
     environment:
       Serilog__WriteTo__1__Args__serverUrl: http://seq:5341
       ConnectionStrings__Subscriptions: Host=postgres;Port=5432;Database=subscriptions;Username=nexusmodsmonitor;Password=nexusmodsmonitor;Include Error Detail=true;
+      ASPNETCORE_URLS: "http://*:80"
     build:
       context: ../../.
       dockerfile: src/NexusMods.Monitor.Subscriptions.API/Dockerfile

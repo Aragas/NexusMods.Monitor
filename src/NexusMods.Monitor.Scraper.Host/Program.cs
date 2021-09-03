@@ -141,10 +141,10 @@ namespace NexusMods.Monitor.Scraper.Host
                         .HandleResult<HttpResponseMessage>(r => !r.IsSuccessStatusCode)
                         .OrTransientHttpError()
                         .Or<SocketException>()
-                        .WaitAndRetryAsync(10, _ => TimeSpan.FromSeconds(2),
+                        .WaitAndRetryAsync(20, _ => TimeSpan.FromSeconds(2),
                             (delegateResult, time) =>
                             {
-                                logger.LogError("Exception during NATS connection. Waiting {time}...", time);
+                                logger.LogError("Exception during HTTP connection. Waiting {time}...", time);
                             });
                 });
                 services.AddTransient<IClock, SystemClock>(_ => SystemClock.Instance);

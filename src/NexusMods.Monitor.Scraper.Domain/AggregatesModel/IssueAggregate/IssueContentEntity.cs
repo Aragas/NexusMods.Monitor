@@ -1,5 +1,4 @@
-﻿using NexusMods.Monitor.Shared.Domain;
-using NexusMods.Monitor.Shared.Domain.SeedWork;
+﻿using NexusMods.Monitor.Shared.Domain.SeedWork;
 
 using NodaTime;
 
@@ -15,7 +14,7 @@ namespace NexusMods.Monitor.Scraper.Domain.AggregatesModel.IssueAggregate
         public bool IsDeleted { get; private set; }
         public Instant TimeOfPost { get; private set; }
 
-        private IssueContentEntity() : this(RecordUtils.Default<IssueContentEntity>()) { }
+        private IssueContentEntity() : this(default, default!, default!, default!, default!, default, default) { }
         public IssueContentEntity(uint id, string author, string authorUrl, string avatarUrl, string content, bool isDeleted, Instant timeOfPost) : base(id)
         {
             Id = id;

@@ -1,5 +1,4 @@
 ﻿using NexusMods.Monitor.Scraper.Domain.Events.Comments;
-using NexusMods.Monitor.Shared.Domain;
 using NexusMods.Monitor.Shared.Domain.SeedWork;
 
 using NodaTime;
@@ -25,7 +24,7 @@ namespace NexusMods.Monitor.Scraper.Domain.AggregatesModel.CommentAggregate
         private readonly List<CommentReplyEntity> _replies = new();
         public IReadOnlyList<CommentReplyEntity> Replies => _replies.AsReadOnly();
 
-        private CommentEntity() : this(RecordUtils.Default<CommentEntity>()) { }
+        private CommentEntity() : this(default, default, default, default!, default!, default!, default!, default!, default, default, default, default) { }
         public CommentEntity(uint id, uint nexusModsGameId, uint nexusModsModId, string url, string author, string authorUrl, string avatarUrl, string content, bool isSticky, bool isLocked, bool isDeleted, Instant timeOfPost) : base(id)
         {
             Id = id;

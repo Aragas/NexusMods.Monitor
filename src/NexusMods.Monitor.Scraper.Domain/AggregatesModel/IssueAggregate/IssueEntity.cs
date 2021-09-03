@@ -1,5 +1,4 @@
 ﻿using NexusMods.Monitor.Scraper.Domain.Events.Issues;
-using NexusMods.Monitor.Shared.Domain;
 using NexusMods.Monitor.Shared.Domain.SeedWork;
 
 using NodaTime;
@@ -27,7 +26,7 @@ namespace NexusMods.Monitor.Scraper.Domain.AggregatesModel.IssueAggregate
         private readonly List<IssueReplyEntity> _replies = default!;
         public IEnumerable<IssueReplyEntity> Replies => _replies;
 
-        private IssueEntity() : this(RecordUtils.Default<IssueEntity>()) { }
+        private IssueEntity() : this(default, default, default, default!, default!, default!, default!, default!, default, default, default, default) { }
         public IssueEntity(uint id, uint nexusModsGameId, uint nexusModsModId, string title, string url, string modVersion, IssueStatusEnumeration status, IssuePriorityEnumeration priority, bool isPrivate, bool isClosed, bool isDeleted, Instant timeOfLastPost) : base(id)
         {
             Id = id;

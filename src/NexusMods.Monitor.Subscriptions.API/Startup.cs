@@ -56,8 +56,6 @@ namespace NexusMods.Monitor.Subscriptions.API
                 app.UseDeveloperExceptionPage();
             }
 
-            //app.UseHttpsRedirection();
-
             app.UseRouting();
 
             app.UseAuthorization();
