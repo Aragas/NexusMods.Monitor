@@ -2,12 +2,13 @@
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 using NexusMods.Monitor.Scraper.Domain.AggregatesModel.CommentAggregate;
+using NexusMods.Monitor.Shared.Infrastructure;
 
 namespace NexusMods.Monitor.Scraper.Infrastructure.Contexts.Config
 {
-    public sealed class CommentReplyEntityConfiguration : IEntityTypeConfiguration<CommentReplyEntity>
+    public sealed class CommentReplyEntityConfiguration : BaseEntityConfiguration<CommentReplyEntity>
     {
-        public void Configure(EntityTypeBuilder<CommentReplyEntity> builder)
+        protected override void ConfigureModel(EntityTypeBuilder<CommentReplyEntity> builder)
         {
             builder.ToTable("comment_reply_entity").HasKey(p => p.Id);
             builder.Property(p => p.Id).HasColumnName("id").ValueGeneratedNever().IsRequired();

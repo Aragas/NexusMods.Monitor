@@ -2,12 +2,13 @@
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 using NexusMods.Monitor.Scraper.Domain.AggregatesModel.IssueAggregate;
+using NexusMods.Monitor.Shared.Infrastructure;
 
 namespace NexusMods.Monitor.Scraper.Infrastructure.Contexts.Config
 {
-    public sealed class IssueReplyEntityConfiguration : IEntityTypeConfiguration<IssueReplyEntity>
+    public sealed class IssueReplyEntityConfiguration : BaseEntityConfiguration<IssueReplyEntity>
     {
-        public void Configure(EntityTypeBuilder<IssueReplyEntity> builder)
+        protected override void ConfigureModel(EntityTypeBuilder<IssueReplyEntity> builder)
         {
             builder.ToTable("issue_reply_entity").HasKey(p => p.Id);
             builder.Property(p => p.Id).HasColumnName("id").ValueGeneratedNever().IsRequired();
