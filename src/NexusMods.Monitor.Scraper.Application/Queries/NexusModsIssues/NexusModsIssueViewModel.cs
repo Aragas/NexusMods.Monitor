@@ -25,8 +25,8 @@ namespace NexusMods.Monitor.Scraper.Application.Queries.NexusModsIssues
             {
                 Id = uint.TryParse(element.GetAttribute("data-issue-id"), out var id) ? id : uint.MaxValue,
                 Title = element.GetElementsByClassName("table-bug-title").FirstOrDefault()?.GetElementsByClassName("issue-title").FirstOrDefault()?.ToText() ?? "ERROR",
-                IsPrivate = flags.Any(f => f.ToText() == "Private" && (f.GetAttribute("style") is null || (f.GetAttribute("style") is { } attr && string.IsNullOrEmpty(attr)))),
-                IsClosed = flags.Any(f => f.ToText() == "Closed" && (f.GetAttribute("style") is null || (f.GetAttribute("style") is { } attr && string.IsNullOrEmpty(attr)))),
+                IsPrivate = flags.Any(f => f.ToText() == "Private" && (f.GetAttribute("style") is null)),
+                IsClosed = flags.Any(f => f.ToText() == "Closed" && (f.GetAttribute("style") is null)),
                 Status = element.GetElementsByClassName("table-bug-status").FirstOrDefault()?.ToText() switch
                 {
                     "New issue" => IssueStatusEnumeration.NewIssue,

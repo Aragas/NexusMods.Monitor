@@ -35,9 +35,9 @@ namespace NexusMods.Monitor.Scraper.Application.Queries.NexusModsComments
                 AuthorUrl = author?.GetAttribute("href") ?? "ERROR",
                 AvatarUrl = author?.GetElementsByTagName("img").FirstOrDefault()?.GetAttribute("src") ?? "ERROR",
                 Author = details?.GetElementsByClassName("comment-name").FirstOrDefault()?.ToText() ?? "ERROR",
-                IsLocked = locked?.GetAttribute("style") is null || (locked.GetAttribute("style") is { } attr0 && string.IsNullOrEmpty(attr0)),
-                IsSticky = sticky?.GetAttribute("style") is null || (sticky.GetAttribute("style") is { } attr1 && string.IsNullOrEmpty(attr1)),
-                Post = InstantPattern.Create("dd MMMM yyyy, h:mmtt", CultureInfo.InvariantCulture).Parse(time ?? "").GetValueOrThrow(),
+                IsLocked = locked?.GetAttribute("style") is null,
+                IsSticky = sticky?.GetAttribute("style") is null,
+                Post = InstantPattern.CreateWithInvariantCulture("dd MMMM yyyy, h:mmtt").Parse(time ?? "").GetValueOrThrow(),
                 Content = content?.GetElementsByClassName("comment-content-text").FirstOrDefault()?.ToText() ?? "ERROR",
                 Replies = (kids?.Children ?? Enumerable.Empty<IElement>()).Select(subComment => NexusModsCommentReplyViewModel.FromElement(subComment, id)).ToImmutableArray(),
             };

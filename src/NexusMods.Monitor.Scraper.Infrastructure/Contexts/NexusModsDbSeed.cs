@@ -23,17 +23,6 @@ namespace NexusMods.Monitor.Scraper.Infrastructure.Contexts
             {
                 await using var db = context;
                 await context.Database.MigrateAsync();
-
-                if (!context.IssuePriorityEnumerations.Any())
-                {
-                    await context.IssuePriorityEnumerations.AddRangeAsync(IssuePriorityEnumeration.List());
-                }
-                if (!context.IssueStatusEnumerations.Any())
-                {
-                    await context.IssueStatusEnumerations.AddRangeAsync(IssueStatusEnumeration.List());
-                }
-
-                await context.SaveChangesAsync();
             });
         }
 

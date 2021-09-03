@@ -28,26 +28,18 @@ namespace NexusMods.Monitor.Subscriptions.API.Controllers
             _subscriptionQueries = subscriptionQueries ?? throw new ArgumentNullException(nameof(subscriptionQueries));
         }
 
-        [Route("subscribe")]
-        [HttpPut]
+        [HttpPut("subscribe")]
         [ProducesResponseType((int) HttpStatusCode.OK)]
         [ProducesResponseType((int) HttpStatusCode.BadRequest)]
         public async Task<IActionResult> SubscribeAsync([FromBody] SubscriptionAddCommand command) => await _mediator.Send(command) ? Ok() : BadRequest();
 
-        [Route("unsubscribe")]
-        [HttpPut]
+        [HttpPut("unsubscribe")]
         [ProducesResponseType((int) HttpStatusCode.OK)]
         [ProducesResponseType((int) HttpStatusCode.BadRequest)]
         public async Task<IActionResult> UnsubscribeAsync([FromBody] SubscriptionRemoveCommand command) => await _mediator.Send(command) ? Ok() : BadRequest();
 
-        [Route("all")]
-        [HttpGet]
+        [HttpGet("all")]
         [ProducesResponseType((int) HttpStatusCode.OK)]
-#if NET6_0
         public IActionResult GetAllAsync() => Ok(_subscriptionQueries.GetSubscriptionsAsync());
-#else
-        public async Task<IActionResult> GetAllAsync() => Ok(await _subscriptionQueries.GetSubscriptionsAsync().ToListAsync());
-#endif
-
     }
 }

@@ -12,6 +12,8 @@ namespace NexusMods.Monitor.Scraper.Infrastructure.Contexts.Config
             builder.ToTable("issue_status_enumeration").HasKey(p => p.Id);
             builder.Property(p => p.Id).HasDefaultValue(1).ValueGeneratedNever().HasColumnName("id").IsRequired();
             builder.Property(p => p.Name).HasColumnName("name").IsRequired();
+
+            builder.HasData(IssueStatusEnumeration.List());
         }
     }
 }
