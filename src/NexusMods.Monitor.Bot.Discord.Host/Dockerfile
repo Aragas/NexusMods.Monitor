@@ -26,7 +26,7 @@ RUN /bin/ash -c 'set -ex && \
        dotnet publish "NexusMods.Monitor.Bot.Discord.Host/NexusMods.Monitor.Bot.Discord.Host.csproj" -c Release -o ./output --os alpine --arch x64 --self-contained true /p:PublishReadyToRun=true /p:PublishReadyToRunShowWarnings=true; \
     elif [[ "$ARCH" == "aarch64" || "$ARCH" == "arm64" ]]; then \
        echo "aarch64" && \
-       dotnet publish "NexusMods.Monitor.Bot.Discord.Host/NexusMods.Monitor.Bot.Discord.Host.csproj" -c Release -o ./output --os alpine --arch arm64 --self-contained true /p:PublishReadyToRun=true /p:PublishReadyToRunShowWarnings=true; \
+       dotnet publish "NexusMods.Monitor.Bot.Discord.Host/NexusMods.Monitor.Bot.Discord.Host.csproj" -c Release -o ./output --os alpine --arch arm64 --self-contained true; \
     else \
        echo "unknown arch" && \
        dotnet publish "NexusMods.Monitor.Bot.Discord.Host/NexusMods.Monitor.Bot.Discord.Host.csproj" -c Release -o ./output --os alpine --arch $ARCH --self-contained true; \
