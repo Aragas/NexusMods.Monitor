@@ -92,7 +92,7 @@ services:
 
   nats:
     image: nats:alpine
-    command: "--syslog --remote_syslog udp://seq.syslog:514"
+    command: "--syslog --remote_syslog udp://seq_syslog:514"
     #ports:
     #  - 34222:4222
     #  - 36222:6222
