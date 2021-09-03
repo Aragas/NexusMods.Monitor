@@ -27,7 +27,7 @@ namespace NexusMods.Monitor.Scraper.Application.Queries.NexusModsIssues
                 AvatarUrl = element.GetElementsByClassName("comment-user").FirstOrDefault()?.GetElementsByTagName("img").FirstOrDefault()?.GetAttribute("src") ?? "ERROR",
                 Content = element.GetElementsByClassName("comment-content").FirstOrDefault()?.ToText() ?? "ERROR",
                 //Content = string.Join('\n', Content.Split('\n').Skip(1)),
-                Time = DateTimeOffset.ParseExact(time, "dd MMMM yyyy, h:mmtt", CultureInfo.GetCultureInfo("en-UK")).ToInstant(),
+                Time = DateTimeOffset.ParseExact(time, "dd MMMM yyyy, h:mmtt", CultureInfo.InvariantCulture).ToInstant(),
             };
         }
 

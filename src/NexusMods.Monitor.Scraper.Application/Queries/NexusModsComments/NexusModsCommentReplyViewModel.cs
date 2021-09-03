@@ -30,7 +30,7 @@ namespace NexusMods.Monitor.Scraper.Application.Queries.NexusModsComments
                 AuthorUrl = author?.GetAttribute("href") ?? "ERROR",
                 AvatarUrl = author?.GetElementsByTagName("img").FirstOrDefault()?.GetAttribute("src") ?? "ERROR",
                 Author = details?.GetElementsByClassName("comment-name").FirstOrDefault()?.ToText() ?? "ERROR",
-                Post = InstantPattern.Create("dd MMMM yyyy, h:mmtt", CultureInfo.GetCultureInfo("en-UK")).Parse(time ?? "").GetValueOrThrow(),
+                Post = InstantPattern.Create("dd MMMM yyyy, h:mmtt", CultureInfo.InvariantCulture).Parse(time ?? "").GetValueOrThrow(),
                 Content = content?.GetElementsByClassName("comment-content-text").FirstOrDefault()?.ToText() ?? "ERROR",
             };
         }

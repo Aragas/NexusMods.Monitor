@@ -9,14 +9,22 @@ COPY [".git/refs/heads/master", ".git/refs/heads/master"]
 COPY ["build/", "build/"]
 COPY ["src/Directory.Build.props", "src/"]
 COPY ["src/Directory.Build.targets", "src/"]
+
+COPY ["src/NexusMods.Monitor.Shared.Host/", "src/NexusMods.Monitor.Shared.Host/"]
+COPY ["src/NexusMods.Monitor.Shared.Application/", "src/NexusMods.Monitor.Shared.Application/"]
+COPY ["src/NexusMods.Monitor.Shared.Infrastructure/", "src/NexusMods.Monitor.Shared.Infrastructure/"]
+COPY ["src/NexusMods.Monitor.Shared.Domain/", "src/NexusMods.Monitor.Shared.Domain/"]
+
+RUN dotnet build "src/NexusMods.Monitor.Shared.Domain/NexusMods.Monitor.Shared.Domain.csproj" && \
+  dotnet build "src/NexusMods.Monitor.Shared.Infrastructure/NexusMods.Monitor.Shared.Infrastructure.csproj" && \
+  dotnet build "src/NexusMods.Monitor.Shared.Application/NexusMods.Monitor.Shared.Application.csproj" && \
+  dotnet build "src/NexusMods.Monitor.Shared.Host/NexusMods.Monitor.Shared.Host.csproj"
+# Shared Layer End
+
 COPY ["src/NexusMods.Monitor.Subscriptions.API/NexusMods.Monitor.Subscriptions.API.csproj", "src/NexusMods.Monitor.Subscriptions.API/"]
 COPY ["src/NexusMods.Monitor.Subscriptions.Application/NexusMods.Monitor.Subscriptions.Application.csproj", "src/NexusMods.Monitor.Subscriptions.Application/"]
 COPY ["src/NexusMods.Monitor.Subscriptions.Infrastructure/NexusMods.Monitor.Subscriptions.Infrastructure.csproj", "src/NexusMods.Monitor.Subscriptions.Infrastructure/"]
 COPY ["src/NexusMods.Monitor.Subscriptions.Domain/NexusMods.Monitor.Subscriptions.Domain.csproj", "src/NexusMods.Monitor.Subscriptions.Domain/"]
-COPY ["src/NexusMods.Monitor.Shared.Host/NexusMods.Monitor.Shared.Host.csproj", "src/NexusMods.Monitor.Shared.Host/"]
-COPY ["src/NexusMods.Monitor.Shared.Application/NexusMods.Monitor.Shared.Application.csproj", "src/NexusMods.Monitor.Shared.Application/"]
-COPY ["src/NexusMods.Monitor.Shared.Infrastructure/NexusMods.Monitor.Shared.Infrastructure.csproj", "src/NexusMods.Monitor.Shared.Infrastructure/"]
-COPY ["src/NexusMods.Monitor.Shared.Domain/NexusMods.Monitor.Shared.Domain.csproj", "src/NexusMods.Monitor.Shared.Domain/"]
 
 RUN dotnet restore "src/NexusMods.Monitor.Subscriptions.API/NexusMods.Monitor.Subscriptions.API.csproj"
 
@@ -24,10 +32,6 @@ COPY ["src/NexusMods.Monitor.Subscriptions.API/", "src/NexusMods.Monitor.Subscri
 COPY ["src/NexusMods.Monitor.Subscriptions.Application/", "src/NexusMods.Monitor.Subscriptions.Application/"]
 COPY ["src/NexusMods.Monitor.Subscriptions.Infrastructure/", "src/NexusMods.Monitor.Subscriptions.Infrastructure/"]
 COPY ["src/NexusMods.Monitor.Subscriptions.Domain/", "src/NexusMods.Monitor.Subscriptions.Domain/"]
-COPY ["src/NexusMods.Monitor.Shared.Host/", "src/NexusMods.Monitor.Shared.Host/"]
-COPY ["src/NexusMods.Monitor.Shared.Application/", "src/NexusMods.Monitor.Shared.Application/"]
-COPY ["src/NexusMods.Monitor.Shared.Infrastructure/", "src/NexusMods.Monitor.Shared.Infrastructure/"]
-COPY ["src/NexusMods.Monitor.Shared.Domain/", "src/NexusMods.Monitor.Shared.Domain/"]
 
 RUN /bin/ash -c 'set -ex && \
     ARCH=`uname -m` && \

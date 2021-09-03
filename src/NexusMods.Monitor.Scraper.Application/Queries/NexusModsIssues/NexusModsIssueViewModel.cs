@@ -49,7 +49,7 @@ namespace NexusMods.Monitor.Scraper.Application.Queries.NexusModsIssues
                     "High" => IssuePriorityEnumeration.High,
                     _ => IssuePriorityEnumeration.None
                 },
-                LastPost = DateTimeOffset.ParseExact(lastPost, "dd MMM yyyy, h:mmtt", CultureInfo.GetCultureInfo("en-UK")).ToInstant(),
+                LastPost = DateTimeOffset.ParseExact(lastPost, "dd MMM yyyy, h:mmtt", CultureInfo.InvariantCulture).ToInstant(),
             };
         }
 

@@ -9,21 +9,25 @@ COPY [".git/refs/heads/master", ".git/refs/heads/master"]
 COPY ["build/", "build/"]
 COPY ["src/Directory.Build.props", "src/"]
 COPY ["src/Directory.Build.targets", "src/"]
+
+COPY ["src/NexusMods.Monitor.Shared.Host/", "src/NexusMods.Monitor.Shared.Host/"]
+COPY ["src/NexusMods.Monitor.Shared.Application/", "src/NexusMods.Monitor.Shared.Application/"]
+COPY ["src/NexusMods.Monitor.Shared.Infrastructure/", "src/NexusMods.Monitor.Shared.Infrastructure/"]
+COPY ["src/NexusMods.Monitor.Shared.Domain/", "src/NexusMods.Monitor.Shared.Domain/"]
+
+RUN dotnet build "src/NexusMods.Monitor.Shared.Domain/NexusMods.Monitor.Shared.Domain.csproj" && \
+  dotnet build "src/NexusMods.Monitor.Shared.Infrastructure/NexusMods.Monitor.Shared.Infrastructure.csproj" && \
+  dotnet build "src/NexusMods.Monitor.Shared.Application/NexusMods.Monitor.Shared.Application.csproj" && \
+  dotnet build "src/NexusMods.Monitor.Shared.Host/NexusMods.Monitor.Shared.Host.csproj"
+# Shared Layer End
+
 COPY ["src/NexusMods.Monitor.Bot.Slack.Host/NexusMods.Monitor.Bot.Slack.Host.csproj", "src/NexusMods.Monitor.Bot.Slack.Host/"]
 COPY ["src/NexusMods.Monitor.Bot.Slack.Application/NexusMods.Monitor.Bot.Slack.Application.csproj", "src/NexusMods.Monitor.Bot.Slack.Application/"]
-COPY ["src/NexusMods.Monitor.Shared.Host/NexusMods.Monitor.Shared.Host.csproj", "src/NexusMods.Monitor.Shared.Host/"]
-COPY ["src/NexusMods.Monitor.Shared.Application/NexusMods.Monitor.Shared.Application.csproj", "src/NexusMods.Monitor.Shared.Application/"]
-COPY ["src/NexusMods.Monitor.Shared.Infrastructure/NexusMods.Monitor.Shared.Infrastructure.csproj", "src/NexusMods.Monitor.Shared.Infrastructure/"]
-COPY ["src/NexusMods.Monitor.Shared.Domain/NexusMods.Monitor.Shared.Domain.csproj", "src/NexusMods.Monitor.Shared.Domain/"]
 
 RUN dotnet restore "src/NexusMods.Monitor.Bot.Slack.Host/NexusMods.Monitor.Bot.Slack.Host.csproj"
 
 COPY ["src/NexusMods.Monitor.Bot.Slack.Host/", "src/NexusMods.Monitor.Bot.Slack.Host/"]
 COPY ["src/NexusMods.Monitor.Bot.Slack.Application/", "src/NexusMods.Monitor.Bot.Slack.Application/"]
-COPY ["src/NexusMods.Monitor.Shared.Host/", "src/NexusMods.Monitor.Shared.Host/"]
-COPY ["src/NexusMods.Monitor.Shared.Application/", "src/NexusMods.Monitor.Shared.Application/"]
-COPY ["src/NexusMods.Monitor.Shared.Infrastructure/", "src/NexusMods.Monitor.Shared.Infrastructure/"]
-COPY ["src/NexusMods.Monitor.Shared.Domain/", "src/NexusMods.Monitor.Shared.Domain/"]
 
 RUN /bin/ash -c 'set -ex && \
     ARCH=`uname -m` && \
