@@ -61,18 +61,18 @@ namespace NexusMods.Monitor.Subscriptions.API
 
         private static async Task EnsureDatabasesCreated(IHost host)
         {
-            using var scope = host.Services.CreateScope();
-
-            var logger = scope.ServiceProvider.GetRequiredService<ILogger<Program>>();
             var retryPolicy = Policy.Handle<Exception>(ex => ex.GetType() != typeof(TaskCanceledException))
                 .WaitAndRetryAsync(10, retryAttempt => TimeSpan.FromSeconds(2),
                     (ex, time) =>
                     {
+                        using var scope = host.Services.CreateScope();
+                        var logger = scope.ServiceProvider.GetRequiredService<ILogger<Program>>();
                         logger.LogError(ex, "Exception during PostgreSQL connection. Waiting {time}...", time);
                     });
 
             await retryPolicy.ExecuteAsync(async token =>
             {
+                using var scope = host.Services.CreateScope();
                 await using var subscriptionDb = scope.ServiceProvider.GetRequiredService<SubscriptionDb>();
                 //await subscriptionDb.Database.EnsureDeletedAsync(token);
                 await subscriptionDb.Database.EnsureCreatedAsync(token);
