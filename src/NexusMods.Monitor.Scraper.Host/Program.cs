@@ -127,19 +127,15 @@ namespace NexusMods.Monitor.Scraper.Host
                 });
                 services.AddMediatR(typeof(CommentAddCommandHandler).Assembly);
 
-                var assemblyName = Assembly.GetEntryAssembly()?.GetName();
-                var userAgent = $"{assemblyName?.Name ?? "NexusMods.Monitor.Scraper"} v{Assembly.GetEntryAssembly()?.GetName().Version}";
                 services.AddHttpClient("Metadata.API", (sp, client) =>
                 {
                     var backendOptions = sp.GetRequiredService<IOptions<MetadataAPIOptions>>().Value;
                     client.BaseAddress = new Uri(backendOptions.APIEndpointV1);
-                    client.DefaultRequestHeaders.Add("User-Agent", userAgent);
                 }).AddPolicyHandler(PollyUtils.PolicySelector);
                 services.AddHttpClient("Subscriptions.API", (sp, client) =>
                 {
                     var backendOptions = sp.GetRequiredService<IOptions<SubscriptionsAPIOptions>>().Value;
                     client.BaseAddress = new Uri(backendOptions.APIEndpointV1);
-                    client.DefaultRequestHeaders.Add("User-Agent", userAgent);
                 }).AddPolicyHandler(PollyUtils.PolicySelector);
 
                 services.AddTransient<IClock, SystemClock>(_ => SystemClock.Instance);

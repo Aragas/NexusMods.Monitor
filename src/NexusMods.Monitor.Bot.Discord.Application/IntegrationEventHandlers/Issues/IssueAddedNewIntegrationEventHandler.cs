@@ -29,7 +29,7 @@ namespace NexusMods.Monitor.Bot.Discord.Application.IntegrationEventHandlers.Iss
         {
             var embed = EmbedHelper.NewIssue(command.Issue);
 
-            await foreach (var (channelId, nexusModsGameId, nexusModsModId) in _subscriptionQueries.GetAllAsync())
+            await foreach (var (channelId, nexusModsGameId, nexusModsModId, _, _) in _subscriptionQueries.GetAllAsync())
             {
                 if (await _discordClient.GetChannelAsync(channelId) is not IMessageChannel channel) continue;
                 if (nexusModsGameId != command.Issue.NexusModsGameId || nexusModsModId != command.Issue.NexusModsModId) continue;

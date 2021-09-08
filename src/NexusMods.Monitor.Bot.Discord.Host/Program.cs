@@ -9,14 +9,15 @@ using MediatR;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Options;
 
 using NexusMods.Monitor.Bot.Discord.Application.CommandHandlers;
 using NexusMods.Monitor.Bot.Discord.Application.IntegrationEventHandlers.Comments;
-using NexusMods.Monitor.Bot.Discord.Application.Options;
 using NexusMods.Monitor.Bot.Discord.Application.Queries;
 using NexusMods.Monitor.Bot.Discord.Host.BackgroundServices;
 using NexusMods.Monitor.Bot.Discord.Host.Options;
 using NexusMods.Monitor.Shared.Application.Extensions;
+using NexusMods.Monitor.Shared.Host;
 using NexusMods.Monitor.Shared.Host.Extensions;
 
 using NodaTime;
@@ -89,13 +90,19 @@ namespace NexusMods.Monitor.Bot.Discord.Host
                 services.AddMediatR(typeof(SubscribeCommandHandler).Assembly);
                 services.AddMemoryCache();
                 services.AddHttpClient();
+                services.AddHttpClient("Subscriptions.API", (sp, client) =>
+                {
+                    var backendOptions = sp.GetRequiredService<IOptions<SubscriptionsAPIOptions>>().Value;
+                    client.BaseAddress = new Uri(backendOptions.APIEndpointV1);
+                }).AddPolicyHandler(PollyUtils.PolicySelector);
+
                 services.AddTransient<IClock, SystemClock>(_ => SystemClock.Instance);
                 services.AddEventBusNatsAndEventHandlers(context.Configuration.GetSection("EventBus"), typeof(CommentAddedNewIntegrationEventHandler).Assembly);
 
                 services.AddBetterHostedServices();
 
                 services.Configure<DiscordOptions>(context.Configuration.GetSection("Discord"));
-                services.Configure<SubscriptionsOptions>(context.Configuration.GetSection("Subscriptions"));
+                services.Configure<SubscriptionsAPIOptions>(context.Configuration.GetSection("Subscriptions"));
 
                 services.AddSingleton<DiscordSocketClient>();
                 services.AddSingleton<IDiscordClient, DiscordSocketClient>(sp => sp.GetRequiredService<DiscordSocketClient>());

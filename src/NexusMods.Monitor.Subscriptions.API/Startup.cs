@@ -16,6 +16,7 @@ using NexusMods.Monitor.Shared.Host;
 using NexusMods.Monitor.Subscriptions.API.Options;
 using NexusMods.Monitor.Subscriptions.Application.Commands;
 using NexusMods.Monitor.Subscriptions.Application.Queries.NexusModsGames;
+using NexusMods.Monitor.Subscriptions.Application.Queries.NexusModsMods;
 using NexusMods.Monitor.Subscriptions.Application.Queries.Subscriptions;
 using NexusMods.Monitor.Subscriptions.Domain.AggregatesModel.SubscriptionAggregate;
 using NexusMods.Monitor.Subscriptions.Infrastructure.Contexts;
@@ -63,6 +64,7 @@ namespace NexusMods.Monitor.Subscriptions.API
 
             services.AddTransient<ISubscriptionQueries, SubscriptionQueries>();
             services.AddTransient<INexusModsGameQueries, NexusModsGameQueries>();
+            services.AddTransient<INexusModsModQueries, NexusModsModQueries>();
 
             services.AddControllers().AddJsonOptions(options =>
             {

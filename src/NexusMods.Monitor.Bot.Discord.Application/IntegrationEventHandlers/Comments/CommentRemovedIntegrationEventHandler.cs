@@ -29,7 +29,7 @@ namespace NexusMods.Monitor.Bot.Discord.Application.IntegrationEventHandlers.Com
         {
             var embed = EmbedHelper.DeletedComment(command.Comment);
 
-            await foreach (var (channelId, nexusModsGameId, nexusModsModId) in _subscriptionQueries.GetAllAsync())
+            await foreach (var (channelId, nexusModsGameId, nexusModsModId, _, _) in _subscriptionQueries.GetAllAsync())
             {
                 if (await _discordClient.GetChannelAsync(channelId) is not IMessageChannel channel) continue;
                 if (nexusModsGameId != command.Comment.NexusModsGameId || nexusModsModId != command.Comment.NexusModsModId) continue;

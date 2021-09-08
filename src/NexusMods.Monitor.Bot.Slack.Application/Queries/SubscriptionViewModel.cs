@@ -1,4 +1,4 @@
 ﻿namespace NexusMods.Monitor.Bot.Slack.Application.Queries
 {
-    public sealed record SubscriptionViewModel(string ChannelId, uint NexusModsGameId, uint NexusModsModId);
+    public sealed record SubscriptionViewModel(string ChannelId, uint NexusModsGameId, uint NexusModsModId, string NexusModsGameName, string NexusModsModName);
 }
