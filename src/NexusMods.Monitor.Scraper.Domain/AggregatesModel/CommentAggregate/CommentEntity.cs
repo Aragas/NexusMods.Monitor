@@ -12,6 +12,8 @@ namespace NexusMods.Monitor.Scraper.Domain.AggregatesModel.CommentAggregate
     {
         public uint NexusModsGameId { get; private set; }
         public uint NexusModsModId { get; private set; }
+        public string GameName { get; private set; }
+        public string ModName { get; private set; }
         public string Url { get; private set; }
         public string Author { get; private set; }
         public string AuthorUrl { get; private set; }
@@ -24,12 +26,14 @@ namespace NexusMods.Monitor.Scraper.Domain.AggregatesModel.CommentAggregate
         private readonly List<CommentReplyEntity> _replies = new();
         public IReadOnlyList<CommentReplyEntity> Replies => _replies.AsReadOnly();
 
-        private CommentEntity() : this(default, default, default, default!, default!, default!, default!, default!, default, default, default, default) { }
-        public CommentEntity(uint id, uint nexusModsGameId, uint nexusModsModId, string url, string author, string authorUrl, string avatarUrl, string content, bool isSticky, bool isLocked, bool isDeleted, Instant timeOfPost) : base(id)
+        private CommentEntity() : this(default, default, default, default!, default!, default!, default!, default!, default!, default!, default, default, default, default) { }
+        public CommentEntity(uint id, uint nexusModsGameId, uint nexusModsModId, string gameName, string modName, string url, string author, string authorUrl, string avatarUrl, string content, bool isSticky, bool isLocked, bool isDeleted, Instant timeOfPost) : base(id)
         {
             Id = id;
             NexusModsGameId = nexusModsGameId;
             NexusModsModId = nexusModsModId;
+            GameName = gameName;
+            ModName = modName;
             Url = url;
             Author = author;
             AuthorUrl = authorUrl;

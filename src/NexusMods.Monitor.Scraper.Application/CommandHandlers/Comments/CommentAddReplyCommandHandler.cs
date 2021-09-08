@@ -25,7 +25,7 @@ namespace NexusMods.Monitor.Scraper.Application.CommandHandlers.Comments
             _commentRepository = commentRepository ?? throw new ArgumentNullException(nameof(commentRepository));
         }
 
-        public async Task<bool> Handle(CommentAddReplyCommand message, CancellationToken cancellationToken)
+        public async Task<bool> Handle(CommentAddReplyCommand message, CancellationToken ct)
         {
             var commentEntity = await _commentRepository.GetAsync(message.Id);
             if (commentEntity is null)
@@ -55,7 +55,7 @@ namespace NexusMods.Monitor.Scraper.Application.CommandHandlers.Comments
 
             _commentRepository.Update(commentEntity);
 
-            return await _commentRepository.UnitOfWork.SaveEntitiesAsync(cancellationToken);
+            return await _commentRepository.UnitOfWork.SaveEntitiesAsync(ct);
         }
     }
 }

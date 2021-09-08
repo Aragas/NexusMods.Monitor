@@ -26,6 +26,10 @@ namespace NexusMods.Monitor.Scraper.Application.Commands.Issues
         [DataMember]
         public uint NexusModsModId { get; private set; } = default!;
         [DataMember]
+        public string GameName { get; private set; } = default!;
+        [DataMember]
+        public string ModName { get; private set; } = default!;
+        [DataMember]
         public string Title { get; private set; } = default!;
         [DataMember]
         public string Url { get; private set; } = default!;
@@ -52,16 +56,18 @@ namespace NexusMods.Monitor.Scraper.Application.Commands.Issues
         {
             _replies = new List<IssueReplyDTO>();
         }
-        public IssueAddCommand(NexusModsIssueRootViewModel nexusModsIssueRoot) : this()
+        public IssueAddCommand(NexusModsIssueRootViewModel nexusModsIssueRoot, IssueStatusEnumeration issueStatus, IssuePriorityEnumeration issuePriority) : this()
         {
             Id = nexusModsIssueRoot.NexusModsIssue.Id;
-            NexusModsGameId = nexusModsIssueRoot.NexusModsGameId;
-            NexusModsModId = nexusModsIssueRoot.NexusModsModId;
+            NexusModsGameId = nexusModsIssueRoot.GameId;
+            NexusModsModId = nexusModsIssueRoot.ModId;
+            GameName = nexusModsIssueRoot.GameName;
+            ModName = nexusModsIssueRoot.ModName;
             Title = nexusModsIssueRoot.NexusModsIssue.Title;
-            Url = $"https://www.nexusmods.com/{nexusModsIssueRoot.NexusModsGameIdText}/mods/{NexusModsModId}/?tab=bugs&issue_id={Id}";
+            Url = $"https://www.nexusmods.com/{nexusModsIssueRoot.GameDomain}/mods/{NexusModsModId}/?tab=bugs&issue_id={Id}";
             ModVersion = nexusModsIssueRoot.NexusModsIssue.ModVersion;
-            Status = nexusModsIssueRoot.NexusModsIssue.Status;
-            Priority = nexusModsIssueRoot.NexusModsIssue.Priority;
+            Status = issueStatus;
+            Priority = issuePriority;
             IsPrivate = nexusModsIssueRoot.NexusModsIssue.IsPrivate;
             IsClosed = nexusModsIssueRoot.NexusModsIssue.IsClosed;
             IsDeleted = false;

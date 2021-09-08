@@ -1,14 +1,11 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 
-using NexusMods.Monitor.Scraper.Domain.AggregatesModel.IssueAggregate;
-
 using Polly;
 using Polly.Retry;
 
 using System;
 using System.Data.Common;
-using System.Linq;
 using System.Threading.Tasks;
 
 namespace NexusMods.Monitor.Scraper.Infrastructure.Contexts

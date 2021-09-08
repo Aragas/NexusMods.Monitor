@@ -25,6 +25,10 @@ namespace NexusMods.Monitor.Scraper.Application.Commands.Comments
         [DataMember]
         public uint NexusModsModId { get; private set; } = default!;
         [DataMember]
+        public string GameName { get; private set; } = default!;
+        [DataMember]
+        public string ModName { get; private set; } = default!;
+        [DataMember]
         public string Url { get; private set; } = default!;
         [DataMember]
         public string Author { get; private set; } = default!;
@@ -53,9 +57,11 @@ namespace NexusMods.Monitor.Scraper.Application.Commands.Comments
         public CommentAddNewCommand(NexusModsCommentRootViewModel nexusModsCommentRoot) : this()
         {
             Id = nexusModsCommentRoot.NexusModsComment.Id;
-            NexusModsGameId = nexusModsCommentRoot.NexusModsGameId;
-            NexusModsModId = nexusModsCommentRoot.NexusModsModId;
-            Url = $"https://www.nexusmods.com/{nexusModsCommentRoot.NexusModsGameIdText}/mods/{NexusModsModId}/?tab=posts&jump_to_comment={Id}";
+            NexusModsGameId = nexusModsCommentRoot.GameId;
+            NexusModsModId = nexusModsCommentRoot.ModId;
+            GameName = nexusModsCommentRoot.GameName;
+            ModName = nexusModsCommentRoot.ModName;
+            Url = $"https://www.nexusmods.com/{nexusModsCommentRoot.GameDomain}/mods/{NexusModsModId}/?tab=posts&jump_to_comment={Id}";
             Author = nexusModsCommentRoot.NexusModsComment.Author;
             AuthorUrl = nexusModsCommentRoot.NexusModsComment.AuthorUrl;
             AvatarUrl = nexusModsCommentRoot.NexusModsComment.AvatarUrl;
@@ -64,11 +70,10 @@ namespace NexusMods.Monitor.Scraper.Application.Commands.Comments
             IsLocked = nexusModsCommentRoot.NexusModsComment.IsLocked;
             IsDeleted = false;
             TimeOfPost = nexusModsCommentRoot.NexusModsComment.Post;
-
             _commentReplies = nexusModsCommentRoot.NexusModsComment.Replies.Select(x => new CommentReplyDTO
             (
                 x.Id,
-                $"https://www.nexusmods.com/{nexusModsCommentRoot.NexusModsGameIdText}/mods/{NexusModsModId}/?tab=posts&jump_to_comment={x.Id}",
+                $"https://www.nexusmods.com/{nexusModsCommentRoot.GameDomain}/mods/{NexusModsModId}/?tab=posts&jump_to_comment={x.Id}",
                 x.Author,
                 x.AuthorUrl,
                 x.AvatarUrl,

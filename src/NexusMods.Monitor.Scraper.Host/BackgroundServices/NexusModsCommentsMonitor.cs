@@ -10,7 +10,6 @@ using NexusMods.Monitor.Scraper.Application.Queries.Comments;
 using NexusMods.Monitor.Scraper.Application.Queries.NexusModsComments;
 using NexusMods.Monitor.Scraper.Application.Queries.Subscriptions;
 using NexusMods.Monitor.Shared.Application;
-using NexusMods.Monitor.Shared.Domain;
 
 using NodaTime;
 
@@ -69,10 +68,10 @@ namespace NexusMods.Monitor.Scraper.Host.BackgroundServices
             var nexusModsCommentQueries = scope.ServiceProvider.GetRequiredService<INexusModsCommentQueries>();
             var mediator = scope.ServiceProvider.GetRequiredService<IMediator>();
 
-            await foreach (var (nexusModsGameId, nexusModsModId) in subscriptionQueries.GetAllAsync().Distinct(new SubscriptionViewModelComparer()).WithCancellation(ct))
+            await foreach (var (nexusModsGameId, nexusModsModId) in subscriptionQueries.GetAllAsync(ct).Distinct(new SubscriptionViewModelComparer()).WithCancellation(ct))
             {
-                var nexusModsComments = await nexusModsCommentQueries.GetAllAsync(nexusModsGameId, nexusModsModId).ToImmutableArrayAsync(ct);
-                var databaseComments = await commentQueries.GetAllAsync().Where(x => x.NexusModsGameId == nexusModsGameId && x.NexusModsModId == nexusModsModId).ToImmutableArrayAsync(ct);
+                var nexusModsComments = await nexusModsCommentQueries.GetAllAsync(nexusModsGameId, nexusModsModId, ct).ToImmutableArrayAsync(ct);
+                var databaseComments = await commentQueries.GetAllAsync(ct).Where(x => x.NexusModsGameId == nexusModsGameId && x.NexusModsModId == nexusModsModId).ToImmutableArrayAsync(ct);
 
                 var newComments = nexusModsComments.Where(x => databaseComments.All(y => y.Id != x.NexusModsComment.Id));
                 var deletedComments = databaseComments.Where(x => nexusModsComments.All(y => y.NexusModsComment.Id != x.Id)).ToImmutableArray();

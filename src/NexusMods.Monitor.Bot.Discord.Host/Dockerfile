@@ -45,6 +45,9 @@ RUN /bin/ash -c 'set -ex && \
 # Stage 2: Copy application artifacts into a smaller runtime environment, which is then used as our final image
 FROM mcr.microsoft.com/dotnet/runtime-deps:6.0-alpine
 
+ENV DOTNET_SYSTEM_GLOBALIZATION_INVARIANT=false
+RUN apk add --no-cache icu-libs
+
 WORKDIR /app
 
 COPY --from=build-env /build/output .

@@ -89,10 +89,10 @@ namespace NexusMods.Monitor.Subscriptions.API
                 .Build();
         }
 
-        public static IHostBuilder CreateHostBuilder(string[] args) =>
-            Host.CreateDefaultBuilder(args)
-                .ConfigureWebHostDefaults(webBuilder => webBuilder.UseStartup<Startup>())
-                .ConfigureAppConfiguration(config => config.AddEnvironmentVariables())
-                .UseSerilog();
+        public static IHostBuilder CreateHostBuilder(string[] args) => Microsoft.Extensions.Hosting.Host
+            .CreateDefaultBuilder(args)
+            .ConfigureWebHostDefaults(webBuilder => webBuilder.UseStartup<Startup>())
+            .ConfigureAppConfiguration(config => config.AddEnvironmentVariables())
+            .UseSerilog();
     }
 }

@@ -56,8 +56,8 @@ services:
     image: ${DOCKER_REGISTRY-}nexusmods_monitor_scraper
     environment:
       Serilog__WriteTo__1__Args__serverUrl: http://seq:5341
-      NexusMods__APIKey: PLACEHOLDER
-      Subscriptions__APIEndpointV1: http://nexusmods_monitor_subscriptions/api/v1/subscriptions
+      MetadataAPI__APIEndpointV1: http://nexusmods_monitor_metadata/api/v1/metadata/
+      SubscriptionsAPI__APIEndpointV1: http://nexusmods_monitor_subscriptions/api/v1/subscriptions/
       EventBus__Servers__0: nats://nats:4222
       ConnectionStrings__NexusMods: Host=postgres;Port=5432;Database=nexusmods;Username=nexusmodsmonitor;Password=nexusmodsmonitor;Include Error Detail=true;
     build:
@@ -74,10 +74,26 @@ services:
       - database
       - logging
 
+  nexusmods_monitor_metadata:
+    image: ${DOCKER_REGISTRY-}nexusmods_monitor_metadata
+    environment:
+      Serilog__WriteTo__1__Args__serverUrl: http://seq:5341
+      NexusMods__APIKey: PLACEHOLDER
+      ASPNETCORE_URLS: "http://*:80"
+    build:
+      context: ../../.
+      dockerfile: src/NexusMods.Monitor.Metadata.API/Dockerfile
+    depends_on:
+      - seq
+    networks:
+      - internal
+      - logging
+
   nexusmods_monitor_subscriptions:
     image: ${DOCKER_REGISTRY-}nexusmods_monitor_subscriptions
     environment:
       Serilog__WriteTo__1__Args__serverUrl: http://seq:5341
+      MetadataAPI__APIEndpointV1: http://nexusmods_monitor_metadata/api/v1/metadata/
       ConnectionStrings__Subscriptions: Host=postgres;Port=5432;Database=subscriptions;Username=nexusmodsmonitor;Password=nexusmodsmonitor;Include Error Detail=true;
       ASPNETCORE_URLS: "http://*:80"
     build:

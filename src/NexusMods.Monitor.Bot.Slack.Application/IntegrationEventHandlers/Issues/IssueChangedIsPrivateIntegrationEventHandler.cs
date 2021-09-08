@@ -2,12 +2,10 @@
 
 using NexusMods.Monitor.Bot.Slack.Application.Queries;
 using NexusMods.Monitor.Shared.Application.IntegrationEvents.Issues;
-using NexusMods.Monitor.Shared.Domain;
 
 using SlackNet.Bot;
 
 using System;
-using System.Linq;
 using System.Threading.Tasks;
 
 namespace NexusMods.Monitor.Bot.Slack.Application.IntegrationEventHandlers.Issues

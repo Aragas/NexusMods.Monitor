@@ -23,7 +23,7 @@ namespace NexusMods.Monitor.Scraper.Application.CommandHandlers.Issues
             _issueRepository = issueRepository ?? throw new ArgumentNullException(nameof(issueRepository));
         }
 
-        public async Task<bool> Handle(IssueAddReplyCommand message, CancellationToken cancellationToken)
+        public async Task<bool> Handle(IssueAddReplyCommand message, CancellationToken ct)
         {
             var issueEntity = await _issueRepository.GetAsync(message.OwnerId);
             if (issueEntity is null)
@@ -49,7 +49,7 @@ namespace NexusMods.Monitor.Scraper.Application.CommandHandlers.Issues
 
             _issueRepository.Update(issueEntity);
 
-            return await _issueRepository.UnitOfWork.SaveEntitiesAsync(cancellationToken);
+            return await _issueRepository.UnitOfWork.SaveEntitiesAsync(ct);
         }
     }
 }

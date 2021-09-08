@@ -38,7 +38,7 @@ Subscriptions: {subscriptionCount}"))
             .Build();
 
         public static Embed NewIssue(IssueDTO issue) => new EmbedBuilder()
-            .WithTitle($"Bugs: [{issue.Title}] new report")
+            .WithTitle($"Game: {issue.GameName}\nMod: {issue.ModName}\nBugs: New report - '{issue.Title}'")
             .WithAuthor(issue.Content!.Author, issue.Content.AvatarUrl, issue.Content.AuthorUrl)
             .WithThumbnailUrl(issue.Content.AvatarUrl)
             .WithTimestamp(issue.TimeOfLastPost)
@@ -73,7 +73,7 @@ Subscriptions: {subscriptionCount}"))
             .Build();
 
         public static Embed DeletedIssue(IssueDTO issue) => new EmbedBuilder()
-            .WithTitle($"Bugs: [{issue.Title}] report was deleted")
+            .WithTitle($"Game: {issue.GameName}\nMod: {issue.ModName}\nBugs: Report was deleted - '{issue.Title}'")
             .WithAuthor(issue.Content!.Author, issue.Content.AvatarUrl, issue.Content.AuthorUrl)
             .WithThumbnailUrl(issue.Content.AvatarUrl)
             .WithTimestamp(issue.TimeOfLastPost)
@@ -108,7 +108,7 @@ Subscriptions: {subscriptionCount}"))
             .Build();
 
         public static Embed NewIssueReply(IssueDTO issue, IssueReplyDTO issueReply) => new EmbedBuilder()
-            .WithTitle($"Bugs: [{issue.Title}] new reply")
+            .WithTitle($"Game: {issue.GameName}\nMod: {issue.ModName}\nBugs: New reply - '{issue.Title}'")
             .WithDescription(issue.Status.Name)
             .WithAuthor(issueReply.Author, issueReply.AvatarUrl, issueReply.AuthorUrl)
             .WithThumbnailUrl(issueReply.AvatarUrl)
@@ -142,103 +142,105 @@ Subscriptions: {subscriptionCount}"))
                 .WithValue(issueReply.Content.WithMaxLength(MaxTextLength)))
             .Build();
 
-        public static Embed DeletedIssueReply(IssueDTO issueEntity, IssueReplyDTO issueReply) => new EmbedBuilder()
-            .WithTitle($"Bugs: [{issueEntity.Title}] reply was deleted")
-            .WithDescription(issueEntity.Status.Name)
+        public static Embed DeletedIssueReply(IssueDTO issue, IssueReplyDTO issueReply) => new EmbedBuilder()
+            .WithTitle($"Game: {issue.GameName}\nMod: {issue.ModName}\nBugs: Reply was deleted - '{issue.Title}'")
+            .WithDescription(issue.Status.Name)
             .WithAuthor(issueReply.Author, issueReply.AvatarUrl, issueReply.AuthorUrl)
             .WithThumbnailUrl(issueReply.AvatarUrl)
             .WithCurrentTimestamp()
-            .WithUrl(issueEntity.Url)
+            .WithUrl(issue.Url)
             .WithColor(Color)
             .WithFields(
                 new EmbedFieldBuilder()
                     .WithName("Status")
-                    .WithValue(issueEntity.Status.Name)
+                    .WithValue(issue.Status.Name)
                     .WithIsInline(true),
                 new EmbedFieldBuilder()
                     .WithName("Priority")
-                    .WithValue(issueEntity.Priority.Name)
+                    .WithValue(issue.Priority.Name)
                     .WithIsInline(true),
                 new EmbedFieldBuilder()
                     .WithName("Mod Version")
-                    .WithValue(issueEntity.ModVersion)
+                    .WithValue(issue.ModVersion)
                     .WithIsInline(true),
 
                 new EmbedFieldBuilder()
                     .WithName("Private")
-                    .WithValue(issueEntity.IsPrivate.ToString())
+                    .WithValue(issue.IsPrivate.ToString())
                     .WithIsInline(true),
                 new EmbedFieldBuilder()
                     .WithName("Closed")
-                    .WithValue(issueEntity.IsClosed.ToString())
+                    .WithValue(issue.IsClosed.ToString())
                     .WithIsInline(true))
             .WithFields(new EmbedFieldBuilder()
                 .WithName("Message")
                 .WithValue(issueReply.Content.WithMaxLength(MaxTextLength)))
             .Build();
 
-        public static Embed StatusChanged(IssueDTO issueEntity, IssueStatusDTO oldIssueStatus) => new EmbedBuilder()
-            .WithTitle($"Bugs: [{issueEntity.Title}] status changed")
+        public static Embed StatusChanged(IssueDTO issue, IssueStatusDTO oldIssueStatus) => new EmbedBuilder()
+            .WithTitle($"Game: {issue.GameName}\nMod: {issue.ModName}\nBugs: Report status changed - '{issue.Title}'")
             .WithCurrentTimestamp()
-            .WithDescription($"{oldIssueStatus.Name} -> {issueEntity.Status.Name}")
-            .WithUrl(issueEntity.Url)
+            .WithDescription($"{oldIssueStatus.Name} -> {issue.Status.Name}")
+            .WithUrl(issue.Url)
             .WithColor(Color)
             .WithFields(
                 new EmbedFieldBuilder()
                     .WithName("Status")
-                    .WithValue(issueEntity.Status.Name)
+                    .WithValue(issue.Status.Name)
                     .WithIsInline(true),
                 new EmbedFieldBuilder()
                     .WithName("Priority")
-                    .WithValue(issueEntity.Priority.Name)
+                    .WithValue(issue.Priority.Name)
                     .WithIsInline(true),
                 new EmbedFieldBuilder()
                     .WithName("Mod Version")
-                    .WithValue(issueEntity.ModVersion)
+                    .WithValue(issue.ModVersion)
                     .WithIsInline(true),
 
                 new EmbedFieldBuilder()
                     .WithName("Private")
-                    .WithValue(issueEntity.IsPrivate.ToString())
+                    .WithValue(issue.IsPrivate.ToString())
                     .WithIsInline(true),
                 new EmbedFieldBuilder()
                     .WithName("Closed")
-                    .WithValue(issueEntity.IsClosed.ToString())
+                    .WithValue(issue.IsClosed.ToString())
                     .WithIsInline(true))
             .Build();
 
-        public static Embed PriorityChanged(IssueDTO issueEntity, IssuePriorityDTO oldIssuePriority) => new EmbedBuilder()
-            .WithTitle($"Bugs: [{issueEntity.Title}] priority changed")
+        public static Embed PriorityChanged(IssueDTO issue, IssuePriorityDTO oldIssuePriority) => new EmbedBuilder()
+            .WithTitle($"Game: {issue.GameName}\nMod: {issue.ModName}\nBugs: Report priority changed - '{issue.Title}'")
             .WithCurrentTimestamp()
-            .WithDescription($"{oldIssuePriority.Name} -> {issueEntity.Priority.Name}")
-            .WithUrl(issueEntity.Url)
+            .WithDescription($"{oldIssuePriority.Name} -> {issue.Priority.Name}")
+            .WithUrl(issue.Url)
             .WithColor(Color)
             .WithFields(
                 new EmbedFieldBuilder()
                     .WithName("Status")
-                    .WithValue(issueEntity.Status.Name)
+                    .WithValue(issue.Status.Name)
                     .WithIsInline(true),
                 new EmbedFieldBuilder()
                     .WithName("Priority")
-                    .WithValue(issueEntity.Priority.Name)
+                    .WithValue(issue.Priority.Name)
                     .WithIsInline(true),
                 new EmbedFieldBuilder()
                     .WithName("Mod Version")
-                    .WithValue(issueEntity.ModVersion)
+                    .WithValue(issue.ModVersion)
                     .WithIsInline(true),
 
                 new EmbedFieldBuilder()
                     .WithName("Private")
-                    .WithValue(issueEntity.IsPrivate.ToString())
+                    .WithValue(issue.IsPrivate.ToString())
                     .WithIsInline(true),
                 new EmbedFieldBuilder()
                     .WithName("Closed")
-                    .WithValue(issueEntity.IsClosed.ToString())
+                    .WithValue(issue.IsClosed.ToString())
                     .WithIsInline(true))
             .Build();
 
         public static Embed IsClosedChanged(IssueDTO issue) => new EmbedBuilder()
-            .WithTitle(issue.IsClosed ? $"Bugs: [{issue.Title}] is closed" : $"Bugs: [{issue.Title}] is re-opened")
+            .WithTitle(issue.IsClosed
+                ? $"Game: {issue.GameName}\nMod: {issue.ModName}\nBugs: Report is closed - '{issue.Title}'"
+                : $"Game: {issue.GameName}\nMod: {issue.ModName}\nBugs: Report is re-opened - '{issue.Title}'")
             .WithCurrentTimestamp()
             .WithUrl(issue.Url)
             .WithColor(Color)
@@ -267,7 +269,9 @@ Subscriptions: {subscriptionCount}"))
             .Build();
 
         public static Embed IsPrivateChanged(IssueDTO issue) => new EmbedBuilder()
-            .WithTitle(issue.IsPrivate ? $"Bugs: [{issue.Title}] is made private" : $"Bugs: [{issue.Title}] is made public")
+            .WithTitle(issue.IsPrivate
+                ? $"Game: {issue.GameName}\nMod: {issue.ModName}\nBugs: Report is private - '{issue.Title}'"
+                : $"Game: {issue.GameName}\nMod: {issue.ModName}\nBugs: Report is public - '{issue.Title}'")
             .WithCurrentTimestamp()
             .WithUrl(issue.Url)
             .WithColor(Color)
@@ -296,7 +300,7 @@ Subscriptions: {subscriptionCount}"))
 
 
         public static Embed NewComment(CommentDTO comment) => new EmbedBuilder()
-            .WithTitle($"Posts: [{comment.Id}] new post")
+            .WithTitle($"Game: {comment.GameName}\nMod: {comment.ModName}\nPosts: New post")
             .WithAuthor(comment.Author, comment.AvatarUrl, comment.AuthorUrl)
             .WithThumbnailUrl(comment.AvatarUrl)
             .WithTimestamp(comment.TimeOfPost)
@@ -318,7 +322,7 @@ Subscriptions: {subscriptionCount}"))
             .Build();
 
         public static Embed DeletedComment(CommentDTO comment) => new EmbedBuilder()
-            .WithTitle($"Posts: [{comment.Id}] was deleted")
+            .WithTitle($"Game: {comment.GameName}\nMod: {comment.ModName}\nPosts: Post was deleted")
             .WithAuthor(comment.Author, comment.AvatarUrl, comment.AuthorUrl)
             .WithThumbnailUrl(comment.AvatarUrl)
             .WithTimestamp(comment.TimeOfPost)
@@ -340,7 +344,7 @@ Subscriptions: {subscriptionCount}"))
             .Build();
 
         public static Embed NewCommentReply(CommentDTO comment, CommentReplyDTO commentReply) => new EmbedBuilder()
-            .WithTitle($"Posts: [{comment.Id}] new reply")
+            .WithTitle($"Game: {comment.GameName}\nMod: {comment.ModName}\nPosts: New reply")
             .WithAuthor(commentReply.Author, commentReply.AvatarUrl, commentReply.AuthorUrl)
             .WithThumbnailUrl(commentReply.AvatarUrl)
             .WithTimestamp(commentReply.TimeOfPost)
@@ -362,7 +366,7 @@ Subscriptions: {subscriptionCount}"))
             .Build();
 
         public static Embed DeletedCommentReply(CommentDTO comment, CommentReplyDTO commentReply) => new EmbedBuilder()
-            .WithTitle($"Posts: [{comment.Id}] reply was deleted")
+            .WithTitle($"Game: {comment.GameName}\nMod: {comment.ModName}\nPosts: Reply was deleted")
             .WithAuthor(commentReply.Author, commentReply.AvatarUrl, commentReply.AuthorUrl)
             .WithThumbnailUrl(commentReply.AvatarUrl)
             .WithTimestamp(commentReply.TimeOfPost)
@@ -384,14 +388,18 @@ Subscriptions: {subscriptionCount}"))
             .Build();
 
         public static Embed IsLockedChanged(CommentDTO comment) => new EmbedBuilder()
-            .WithTitle(comment.IsLocked ? $"Posts: [{comment.Id}] is locked" : $"Posts: [{comment.Id}] is unlocked")
+            .WithTitle(comment.IsLocked
+                ? $"Game: {comment.GameName}\nMod: {comment.ModName}\nPosts: Post is locked"
+                : $"Game: {comment.GameName}\nMod: {comment.ModName}\nPosts: Post is unlocked")
             .WithCurrentTimestamp()
             .WithUrl(comment.Url)
             .WithColor(Color)
             .Build();
 
         public static Embed IsStickyChanged(CommentDTO comment) => new EmbedBuilder()
-            .WithTitle(comment.IsSticky ? $"Posts: [{comment.Id}] is pinned" : $"Posts: [{comment.Id}] is unpinned")
+            .WithTitle(comment.IsSticky
+                ? $"Game: {comment.GameName}\nMod: {comment.ModName}\nPosts: Post is pinned"
+                : $"Game: {comment.GameName}\nMod: {comment.ModName}\nPosts: Post is unpinned")
             .WithCurrentTimestamp()
             .WithUrl(comment.Url)
             .WithColor(Color)

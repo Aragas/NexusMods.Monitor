@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
+using System.Threading;
 
 namespace NexusMods.Monitor.Scraper.Application.Queries.Comments
 {
@@ -16,8 +17,8 @@ namespace NexusMods.Monitor.Scraper.Application.Queries.Comments
             _commentRepository = commentRepository ?? throw new ArgumentNullException(nameof(commentRepository));
         }
 
-        public IAsyncEnumerable<CommentViewModel> GetAllAsync() => _commentRepository.GetAll()
-            .ToAsyncEnumerable()
-            .Select(x => new CommentViewModel(x.Id, x.NexusModsGameId, x.NexusModsModId, x.IsLocked, x.IsSticky, x.Replies.Select(y => new CommentReplyViewModel(y.Id, y.OwnerId)).ToImmutableArray()));
+        public IAsyncEnumerable<CommentViewModel> GetAllAsync(CancellationToken ct = default) => _commentRepository.GetAll()
+            .Select(x => new CommentViewModel(x.Id, x.NexusModsGameId, x.NexusModsModId, x.IsLocked, x.IsSticky, x.Replies.Select(y => new CommentReplyViewModel(y.Id, y.OwnerId)).ToImmutableArray()))
+            .ToAsyncEnumerable();
     }
 }

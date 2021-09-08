@@ -7,11 +7,10 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
 
-using NexusMods.Monitor.Scraper.Application;
 using NexusMods.Monitor.Scraper.Application.CommandHandlers.Comments;
 using NexusMods.Monitor.Scraper.Application.Extensions;
-using NexusMods.Monitor.Scraper.Application.Options;
 using NexusMods.Monitor.Scraper.Application.Queries.Comments;
 using NexusMods.Monitor.Scraper.Application.Queries.Issues;
 using NexusMods.Monitor.Scraper.Application.Queries.NexusModsComments;
@@ -22,18 +21,16 @@ using NexusMods.Monitor.Scraper.Application.Queries.Subscriptions;
 using NexusMods.Monitor.Scraper.Domain.AggregatesModel.CommentAggregate;
 using NexusMods.Monitor.Scraper.Domain.AggregatesModel.IssueAggregate;
 using NexusMods.Monitor.Scraper.Host.BackgroundServices;
+using NexusMods.Monitor.Scraper.Host.Options;
 using NexusMods.Monitor.Scraper.Infrastructure.Contexts;
 using NexusMods.Monitor.Scraper.Infrastructure.Repositories;
 using NexusMods.Monitor.Shared.Application;
+using NexusMods.Monitor.Shared.Application.Extensions;
+using NexusMods.Monitor.Shared.Domain.SeedWork;
+using NexusMods.Monitor.Shared.Host;
 using NexusMods.Monitor.Shared.Host.Extensions;
 
-using NexusModsNET;
-
 using NodaTime;
-
-using Polly;
-using Polly.Extensions.Http;
-using Polly.Timeout;
 
 using Serilog;
 using Serilog.Exceptions;
@@ -41,9 +38,7 @@ using Serilog.Exceptions.Core;
 using Serilog.Exceptions.EntityFrameworkCore.Destructurers;
 
 using System;
-using System.Net;
-using System.Net.Http;
-using System.Net.Sockets;
+using System.Reflection;
 using System.Threading.Tasks;
 
 namespace NexusMods.Monitor.Scraper.Host
@@ -115,6 +110,8 @@ namespace NexusMods.Monitor.Scraper.Host
             .CreateDefaultBuilder(args)
             .ConfigureServices((context, services) =>
             {
+                services.AddApplication();
+
                 services.AddAutoMapper(cfg =>
                 {
                     cfg.CreateMap<Instant, DateTimeOffset>().ConvertUsing(i => i.ToDateTimeOffset());
@@ -129,49 +126,43 @@ namespace NexusMods.Monitor.Scraper.Host
                     cfg.CreateMap<IssueReplyEntity, IssueReplyDTO>();
                 });
                 services.AddMediatR(typeof(CommentAddCommandHandler).Assembly);
-                services.AddMemoryCache();
-                services.AddHttpClient();
-                services.AddHttpClient("RetryClient", client =>
+
+                var assemblyName = Assembly.GetEntryAssembly()?.GetName();
+                var userAgent = $"{assemblyName?.Name ?? "NexusMods.Monitor.Scraper"} v{Assembly.GetEntryAssembly()?.GetName().Version}";
+                services.AddHttpClient("Metadata.API", (sp, client) =>
                 {
-                    client.Timeout = TimeSpan.FromSeconds(100);
-                }).AddPolicyHandler((sp, request) =>
+                    var backendOptions = sp.GetRequiredService<IOptions<MetadataAPIOptions>>().Value;
+                    client.BaseAddress = new Uri(backendOptions.APIEndpointV1);
+                    client.DefaultRequestHeaders.Add("User-Agent", userAgent);
+                }).AddPolicyHandler(PollyUtils.PolicySelector);
+                services.AddHttpClient("Subscriptions.API", (sp, client) =>
                 {
-                    var logger = sp.GetRequiredService<ILogger<Program>>();
-                    return Policy
-                        .HandleResult<HttpResponseMessage>(r => !r.IsSuccessStatusCode)
-                        .OrTransientHttpError()
-                        .Or<SocketException>()
-                        .WaitAndRetryAsync(20, _ => TimeSpan.FromSeconds(2),
-                            (delegateResult, time) =>
-                            {
-                                logger.LogError("Exception during HTTP connection. Waiting {time}...", time);
-                            });
-                });
+                    var backendOptions = sp.GetRequiredService<IOptions<SubscriptionsAPIOptions>>().Value;
+                    client.BaseAddress = new Uri(backendOptions.APIEndpointV1);
+                    client.DefaultRequestHeaders.Add("User-Agent", userAgent);
+                }).AddPolicyHandler(PollyUtils.PolicySelector);
+
                 services.AddTransient<IClock, SystemClock>(_ => SystemClock.Instance);
-                services.AddEventBusNatsAndEventHandlers(context.Configuration.GetSection("EventBus"), typeof(NexusModsOptions).Assembly);
+                services.AddEventBusNatsAndEventHandlers(context.Configuration.GetSection("EventBus"), typeof(HostExtensions).Assembly);
 
                 services.AddBetterHostedServices();
 
-                services.AddSingleton<DefaultJsonSerializer>();
-
-                services.Configure<NexusModsOptions>(context.Configuration.GetSection("NexusMods"));
-                services.Configure<SubscriptionsOptions>(context.Configuration.GetSection("Subscriptions"));
+                services.Configure<MetadataAPIOptions>(context.Configuration.GetSection("MetadataAPI"));
+                services.Configure<SubscriptionsAPIOptions>(context.Configuration.GetSection("SubscriptionsAPI"));
 
                 services.AddDbContext<NexusModsDb>(opt => opt.UseNpgsql(context.Configuration.GetConnectionString("NexusMods"), o => o.UseNodaTime()));
+                services.AddTransient<IUnitOfWork>(sp => sp.GetRequiredService<NexusModsDb>());
 
                 services.AddHostedServiceAsSingleton<NexusModsIssueMonitor>();
                 services.AddHostedServiceAsSingleton<NexusModsCommentsMonitor>();
 
-                services.AddTransient<INexusModsClient, NexusModsClientWrapper>();
-
                 services.AddTransient<ICommentRepository, CommentRepository>();
                 services.AddTransient<IIssueRepository, IssueRepository>();
 
-                services.AddTransient<INexusModsIssueQueries, NexusModsIssueQueries>();
                 services.AddTransient<INexusModsCommentQueries, NexusModsCommentQueries>();
                 services.AddTransient<INexusModsGameQueries, NexusModsGameQueries>();
+                services.AddTransient<INexusModsIssueQueries, NexusModsIssueQueries>();
                 services.AddTransient<INexusModsThreadQueries, NexusModsThreadQueries>();
-
                 services.AddTransient<ICommentQueries, CommentQueries>();
                 services.AddTransient<IIssueQueries, IssueQueries>();
                 services.AddTransient<ISubscriptionQueries, SubscriptionQueries>();

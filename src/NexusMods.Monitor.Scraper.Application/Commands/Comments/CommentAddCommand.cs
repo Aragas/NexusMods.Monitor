@@ -11,19 +11,21 @@ using System.Linq;
 
 namespace NexusMods.Monitor.Scraper.Application.Commands.Comments
 {
-    public sealed record CommentAddCommand(uint Id, uint NexusModsGameId, uint NexusModsModId, string Url, string Author, string AuthorUrl, string AvatarUrl, string Content, bool IsSticky, bool IsLocked, bool IsDeleted, Instant TimeOfPost, IReadOnlyList<CommentAddCommand.CommentReplyDTO> CommentReplies) : IRequest<bool>
+    public sealed record CommentAddCommand(uint Id, uint NexusModsGameId, uint NexusModsModId, string GameName, string ModName, string Url, string Author, string AuthorUrl, string AvatarUrl, string Content, bool IsSticky, bool IsLocked, bool IsDeleted, Instant TimeOfPost, IReadOnlyList<CommentAddCommand.CommentReplyDTO> CommentReplies) : IRequest<bool>
     {
         public static CommentAddCommand FromViewModel(NexusModsCommentRootViewModel viewModel)
         {
             var id = viewModel.NexusModsComment.Id;
-            var nexusModsModId = viewModel.NexusModsModId;
+            var nexusModsModId = viewModel.ModId;
 
             return new CommentAddCommand(RecordUtils.Default<CommentAddCommand>())
             {
                 Id = id,
-                NexusModsGameId = viewModel.NexusModsGameId,
+                NexusModsGameId = viewModel.GameId,
                 NexusModsModId = nexusModsModId,
-                Url = $"https://www.nexusmods.com/{viewModel.NexusModsGameIdText}/mods/{nexusModsModId}/?tab=posts&jump_to_comment={id}",
+                GameName = viewModel.GameName,
+                ModName = viewModel.ModName,
+                Url = $"https://www.nexusmods.com/{viewModel.GameDomain}/mods/{nexusModsModId}/?tab=posts&jump_to_comment={id}",
                 Author = viewModel.NexusModsComment.Author,
                 AuthorUrl = viewModel.NexusModsComment.AuthorUrl,
                 AvatarUrl = viewModel.NexusModsComment.AvatarUrl,
@@ -34,7 +36,7 @@ namespace NexusMods.Monitor.Scraper.Application.Commands.Comments
                 TimeOfPost = viewModel.NexusModsComment.Post,
                 CommentReplies = viewModel.NexusModsComment.Replies.Select(x => new CommentReplyDTO(
                     x.Id,
-                    $"https://www.nexusmods.com/{viewModel.NexusModsGameIdText}/mods/{nexusModsModId}/?tab=posts&jump_to_comment={x.Id}",
+                    $"https://www.nexusmods.com/{viewModel.GameDomain}/mods/{nexusModsModId}/?tab=posts&jump_to_comment={x.Id}",
                     x.Author,
                     x.AuthorUrl,
                     x.AvatarUrl,

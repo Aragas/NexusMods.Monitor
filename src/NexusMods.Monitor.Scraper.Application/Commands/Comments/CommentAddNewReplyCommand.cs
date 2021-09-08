@@ -34,7 +34,7 @@ namespace NexusMods.Monitor.Scraper.Application.Commands.Comments
         {
             Id = nexusModsCommentReply.OwnerId;
             ReplyId = nexusModsCommentReply.Id;
-            Url = $"https://www.nexusmods.com/{nexusModsCommentRoot.NexusModsGameIdText}/mods/{nexusModsCommentRoot.NexusModsModId}/?tab=posts&jump_to_comment={Id}";
+            Url = $"https://www.nexusmods.com/{nexusModsCommentRoot.GameDomain}/mods/{nexusModsCommentRoot.ModId}/?tab=posts&jump_to_comment={Id}";
             Author = nexusModsCommentReply.Author;
             AuthorUrl = nexusModsCommentReply.AuthorUrl;
             AvatarUrl = nexusModsCommentReply.AvatarUrl;

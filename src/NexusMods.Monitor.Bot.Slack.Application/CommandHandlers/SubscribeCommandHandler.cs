@@ -30,12 +30,12 @@ namespace NexusMods.Monitor.Bot.Slack.Application.CommandHandlers
             _jsonSerializer = jsonSerializer ?? throw new ArgumentNullException(nameof(jsonSerializer));
         }
 
-        public async Task<bool> Handle(SubscribeCommand message, CancellationToken cancellationToken)
+        public async Task<bool> Handle(SubscribeCommand message, CancellationToken ct)
         {
             var response = await _httpClientFactory.CreateClient().PutAsync(
                 $"{_options.APIEndpointV1}/subscribe",
                 new StringContent(_jsonSerializer.Serialize(new SubscribeDTO($"Slack:{message.ChannelId}", message.NexusModsGameId, message.NexusModsModId)), Encoding.UTF8, "application/json"),
-                cancellationToken);
+                ct);
             return response.IsSuccessStatusCode;
         }
 

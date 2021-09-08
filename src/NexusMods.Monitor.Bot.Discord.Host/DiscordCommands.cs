@@ -9,7 +9,6 @@ using NexusMods.Monitor.Bot.Discord.Application;
 using NexusMods.Monitor.Bot.Discord.Application.Commands;
 using NexusMods.Monitor.Bot.Discord.Application.Queries;
 using NexusMods.Monitor.Shared.Application;
-using NexusMods.Monitor.Shared.Domain;
 
 using NodaTime;
 using NodaTime.Extensions;
@@ -113,6 +112,25 @@ unsubscribe [Game Id] [Mod Id]");
                 await Context.Message.AddReactionAsync(new Emoji("❎"));
         }
 
+        [Command("subscribe")]
+        public async Task Subscribe(string nexusModsUrl)
+        {
+            if (Context.IsPrivate)
+            {
+                _loggerService.LogWarning("Received 'subscribe' in a private channel from user '{User}'.",
+                    Context.User.ToString());
+                return;
+            }
+
+            _loggerService.LogInformation("Received 'subscribe' command from user '{User}'.", Context.User.ToString());
+
+
+            if (await _mediator.Send(new Subscribe2Command(Context.Channel.Id, nexusModsUrl)))
+                await Context.Message.AddReactionAsync(new Emoji("✅"));
+            else
+                await Context.Message.AddReactionAsync(new Emoji("❎"));
+        }
+
         [Command("unsubscribe")]
         public async Task Unsubscribe(uint gameId, uint modId)
         {
@@ -126,6 +144,24 @@ unsubscribe [Game Id] [Mod Id]");
 
 
             if (await _mediator.Send(new UnsubscribeCommand(Context.Channel.Id, gameId, modId)))
+                await Context.Message.AddReactionAsync(new Emoji("✅"));
+            else
+                await Context.Message.AddReactionAsync(new Emoji("❎"));
+        }
+
+        [Command("unsubscribe")]
+        public async Task Unsubscribe(string nexusModsUrl)
+        {
+            if (Context.IsPrivate)
+            {
+                _loggerService.LogWarning("Received 'unsubscribe' in a private channel from user '{User}'.", Context.User.ToString());
+                return;
+            }
+
+            _loggerService.LogInformation("Received 'unsubscribe' command from user '{User}'.", Context.User.ToString());
+
+
+            if (await _mediator.Send(new Unsubscribe2Command(Context.Channel.Id, nexusModsUrl)))
                 await Context.Message.AddReactionAsync(new Emoji("✅"));
             else
                 await Context.Message.AddReactionAsync(new Emoji("❎"));

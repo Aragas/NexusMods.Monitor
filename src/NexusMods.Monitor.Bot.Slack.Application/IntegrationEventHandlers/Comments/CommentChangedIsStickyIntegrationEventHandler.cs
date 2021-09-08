@@ -6,7 +6,6 @@ using NexusMods.Monitor.Shared.Application.IntegrationEvents.Comments;
 using SlackNet.Bot;
 
 using System;
-using System.Linq;
 using System.Threading.Tasks;
 
 namespace NexusMods.Monitor.Bot.Slack.Application.IntegrationEventHandlers.Comments

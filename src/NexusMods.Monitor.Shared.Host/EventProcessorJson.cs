@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 
 namespace NexusMods.Monitor.Shared.Host
 {
-    public class EventProcessorJson : IEventProcessor
+    internal class EventProcessorJson : IEventProcessor
     {
         private readonly Dictionary<string, List<IEventHandler>> _subscriptions = new();
 

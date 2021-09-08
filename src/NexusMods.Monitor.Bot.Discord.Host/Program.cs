@@ -16,7 +16,7 @@ using NexusMods.Monitor.Bot.Discord.Application.Options;
 using NexusMods.Monitor.Bot.Discord.Application.Queries;
 using NexusMods.Monitor.Bot.Discord.Host.BackgroundServices;
 using NexusMods.Monitor.Bot.Discord.Host.Options;
-using NexusMods.Monitor.Shared.Application;
+using NexusMods.Monitor.Shared.Application.Extensions;
 using NexusMods.Monitor.Shared.Host.Extensions;
 
 using NodaTime;
@@ -84,6 +84,8 @@ namespace NexusMods.Monitor.Bot.Discord.Host
             .CreateDefaultBuilder(args)
             .ConfigureServices((context, services) =>
             {
+                services.AddApplication();
+
                 services.AddMediatR(typeof(SubscribeCommandHandler).Assembly);
                 services.AddMemoryCache();
                 services.AddHttpClient();
@@ -91,8 +93,6 @@ namespace NexusMods.Monitor.Bot.Discord.Host
                 services.AddEventBusNatsAndEventHandlers(context.Configuration.GetSection("EventBus"), typeof(CommentAddedNewIntegrationEventHandler).Assembly);
 
                 services.AddBetterHostedServices();
-
-                services.AddSingleton<DefaultJsonSerializer>();
 
                 services.Configure<DiscordOptions>(context.Configuration.GetSection("Discord"));
                 services.Configure<SubscriptionsOptions>(context.Configuration.GetSection("Subscriptions"));

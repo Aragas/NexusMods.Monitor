@@ -6,13 +6,13 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 
-using NexusMods.Monitor.Bot.Slack.Application;
 using NexusMods.Monitor.Bot.Slack.Application.CommandHandlers;
 using NexusMods.Monitor.Bot.Slack.Application.IntegrationEventHandlers.Comments;
 using NexusMods.Monitor.Bot.Slack.Application.Options;
 using NexusMods.Monitor.Bot.Slack.Application.Queries;
 using NexusMods.Monitor.Bot.Slack.Host.BackgroundServices;
-using NexusMods.Monitor.Shared.Application;
+using NexusMods.Monitor.Bot.Slack.Host.Options;
+using NexusMods.Monitor.Shared.Application.Extensions;
 using NexusMods.Monitor.Shared.Host.Extensions;
 
 using NodaTime;
@@ -82,6 +82,8 @@ namespace NexusMods.Monitor.Bot.Slack.Host
             .CreateDefaultBuilder(args)
             .ConfigureServices((context, services) =>
             {
+                services.AddApplication();
+
                 services.AddMediatR(typeof(SubscribeCommandHandler).Assembly);
                 services.AddMemoryCache();
                 services.AddHttpClient();
@@ -89,8 +91,6 @@ namespace NexusMods.Monitor.Bot.Slack.Host
                 services.AddEventBusNatsAndEventHandlers(context.Configuration.GetSection("EventBus"), typeof(CommentAddedNewIntegrationEventHandler).Assembly);
 
                 services.AddBetterHostedServices();
-
-                services.AddSingleton<DefaultJsonSerializer>();
 
                 services.Configure<SlackOptions>(context.Configuration.GetSection("Slack"));
                 services.Configure<SubscriptionsOptions>(context.Configuration.GetSection("Subscriptions"));

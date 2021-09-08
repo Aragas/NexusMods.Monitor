@@ -22,7 +22,7 @@ namespace NexusMods.Monitor.Subscriptions.Application.CommandHandlers
             _subscriptionRepository = subscriptionRepository ?? throw new ArgumentNullException(nameof(subscriptionRepository));
         }
 
-        public async Task<bool> Handle(SubscriptionRemoveCommand message, CancellationToken cancellationToken)
+        public async Task<bool> Handle(SubscriptionRemoveCommand message, CancellationToken ct)
         {
             var existingSubscription = await _subscriptionRepository.GetAsync(message.SubscriberId, message.NexusModsGameId, message.NexusModsModId);
             if (existingSubscription is null)
@@ -33,7 +33,7 @@ namespace NexusMods.Monitor.Subscriptions.Application.CommandHandlers
 
             _subscriptionRepository.Remove(existingSubscription);
 
-            return await _subscriptionRepository.UnitOfWork.SaveEntitiesAsync(cancellationToken);
+            return await _subscriptionRepository.UnitOfWork.SaveEntitiesAsync(ct);
         }
     }
 }

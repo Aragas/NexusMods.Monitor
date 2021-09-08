@@ -1,5 +1,12 @@
-<!--EXTERNAL_PROPERTIES: BANNERLORD_GAME_DIR;BANNERLORD_STABLE_DIR;BANNERLORD_BETA_DIR-->
+﻿<!--EXTERNAL_PROPERTIES: GITHUB_ACTIONS-->
 <Project>
+  <PropertyGroup>
+    <TargetFramework>net6.0</TargetFramework>
+    <LangVersion>preview</LangVersion>
+    <Nullable>enable</Nullable>
+    <DisableImplicitNamespaceImports>true</DisableImplicitNamespaceImports>
+    <NoWarn>1073;MSB4011;CA2252;CS8032;</NoWarn>
+  </PropertyGroup>
 
   <!--GitHub Actions-->
   <PropertyGroup Condition="'$(GITHUB_ACTIONS)' == 'true'">
@@ -18,8 +25,9 @@
     <EmbedUntrackedSources>true</EmbedUntrackedSources>
   </PropertyGroup>
   <!--SorceLink-->
-  <ItemGroup>
-    <PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.0.0" PrivateAssets="All"/>
+  <!--https://github.com/microsoft/DockerTools/issues/209#issuecomment-801440138-->
+  <ItemGroup Condition="'$(MSBuildProjectExtension)' != '.dcproj'">
+    <PackageReference Include="Microsoft.SourceLink.GitHub" Version="1.1.0-beta-20204-02" PrivateAssets="All"/>
   </ItemGroup>
 
 </Project>

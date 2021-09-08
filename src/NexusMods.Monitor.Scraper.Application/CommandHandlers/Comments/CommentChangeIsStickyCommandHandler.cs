@@ -32,7 +32,7 @@ namespace NexusMods.Monitor.Scraper.Application.CommandHandlers.Comments
             _eventPublisher = eventPublisher ?? throw new ArgumentNullException(nameof(eventPublisher));
         }
 
-        public async Task<bool> Handle(CommentChangeIsStickyCommand message, CancellationToken cancellationToken)
+        public async Task<bool> Handle(CommentChangeIsStickyCommand message, CancellationToken ct)
         {
             var commentEntity = await _commentRepository.GetAsync(message.Id);
             if (commentEntity is null)
@@ -53,9 +53,9 @@ namespace NexusMods.Monitor.Scraper.Application.CommandHandlers.Comments
 
             var commentDTO = _mapper.Map<CommentEntity, CommentDTO>(commentEntity);
 
-            if (await _commentRepository.UnitOfWork.SaveEntitiesAsync(cancellationToken))
+            if (await _commentRepository.UnitOfWork.SaveEntitiesAsync(ct))
             {
-                await _eventPublisher.Publish(new CommentChangedIsStickyIntegrationEvent(commentDTO, oldIsSticky), "comment_events", cancellationToken);
+                await _eventPublisher.Publish(new CommentChangedIsStickyIntegrationEvent(commentDTO, oldIsSticky), "comment_events", ct);
                 return true;
             }
             else

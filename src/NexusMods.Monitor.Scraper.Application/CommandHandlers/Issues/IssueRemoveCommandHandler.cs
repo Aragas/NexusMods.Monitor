@@ -32,7 +32,7 @@ namespace NexusMods.Monitor.Scraper.Application.CommandHandlers.Issues
             _eventPublisher = eventPublisher ?? throw new ArgumentNullException(nameof(eventPublisher));
         }
 
-        public async Task<bool> Handle(IssueRemoveCommand message, CancellationToken cancellationToken)
+        public async Task<bool> Handle(IssueRemoveCommand message, CancellationToken ct)
         {
             var issueEntity = await _issueRepository.GetAsync(message.Id);
             if (issueEntity is null)
@@ -46,9 +46,9 @@ namespace NexusMods.Monitor.Scraper.Application.CommandHandlers.Issues
 
             var issueDTO = _mapper.Map<IssueEntity, IssueDTO>(issueEntity);
 
-            if (await _issueRepository.UnitOfWork.SaveEntitiesAsync(cancellationToken))
+            if (await _issueRepository.UnitOfWork.SaveEntitiesAsync(ct))
             {
-                await _eventPublisher.Publish(new IssueRemovedIntegrationEvent(issueDTO), "issue_events", cancellationToken);
+                await _eventPublisher.Publish(new IssueRemovedIntegrationEvent(issueDTO), "issue_events", ct);
                 return true;
             }
             else

@@ -32,7 +32,7 @@ namespace NexusMods.Monitor.Subscriptions.Infrastructure.Contexts
             modelBuilder.ApplyConfiguration(new SubscriptionEntityConfiguration());
         }
 
-        public async Task<bool> SaveEntitiesAsync(CancellationToken cancellationToken = default)
+        public async Task<bool> SaveEntitiesAsync(CancellationToken ct = default)
         {
             // Dispatch Domain Events collection.
             // Choices:
@@ -45,7 +45,7 @@ namespace NexusMods.Monitor.Subscriptions.Infrastructure.Contexts
 
             // After executing this line all the changes (from the Command Handler and Domain Event Handlers)
             // performed through the DbContext will be committed
-            var result = await base.SaveChangesAsync(cancellationToken);
+            var result = await base.SaveChangesAsync(ct);
 
             return true;
         }

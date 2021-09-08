@@ -1,6 +1,4 @@
-﻿using Enbiso.NLib.EventBus;
-
-namespace NexusMods.Monitor.Shared.Application.IntegrationEvents.Comments
+﻿namespace NexusMods.Monitor.Shared.Application.IntegrationEvents.Comments
 {
     public sealed record CommentRemovedIntegrationEvent(CommentDTO Comment) : EventRecord;
 }

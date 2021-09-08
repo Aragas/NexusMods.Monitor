@@ -1,87 +1,54 @@
-﻿using AngleSharp;
-using AngleSharp.Dom;
+﻿using NexusMods.Monitor.Shared.Application;
 
-using ComposableAsync;
-
-using Microsoft.Extensions.Caching.Memory;
-
-using NexusMods.Monitor.Scraper.Application.Extensions;
-using NexusMods.Monitor.Scraper.Application.Queries.NexusModsGames;
-using NexusMods.Monitor.Scraper.Application.Queries.NexusModsThreads;
-
-using RateLimiter;
+using NodaTime;
 
 using System;
 using System.Collections.Generic;
-using System.Linq;
+using System.Net;
 using System.Net.Http;
+using System.Runtime.CompilerServices;
+using System.Threading;
 
 namespace NexusMods.Monitor.Scraper.Application.Queries.NexusModsComments
 {
     public sealed class NexusModsCommentQueries : INexusModsCommentQueries
     {
         private readonly IHttpClientFactory _httpClientFactory;
-        private readonly IMemoryCache _memoryCache;
-        private readonly INexusModsGameQueries _nexusModsGameQueries;
-        private readonly INexusModsThreadQueries _nexusModsThreadQueries;
-        private readonly TimeLimiter _timeLimiterComments;
+        private readonly DefaultJsonSerializer _jsonSerializer;
 
-        public NexusModsCommentQueries(IHttpClientFactory httpClientFactory, IMemoryCache memoryCache, INexusModsGameQueries nexusModsGameQueries, INexusModsThreadQueries nexusModsThreadQueries)
+        public NexusModsCommentQueries(IHttpClientFactory httpClientFactory, DefaultJsonSerializer jsonSerializer)
         {
             _httpClientFactory = httpClientFactory ?? throw new ArgumentNullException(nameof(httpClientFactory));
-            _memoryCache = memoryCache ?? throw new ArgumentNullException(nameof(memoryCache));
-            _nexusModsGameQueries = nexusModsGameQueries ?? throw new ArgumentNullException(nameof(nexusModsGameQueries));
-            _nexusModsThreadQueries = nexusModsThreadQueries ?? throw new ArgumentNullException(nameof(nexusModsThreadQueries));
-
-            var timeLimiterCommentsConstraint1 = new CountByIntervalAwaitableConstraint(30, TimeSpan.FromMinutes(1));
-            var timeLimiterCommentsConstraint2 = new CountByIntervalAwaitableConstraint(1, TimeSpan.FromMilliseconds(500));
-            _timeLimiterComments = TimeLimiter.Compose(timeLimiterCommentsConstraint1, timeLimiterCommentsConstraint2);
+            _jsonSerializer = jsonSerializer ?? throw new ArgumentNullException(nameof(jsonSerializer));
         }
 
-        public async IAsyncEnumerable<NexusModsCommentRootViewModel> GetAllAsync(uint gameId, uint modId)
+        public async IAsyncEnumerable<NexusModsCommentRootViewModel> GetAllAsync(uint gameIdRequest, uint modIdRequest, [EnumeratorCancellation] CancellationToken ct = default)
         {
-            var game = await _nexusModsGameQueries.GetAsync(gameId);
-            var gameIdText = game?.DomainName ?? "ERROR";
-            var nexusModsThreadEntity = await _nexusModsThreadQueries.GetAsync(gameId, modId);
-
-            var key = $"comments_{gameId},{modId},{nexusModsThreadEntity.ThreadId}";
-            if (!_memoryCache.TryGetValue(key, out NexusModsCommentRootViewModel[] cacheEntry))
+            using var response = await _httpClientFactory.CreateClient("Metadata.API").GetAsync($"comments/id?gameId={gameIdRequest}&modId={modIdRequest}", ct);
+            if (response.IsSuccessStatusCode && response.StatusCode != HttpStatusCode.NoContent)
             {
-                var commentRoots = new List<NexusModsCommentRootViewModel>();
-                for (var page = 1; ; page++)
+                var content = await response.Content.ReadAsStringAsync(ct);
+                foreach (var (gameDomain, gameId, modId, gameName, modName, id, author, authorUrl, avatarUrl, s, isSticky, isLocked, instant, nexusModsCommentReplyViewModels) in _jsonSerializer.Deserialize<CommentsDTO[]?>(content) ?? Array.Empty<CommentsDTO>())
                 {
-                    await _timeLimiterComments;
-
-                    using var response = await _httpClientFactory.CreateClient().GetAsync(
-                        $"https://www.nexusmods.com/Core/Libs/Common/Widgets/CommentContainer?RH_CommentContainer=game_id:{gameId},object_id:{modId},object_type:1,thread_id:{nexusModsThreadEntity.ThreadId},page:{page}");
-                    var content = await response.Content.ReadAsStringAsync();
-
-                    var config = Configuration.Default.WithDefaultLoader();
-                    var context = BrowsingContext.New(config);
-                    var document = await context.OpenAsync(request => request.Content(content));
-
-                    var commentContainer = document.GetElementById("comment-container");
-                    foreach (var commentElement in commentContainer?.GetElementsByTagName("ol")?.FirstOrDefault()?.Children ?? Enumerable.Empty<IElement>())
-                    {
-                        var comment = new NexusModsCommentRootViewModel(gameIdText, gameId, modId, NexusModsCommentViewModel.FromElement(commentElement));
-                        commentRoots.Add(comment);
-                        yield return comment;
-                    }
-
-                    var pageElement = commentContainer?.GetElementsByClassName("page-selected mfp-prevent-close");
-                    if (pageElement is null || !int.TryParse(pageElement.FirstOrDefault()?.ToText() ?? "ERROR", out var p) || page != p)
-                        break;
+                    yield return new NexusModsCommentRootViewModel(gameDomain, gameId, modId, gameName, modName, new NexusModsCommentViewModel(id, author, authorUrl, avatarUrl, s, isSticky, isLocked, instant, nexusModsCommentReplyViewModels));
                 }
-
-                cacheEntry = commentRoots.Distinct(new NexusModsCommentRootViewModelComparer()).ToArray();
-                var cacheEntryOptions = new MemoryCacheEntryOptions().SetSize(1).SetAbsoluteExpiration(TimeSpan.FromSeconds(10));
-                _memoryCache.Set(key, cacheEntry, cacheEntryOptions);
-
-                yield break;
             }
-
-            foreach (var nexusModsCommentRoot in cacheEntry)
-                yield return nexusModsCommentRoot;
         }
+
+        private record CommentsDTO(
+            string GameDomain,
+            uint GameId,
+            uint ModId,
+            string GameName,
+            string ModName,
+            uint Id,
+            string Author,
+            string AuthorUrl,
+            string AvatarUrl,
+            string Content,
+            bool IsSticky,
+            bool IsLocked,
+            Instant Post,
+            IReadOnlyList<NexusModsCommentReplyViewModel> Replies);
     }
 }

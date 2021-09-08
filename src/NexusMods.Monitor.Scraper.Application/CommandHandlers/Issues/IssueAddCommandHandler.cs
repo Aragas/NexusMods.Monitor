@@ -22,7 +22,7 @@ namespace NexusMods.Monitor.Scraper.Application.CommandHandlers.Issues
             _issueRepository = issueRepository ?? throw new ArgumentNullException(nameof(issueRepository));
         }
 
-        public async Task<bool> Handle(IssueAddCommand message, CancellationToken cancellationToken)
+        public async Task<bool> Handle(IssueAddCommand message, CancellationToken ct)
         {
             var existingIssueEntity = await _issueRepository.GetAsync(message.Id);
             if (existingIssueEntity is { })
@@ -30,7 +30,7 @@ namespace NexusMods.Monitor.Scraper.Application.CommandHandlers.Issues
                 if (existingIssueEntity.IsDeleted)
                 {
                     existingIssueEntity.Return();
-                    return await _issueRepository.UnitOfWork.SaveEntitiesAsync(cancellationToken);
+                    return await _issueRepository.UnitOfWork.SaveEntitiesAsync(ct);
                 }
 
                 _logger.LogError("Issue with Id {Id} already exist, is not deleted.", message.Id);
@@ -41,6 +41,8 @@ namespace NexusMods.Monitor.Scraper.Application.CommandHandlers.Issues
                 message.Id,
                 message.NexusModsGameId,
                 message.NexusModsModId,
+                message.GameName,
+                message.ModName,
                 message.Title,
                 message.Url,
                 message.ModVersion,
@@ -76,7 +78,7 @@ namespace NexusMods.Monitor.Scraper.Application.CommandHandlers.Issues
 
             _issueRepository.Add(issueEntity);
 
-            return await _issueRepository.UnitOfWork.SaveEntitiesAsync(cancellationToken);
+            return await _issueRepository.UnitOfWork.SaveEntitiesAsync(ct);
         }
     }
 }

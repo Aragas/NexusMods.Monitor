@@ -1,13 +1,14 @@
 ﻿using MediatR;
 
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 
 using NexusMods.Monitor.Subscriptions.Application.Commands;
-using NexusMods.Monitor.Subscriptions.Application.Queries;
+using NexusMods.Monitor.Subscriptions.Application.Queries.Subscriptions;
 
 using System;
-using System.Linq;
+using System.Collections.Generic;
 using System.Net;
 using System.Threading.Tasks;
 
@@ -29,17 +30,32 @@ namespace NexusMods.Monitor.Subscriptions.API.Controllers
         }
 
         [HttpPut("subscribe")]
-        [ProducesResponseType((int) HttpStatusCode.OK)]
-        [ProducesResponseType((int) HttpStatusCode.BadRequest)]
-        public async Task<IActionResult> SubscribeAsync([FromBody] SubscriptionAddCommand command) => await _mediator.Send(command) ? Ok() : BadRequest();
+        [Produces("application/json")]
+        [ProducesResponseType(typeof(void), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(void), StatusCodes.Status400BadRequest)]
+        public async Task<IActionResult> SubscribeAsync([FromBody] SubscriptionAddCommand command) => await _mediator.Send(command) ? Ok() : StatusCode((int) HttpStatusCode.BadRequest);
+
+        [HttpPut("subscribe2")]
+        [Produces("application/json")]
+        [ProducesResponseType(typeof(void), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(void), StatusCodes.Status400BadRequest)]
+        public async Task<IActionResult> Subscribe2Async([FromBody] SubscriptionAdd2Command command) => await _mediator.Send(command) ? Ok() : StatusCode((int) HttpStatusCode.BadRequest);
 
         [HttpPut("unsubscribe")]
-        [ProducesResponseType((int) HttpStatusCode.OK)]
-        [ProducesResponseType((int) HttpStatusCode.BadRequest)]
-        public async Task<IActionResult> UnsubscribeAsync([FromBody] SubscriptionRemoveCommand command) => await _mediator.Send(command) ? Ok() : BadRequest();
+        [Produces("application/json")]
+        [ProducesResponseType(typeof(void), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(void), StatusCodes.Status400BadRequest)]
+        public async Task<IActionResult> UnsubscribeAsync([FromBody] SubscriptionRemoveCommand command) => await _mediator.Send(command) ? Ok() : StatusCode((int) HttpStatusCode.BadRequest);
+
+        [HttpPut("unsubscribe2")]
+        [Produces("application/json")]
+        [ProducesResponseType(typeof(void), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(void), StatusCodes.Status400BadRequest)]
+        public async Task<IActionResult> Unsubscribe2Async([FromBody] SubscriptionRemove2Command command) => await _mediator.Send(command) ? Ok() : StatusCode((int) HttpStatusCode.BadRequest);
 
         [HttpGet("all")]
-        [ProducesResponseType((int) HttpStatusCode.OK)]
+        [Produces("application/json")]
+        [ProducesResponseType(typeof(void), StatusCodes.Status200OK, Type = typeof(IAsyncEnumerable<SubscriptionViewModel>))]
         public IActionResult GetAllAsync() => Ok(_subscriptionQueries.GetSubscriptionsAsync());
     }
 }

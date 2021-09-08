@@ -32,7 +32,7 @@ namespace NexusMods.Monitor.Scraper.Application.CommandHandlers.Comments
             _eventPublisher = eventPublisher ?? throw new ArgumentNullException(nameof(eventPublisher));
         }
 
-        public async Task<bool> Handle(CommentAddNewCommand message, CancellationToken cancellationToken)
+        public async Task<bool> Handle(CommentAddNewCommand message, CancellationToken ct)
         {
             var existingCommentEntity = await _commentRepository.GetAsync(message.Id);
             if (existingCommentEntity is { })
@@ -40,7 +40,7 @@ namespace NexusMods.Monitor.Scraper.Application.CommandHandlers.Comments
                 if (existingCommentEntity.IsDeleted)
                 {
                     existingCommentEntity.Return();
-                    return await _commentRepository.UnitOfWork.SaveEntitiesAsync(cancellationToken);
+                    return await _commentRepository.UnitOfWork.SaveEntitiesAsync(ct);
                 }
 
                 _logger.LogError("Comment with Id {Id} already exist, is not deleted.", message.Id);
@@ -51,6 +51,8 @@ namespace NexusMods.Monitor.Scraper.Application.CommandHandlers.Comments
                 message.Id,
                 message.NexusModsGameId,
                 message.NexusModsModId,
+                message.GameName,
+                message.ModName,
                 message.Url,
                 message.Author,
                 message.AuthorUrl,
@@ -78,9 +80,9 @@ namespace NexusMods.Monitor.Scraper.Application.CommandHandlers.Comments
 
             var commentDTO = _mapper.Map<CommentEntity, CommentDTO>(commentEntity);
 
-            if (await _commentRepository.UnitOfWork.SaveEntitiesAsync(cancellationToken))
+            if (await _commentRepository.UnitOfWork.SaveEntitiesAsync(ct))
             {
-                await _eventPublisher.Publish(new CommentAddedIntegrationEvent(commentDTO), "comment_events", cancellationToken);
+                await _eventPublisher.Publish(new CommentAddedIntegrationEvent(commentDTO), "comment_events", ct);
                 return true;
             }
             else

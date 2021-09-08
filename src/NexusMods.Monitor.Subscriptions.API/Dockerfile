@@ -54,5 +54,4 @@ WORKDIR /app
 COPY --from=build-env /build/output .
 
 EXPOSE 80
-EXPOSE 443
 ENTRYPOINT ["./NexusMods.Monitor.Subscriptions.API"]

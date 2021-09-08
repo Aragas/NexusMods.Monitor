@@ -8,6 +8,6 @@ services:
     environment:
       Slack__BotToken: PLACEHOLDER
 
-  nexusmods_monitor_scraper:
+  nexusmods_monitor_metadata:
     environment:
       NexusMods__APIKey: PLACEHOLDER

@@ -6,7 +6,6 @@ using NexusMods.Monitor.Bot.Discord.Application.Queries;
 using NexusMods.Monitor.Shared.Application.IntegrationEvents.Issues;
 
 using System;
-using System.Linq;
 using System.Threading.Tasks;
 
 namespace NexusMods.Monitor.Bot.Discord.Application.IntegrationEventHandlers.Issues

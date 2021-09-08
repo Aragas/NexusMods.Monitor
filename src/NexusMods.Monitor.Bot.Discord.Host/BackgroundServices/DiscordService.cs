@@ -54,7 +54,8 @@ namespace NexusMods.Monitor.Bot.Discord.Host.BackgroundServices
                     (ex, time) =>
                     {
                         _logger.LogError(ex, "Exception during NATS connection. Waiting {time}...", time);
-                    });}
+                    });
+        }
 
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)
         {
@@ -94,6 +95,7 @@ namespace NexusMods.Monitor.Bot.Discord.Host.BackgroundServices
             stoppingToken.Register(OnCancellation, null);
         }
 
+        [System.Diagnostics.CodeAnalysis.SuppressMessage("Usage", "CA2254:Template should be a static expression")]
         private Task Bot_Log(LogMessage arg)
         {
             switch (arg.Severity)

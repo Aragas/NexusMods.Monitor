@@ -32,7 +32,7 @@ namespace NexusMods.Monitor.Scraper.Application.CommandHandlers.Issues
             _eventPublisher = eventPublisher ?? throw new ArgumentNullException(nameof(eventPublisher));
         }
 
-        public async Task<bool> Handle(IssueAddNewCommand message, CancellationToken cancellationToken)
+        public async Task<bool> Handle(IssueAddNewCommand message, CancellationToken ct)
         {
             var existingIssueEntity = await _issueRepository.GetAsync(message.Id);
             if (existingIssueEntity is { })
@@ -40,7 +40,7 @@ namespace NexusMods.Monitor.Scraper.Application.CommandHandlers.Issues
                 if (existingIssueEntity.IsDeleted)
                 {
                     existingIssueEntity.Return();
-                    return await _issueRepository.UnitOfWork.SaveEntitiesAsync(cancellationToken);
+                    return await _issueRepository.UnitOfWork.SaveEntitiesAsync(ct);
                 }
 
                 _logger.LogError("Issue with Id {Id} already exist, is not deleted.", message.Id);
@@ -51,6 +51,8 @@ namespace NexusMods.Monitor.Scraper.Application.CommandHandlers.Issues
                 message.Id,
                 message.NexusModsGameId,
                 message.NexusModsModId,
+                message.GameName,
+                message.ModName,
                 message.Title,
                 message.Url,
                 message.ModVersion,
@@ -88,9 +90,9 @@ namespace NexusMods.Monitor.Scraper.Application.CommandHandlers.Issues
 
             var issueDTO = _mapper.Map<IssueEntity, IssueDTO>(issueEntity);
 
-            if (await _issueRepository.UnitOfWork.SaveEntitiesAsync(cancellationToken))
+            if (await _issueRepository.UnitOfWork.SaveEntitiesAsync(ct))
             {
-                await _eventPublisher.Publish(new IssueAddedIntegrationEvent(issueDTO), "issue_events", cancellationToken);
+                await _eventPublisher.Publish(new IssueAddedIntegrationEvent(issueDTO), "issue_events", ct);
                 return true;
             }
             else

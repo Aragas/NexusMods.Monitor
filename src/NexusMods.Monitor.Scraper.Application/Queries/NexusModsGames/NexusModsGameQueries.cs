@@ -1,48 +1,70 @@
-﻿using Microsoft.Extensions.Caching.Memory;
-using Microsoft.Extensions.Logging;
-
-using NexusModsNET;
-using NexusModsNET.Inquirers;
+﻿using NexusMods.Monitor.Shared.Application;
 
 using System;
 using System.Collections.Generic;
-using System.Linq;
+using System.Net;
+using System.Net.Http;
+using System.Runtime.CompilerServices;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace NexusMods.Monitor.Scraper.Application.Queries.NexusModsGames
 {
     public sealed class NexusModsGameQueries : INexusModsGameQueries
     {
-        private readonly ILogger _logger;
-        private readonly INexusModsClient _nexusModsClient;
-        private readonly IMemoryCache _memoryCache;
+        private readonly IHttpClientFactory _httpClientFactory;
+        private readonly DefaultJsonSerializer _jsonSerializer;
 
-        public NexusModsGameQueries(ILogger<NexusModsGameQueries> logger, INexusModsClient nexusModsClient, IMemoryCache memoryCache)
+        public NexusModsGameQueries(IHttpClientFactory httpClientFactory, DefaultJsonSerializer jsonSerializer)
         {
-            _logger = logger ?? throw new ArgumentNullException(nameof(logger));
-            _nexusModsClient = nexusModsClient ?? throw new ArgumentNullException(nameof(nexusModsClient));
-            _memoryCache = memoryCache ?? throw new ArgumentNullException(nameof(memoryCache));
+            _httpClientFactory = httpClientFactory ?? throw new ArgumentNullException(nameof(httpClientFactory));
+            _jsonSerializer = jsonSerializer ?? throw new ArgumentNullException(nameof(jsonSerializer));
         }
 
-        public async Task<NexusModsGameViewModel?> GetAsync(uint gameId)
+        public async Task<NexusModsGameViewModel?> GetAsync(uint gameId, CancellationToken ct = default)
         {
-            var games = GetAllAsync();
-            return await games.FirstOrDefaultAsync(x => x.Id == gameId);
-        }
-        public async IAsyncEnumerable<NexusModsGameViewModel> GetAllAsync()
-        {
-            if (!_memoryCache.TryGetValue("games", out NexusModsGameViewModel[] cacheEntry))
+            using var response = await _httpClientFactory.CreateClient("Metadata.API").GetAsync($"game/id?gameId={gameId}", ct);
+            if (response.IsSuccessStatusCode && response.StatusCode != HttpStatusCode.NoContent)
             {
-                var gameInquirer = new GamesInquirer(_nexusModsClient);
-                var games = await gameInquirer.GetGamesAsync();
-
-                cacheEntry = games.Select(g => new NexusModsGameViewModel((uint) g.Id, g.Name, g.ForumUrl.ToString(), g.NexusmodsUrl.ToString(), g.DomainName)).ToArray();
-                var cacheEntryOptions = new MemoryCacheEntryOptions().SetSize(1).SetAbsoluteExpiration(TimeSpan.FromHours(8));
-                _memoryCache.Set("games", cacheEntry, cacheEntryOptions);
+                var content = await response.Content.ReadAsStringAsync(ct);
+                if (_jsonSerializer.Deserialize<GameDTO?>(content) is { } tuple)
+                {
+                    var (id, name, forumUrl, url, domainName) = tuple;
+                    return new NexusModsGameViewModel(id, name, forumUrl, url, domainName);
+                }
             }
-
-            foreach (var nexusModsGame in cacheEntry)
-                yield return nexusModsGame;
+            return null;
         }
+
+        public async Task<NexusModsGameViewModel?> GetAsync(string gameDomain, CancellationToken ct = default)
+        {
+            using var response = await _httpClientFactory.CreateClient("Metadata.API").GetAsync($"game/domain?gameDomain={gameDomain}", ct);
+            if (response.IsSuccessStatusCode && response.StatusCode != HttpStatusCode.NoContent)
+            {
+                var content = await response.Content.ReadAsStringAsync(ct);
+                if (_jsonSerializer.Deserialize<GameDTO?>(content) is { } tuple)
+                {
+                    var (id, name, forumUrl, url, domainName) = tuple;
+                    return new NexusModsGameViewModel(id, name, forumUrl, url, domainName);
+                }
+            }
+            return null;
+        }
+
+        public async IAsyncEnumerable<NexusModsGameViewModel> GetAllAsync([EnumeratorCancellation] CancellationToken ct = default)
+        {
+            using var response = await _httpClientFactory.CreateClient("Metadata.API").GetAsync("game/all", ct);
+            if (response.IsSuccessStatusCode && response.StatusCode != HttpStatusCode.NoContent)
+            {
+                var content = await response.Content.ReadAsStringAsync(ct);
+                foreach (var tuple in _jsonSerializer.Deserialize<GameDTO[]?>(content) ?? Array.Empty<GameDTO>())
+                {
+                    var (id, name, forumUrl, url, domainName) = tuple;
+                    yield return new NexusModsGameViewModel(id, name, forumUrl, url, domainName);
+                }
+            }
+        }
+
+        private sealed record GameDTO(uint Id, string Name, string ForumUrl, string Url, string DomainName);
     }
 }

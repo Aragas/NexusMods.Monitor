@@ -14,6 +14,8 @@ namespace NexusMods.Monitor.Scraper.Infrastructure.Contexts.Config
             builder.Property(p => p.Id).HasColumnName("id").ValueGeneratedNever().IsRequired();
             builder.Property(p => p.NexusModsGameId).HasColumnName("game_id").IsRequired();
             builder.Property(p => p.NexusModsModId).HasColumnName("mod_id").IsRequired();
+            builder.Property(p => p.GameName).HasColumnName("game_name").IsRequired();
+            builder.Property(p => p.ModName).HasColumnName("mod_name").IsRequired();
             builder.Property(p => p.Url).HasColumnName("url").IsRequired();
             builder.Property(p => p.Author).HasColumnName("author").IsRequired();
             builder.Property(p => p.AuthorUrl).HasColumnName("author_url").IsRequired();
@@ -25,7 +27,7 @@ namespace NexusMods.Monitor.Scraper.Infrastructure.Contexts.Config
             builder.Property(p => p.TimeOfPost).HasColumnName("time_of_post").IsRequired();
             builder.HasMany(p => p.Replies).WithOne().HasForeignKey(p => p.OwnerId).OnDelete(DeleteBehavior.Cascade);
             builder.Ignore(b => b.DomainEvents);
-            builder.Metadata.FindNavigation(nameof(CommentEntity.Replies)).SetPropertyAccessMode(PropertyAccessMode.Field);
+            builder.Metadata.FindNavigation(nameof(CommentEntity.Replies))!.SetPropertyAccessMode(PropertyAccessMode.Field);
             builder.HasQueryFilter(x => !x.IsDeleted);
         }
     }

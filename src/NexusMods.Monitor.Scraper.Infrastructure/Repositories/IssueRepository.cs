@@ -50,7 +50,7 @@ namespace NexusMods.Monitor.Scraper.Infrastructure.Repositories
                 await _context.Entry(issueEntity)
                     .Collection(i => i.Replies).LoadAsync();
                 await _context.Entry(issueEntity)
-                    .Reference(i => i.Content).LoadAsync();
+                    .Reference(i => i.Content!).LoadAsync();
                 await _context.Entry(issueEntity)
                     .Reference(i => i.Priority).LoadAsync();
                 await _context.Entry(issueEntity)
@@ -60,15 +60,11 @@ namespace NexusMods.Monitor.Scraper.Infrastructure.Repositories
             return issueEntity;
         }
 
-        public async Task<IssueStatusEnumeration> GetStatusAsync(uint issueStatusEnumerationId)
-        {
-            return await _context.IssueStatusEnumerations.FindAsync(issueStatusEnumerationId);
-        }
+        public async Task<IssueStatusEnumeration> GetStatusAsync(uint issueStatusEnumerationId) =>
+            (await _context.IssueStatusEnumerations.FindAsync(issueStatusEnumerationId)) ?? (await _context.IssueStatusEnumerations.FindAsync(1))!;
 
-        public async Task<IssuePriorityEnumeration> GetPriorityAsync(uint issuePriorityEnumerationId)
-        {
-            return await _context.IssuePriorityEnumerations.FindAsync(issuePriorityEnumerationId);
-        }
+        public async Task<IssuePriorityEnumeration> GetPriorityAsync(uint issuePriorityEnumerationId) =>
+            (await _context.IssuePriorityEnumerations.FindAsync(issuePriorityEnumerationId)) ?? (await _context.IssuePriorityEnumerations.FindAsync(1))!;
 
         public IQueryable<IssueEntity> GetAll() => _context.IssueEntities
             .Include(x => x.Replies)
@@ -76,9 +72,6 @@ namespace NexusMods.Monitor.Scraper.Infrastructure.Repositories
             .Include(x => x.Priority)
             .Include(x => x.Status);
 
-        public IssueEntity Update(IssueEntity issueEntity)
-        {
-            return _context.Update(issueEntity).Entity;
-        }
+        public IssueEntity Update(IssueEntity issueEntity) => _context.Update(issueEntity).Entity;
     }
 }

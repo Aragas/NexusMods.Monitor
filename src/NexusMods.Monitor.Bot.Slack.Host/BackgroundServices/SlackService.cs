@@ -10,7 +10,6 @@ using NexusMods.Monitor.Bot.Slack.Application;
 using NexusMods.Monitor.Bot.Slack.Application.Commands;
 using NexusMods.Monitor.Bot.Slack.Application.Queries;
 using NexusMods.Monitor.Shared.Application;
-using NexusMods.Monitor.Shared.Domain;
 
 using NodaTime;
 using NodaTime.Extensions;
@@ -103,6 +102,14 @@ namespace NexusMods.Monitor.Bot.Slack.Host.BackgroundServices
                             return;
                         }
                     }
+                    if (args.Length == 1)
+                    {
+                        if (await _mediator.Send(new Subscribe2Command(message.Conversation.Id, args[0])))
+                        {
+                            await message.ReplyWith("Successful!");
+                            return;
+                        }
+                    }
                     else
                     {
                         await message.ReplyWith("Failed!");
@@ -118,6 +125,14 @@ namespace NexusMods.Monitor.Bot.Slack.Host.BackgroundServices
                     if (args.Length == 2 && uint.TryParse(args[0], out var gameId) && uint.TryParse(args[1], out var modId))
                     {
                         if (await _mediator.Send(new UnsubscribeCommand(message.Conversation.Id, gameId, modId)))
+                        {
+                            await message.ReplyWith("Successful!");
+                            return;
+                        }
+                    }
+                    if (args.Length == 1)
+                    {
+                        if (await _mediator.Send(new Unsubscribe2Command(message.Conversation.Id, args[0])))
                         {
                             await message.ReplyWith("Successful!");
                             return;

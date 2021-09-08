@@ -1,19 +1,31 @@
 ﻿using MediatR;
 
+using MicroElements.Swashbuckle.NodaTime;
+
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Options;
+using Microsoft.OpenApi.Models;
 
-using NexusMods.Monitor.Shared.Application;
+using NexusMods.Monitor.Shared.Application.Extensions;
+using NexusMods.Monitor.Shared.Host;
+using NexusMods.Monitor.Subscriptions.API.Options;
 using NexusMods.Monitor.Subscriptions.Application.Commands;
-using NexusMods.Monitor.Subscriptions.Application.Queries;
+using NexusMods.Monitor.Subscriptions.Application.Queries.NexusModsGames;
+using NexusMods.Monitor.Subscriptions.Application.Queries.Subscriptions;
 using NexusMods.Monitor.Subscriptions.Domain.AggregatesModel.SubscriptionAggregate;
 using NexusMods.Monitor.Subscriptions.Infrastructure.Contexts;
 using NexusMods.Monitor.Subscriptions.Infrastructure.Repositories;
 
+using NodaTime;
+using NodaTime.Serialization.SystemTextJson;
+
+using System;
+using System.Reflection;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 
@@ -30,22 +42,44 @@ namespace NexusMods.Monitor.Subscriptions.API
 
         public void ConfigureServices(IServiceCollection services)
         {
-            services.AddMediatR(typeof(SubscriptionAddCommand).Assembly);
-            services.AddHttpClient();
+            services.AddApplication();
 
-            services.AddDbContext<SubscriptionDb>(opt => opt.UseNpgsql(Configuration.GetConnectionString("Subscriptions")));
+            services.AddMediatR(typeof(SubscriptionAddCommand).Assembly);
+
+            var assemblyName = Assembly.GetEntryAssembly()?.GetName();
+            var userAgent = $"{assemblyName?.Name ?? "NexusMods.Monitor.Subscriptions"} v{Assembly.GetEntryAssembly()?.GetName().Version}";
+            services.AddHttpClient("Metadata.API", (sp, client) =>
+            {
+                var backendOptions = sp.GetRequiredService<IOptions<MetadataAPIOptions>>().Value;
+                client.BaseAddress = new Uri(backendOptions.APIEndpointV1);
+                client.DefaultRequestHeaders.Add("User-Agent", userAgent);
+            }).AddPolicyHandler(PollyUtils.PolicySelector);
+
+            services.Configure<MetadataAPIOptions>(Configuration.GetSection("MetadataAPI"));
+
+            services.AddDbContext<SubscriptionDb>(opt => opt.UseNpgsql(Configuration.GetConnectionString("Subscriptions"), o => o.UseNodaTime()));
 
             services.AddTransient<ISubscriptionRepository, SubscriptionRepository>();
 
             services.AddTransient<ISubscriptionQueries, SubscriptionQueries>();
+            services.AddTransient<INexusModsGameQueries, NexusModsGameQueries>();
 
-            services.AddSingleton<DefaultJsonSerializer>();
-
-            services.AddControllers().AddJsonOptions(opts =>
+            services.AddControllers().AddJsonOptions(options =>
             {
-                opts.JsonSerializerOptions.PropertyNameCaseInsensitive = true;
-                opts.JsonSerializerOptions.PropertyNamingPolicy = JsonNamingPolicy.CamelCase;
-                opts.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter(JsonNamingPolicy.CamelCase));
+                options.JsonSerializerOptions.PropertyNameCaseInsensitive = true;
+                options.JsonSerializerOptions.PropertyNamingPolicy = JsonNamingPolicy.CamelCase;
+                options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter(JsonNamingPolicy.CamelCase));
+                options.JsonSerializerOptions.ConfigureForNodaTime(DateTimeZoneProviders.Tzdb);
+            });
+            services.AddRouting(options =>
+            {
+                options.LowercaseUrls = true;
+            });
+            services.AddSwaggerGen(options =>
+            {
+                options.SwaggerDoc("v1", new OpenApiInfo { Title = "NexusMods.Monitor.Subscriptions.API", Version = "v1" });
+                options.SupportNonNullableReferenceTypes();
+                options.ConfigureForNodaTimeWithSystemTextJson();
             });
         }
 
@@ -56,9 +90,10 @@ namespace NexusMods.Monitor.Subscriptions.API
                 app.UseDeveloperExceptionPage();
             }
 
-            app.UseRouting();
+            app.UseSwagger();
+            app.UseSwaggerUI(options => options.SwaggerEndpoint("/swagger/v1/swagger.json", "NexusMods.Monitor.Subscriptions.API v1"));
 
-            app.UseAuthorization();
+            app.UseRouting();
 
             app.UseEndpoints(endpoints =>
             {

@@ -45,6 +45,17 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "NexusMods.Monitor.Bot.Slack
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "NexusMods.Monitor.Bot.Slack.Host", "NexusMods.Monitor.Bot.Slack.Host\NexusMods.Monitor.Bot.Slack.Host.csproj", "{62D179EB-B436-47B3-92B8-46188967967A}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "build", "build", "{57971549-7FD1-4C06-95FE-D873FC729FF1}"
+	ProjectSection(SolutionItems) = preProject
+		..\build\common.props = ..\build\common.props
+	EndProjectSection
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Metadata", "Metadata", "{4451CEE8-F154-4547-A831-C3786C2D5C50}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "NexusMods.Monitor.Metadata.API", "NexusMods.Monitor.Metadata.API\NexusMods.Monitor.Metadata.API.csproj", "{1C4552CB-A003-4354-AECC-56D182C860AA}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "NexusMods.Monitor.Metadata.Application", "NexusMods.Monitor.Metadata.Application\NexusMods.Monitor.Metadata.Application.csproj", "{8BC13ECF-EC44-4228-A13E-CDA74166949A}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -119,6 +130,14 @@ Global
 		{62D179EB-B436-47B3-92B8-46188967967A}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{62D179EB-B436-47B3-92B8-46188967967A}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{62D179EB-B436-47B3-92B8-46188967967A}.Release|Any CPU.Build.0 = Release|Any CPU
+		{1C4552CB-A003-4354-AECC-56D182C860AA}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{1C4552CB-A003-4354-AECC-56D182C860AA}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{1C4552CB-A003-4354-AECC-56D182C860AA}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{1C4552CB-A003-4354-AECC-56D182C860AA}.Release|Any CPU.Build.0 = Release|Any CPU
+		{8BC13ECF-EC44-4228-A13E-CDA74166949A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{8BC13ECF-EC44-4228-A13E-CDA74166949A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{8BC13ECF-EC44-4228-A13E-CDA74166949A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{8BC13ECF-EC44-4228-A13E-CDA74166949A}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -136,6 +155,8 @@ Global
 		{1BA89976-3882-4E14-A93F-43D8F2550F33} = {FF55EE66-1ECB-499C-8ED0-BED6649B8E80}
 		{03072AD9-9E4D-42C2-87D7-39DAC5361E60} = {587BCD42-861E-435E-AFCC-6A680C321A60}
 		{62D179EB-B436-47B3-92B8-46188967967A} = {587BCD42-861E-435E-AFCC-6A680C321A60}
+		{1C4552CB-A003-4354-AECC-56D182C860AA} = {4451CEE8-F154-4547-A831-C3786C2D5C50}
+		{8BC13ECF-EC44-4228-A13E-CDA74166949A} = {4451CEE8-F154-4547-A831-C3786C2D5C50}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {8D681504-FF6A-4333-95AB-3024A2848B09}

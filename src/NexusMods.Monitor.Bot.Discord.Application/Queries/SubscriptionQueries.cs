@@ -5,7 +5,10 @@ using NexusMods.Monitor.Shared.Application;
 
 using System;
 using System.Collections.Generic;
+using System.Net;
 using System.Net.Http;
+using System.Runtime.CompilerServices;
+using System.Threading;
 
 namespace NexusMods.Monitor.Bot.Discord.Application.Queries
 {
@@ -22,17 +25,19 @@ namespace NexusMods.Monitor.Bot.Discord.Application.Queries
             _jsonSerializer = jsonSerializer ?? throw new ArgumentNullException(nameof(jsonSerializer));
         }
 
-        public async IAsyncEnumerable<SubscriptionViewModel> GetAllAsync()
+        public async IAsyncEnumerable<SubscriptionViewModel> GetAllAsync([EnumeratorCancellation] CancellationToken ct = default)
         {
-            using var response = await _httpClientFactory.CreateClient().GetAsync($"{_options.APIEndpointV1}/all");
-            var content = await response.Content.ReadAsStringAsync();
-            var subscriptionDTOs = _jsonSerializer.Deserialize<SubscriptionDTO[]?>(content);
-            foreach (var (subscriberId, nexusModsGameId, nexusModsModId) in subscriptionDTOs ?? Array.Empty<SubscriptionDTO>())
+            using var response = await _httpClientFactory.CreateClient().GetAsync($"{_options.APIEndpointV1}/all", ct);
+            if (response.IsSuccessStatusCode && response.StatusCode != HttpStatusCode.NoContent)
             {
-                if (!subscriberId.StartsWith("Discord:"))
-                    continue;
+                var content = await response.Content.ReadAsStringAsync(ct);
+                foreach (var (subscriberId, nexusModsGameId, nexusModsModId) in _jsonSerializer.Deserialize<SubscriptionDTO[]?>(content) ?? Array.Empty<SubscriptionDTO>())
+                {
+                    if (!subscriberId.StartsWith("Discord:"))
+                        continue;
 
-                yield return new SubscriptionViewModel(ulong.Parse(subscriberId.Remove(0, 8)), nexusModsGameId, nexusModsModId);
+                    yield return new SubscriptionViewModel(ulong.Parse(subscriberId.Remove(0, 8)), nexusModsGameId, nexusModsModId);
+                }
             }
         }
 

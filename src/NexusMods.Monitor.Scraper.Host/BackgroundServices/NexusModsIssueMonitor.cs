@@ -10,7 +10,6 @@ using NexusMods.Monitor.Scraper.Application.Queries.Issues;
 using NexusMods.Monitor.Scraper.Application.Queries.NexusModsIssues;
 using NexusMods.Monitor.Scraper.Application.Queries.Subscriptions;
 using NexusMods.Monitor.Shared.Application;
-using NexusMods.Monitor.Shared.Domain;
 
 using NodaTime;
 
@@ -69,10 +68,10 @@ namespace NexusMods.Monitor.Scraper.Host.BackgroundServices
             var nexusModsIssueQueries = scope.ServiceProvider.GetRequiredService<INexusModsIssueQueries>();
             var mediator = scope.ServiceProvider.GetRequiredService<IMediator>();
 
-            await foreach (var (nexusModsGameId, nexusModsModId) in subscriptionQueries.GetAllAsync().Distinct(new SubscriptionViewModelComparer()).WithCancellation(ct))
+            await foreach (var (nexusModsGameId, nexusModsModId) in subscriptionQueries.GetAllAsync(ct).Distinct(new SubscriptionViewModelComparer()).WithCancellation(ct))
             {
-                var nexusModsIssues = await nexusModsIssueQueries.GetAllAsync(nexusModsGameId, nexusModsModId).ToImmutableArrayAsync(ct);//.ToDictionaryAsync(x => x.NexusModsIssue.Id, x => x, ct);
-                var databaseIssues = await issueQueries.GetAllAsync().Where(x => x.NexusModsGameId == nexusModsGameId && x.NexusModsModId == nexusModsModId).ToImmutableArrayAsync(ct);
+                var nexusModsIssues = await nexusModsIssueQueries.GetAllAsync(nexusModsGameId, nexusModsModId, ct).ToImmutableArrayAsync(ct);//.ToDictionaryAsync(x => x.NexusModsIssue.Id, x => x, ct);
+                var databaseIssues = await issueQueries.GetAllAsync(ct).Where(x => x.NexusModsGameId == nexusModsGameId && x.NexusModsModId == nexusModsModId).ToImmutableArrayAsync(ct);
 
                 var newIssues = nexusModsIssues.Where(x => databaseIssues.All(y => y.Id != x.NexusModsIssue.Id));
                 var deletedIssues = databaseIssues.Where(x => nexusModsIssues.All(y => y.NexusModsIssue.Id != x.Id)).ToImmutableArray();
@@ -84,13 +83,16 @@ namespace NexusMods.Monitor.Scraper.Host.BackgroundServices
 
                 foreach (var issueRoot in newIssues)
                 {
-                    issueRoot.SetContent(await nexusModsIssueQueries.GetContentAsync(issueRoot.NexusModsIssue.Id));
-                    await issueRoot.SetRepliesAsync(nexusModsIssueQueries.GetRepliesAsync(issueRoot.NexusModsIssue.Id));
+                    issueRoot.SetContent(await nexusModsIssueQueries.GetContentAsync(issueRoot.NexusModsIssue.Id, ct));
+                    await issueRoot.SetRepliesAsync(nexusModsIssueQueries.GetRepliesAsync(issueRoot.NexusModsIssue.Id, ct));
+
+                    var issueStatus = await issueQueries.GetStatusAsync(issueRoot.NexusModsIssue.Status.Id, ct);
+                    var issuePriority = await issueQueries.GetPriorityAsync(issueRoot.NexusModsIssue.Priority.Id, ct);
 
                     if (now - issueRoot.NexusModsIssue.LastPost < Duration.FromDays(1))
-                        await mediator.Send(new IssueAddNewCommand(issueRoot), ct);
+                        await mediator.Send(new IssueAddNewCommand(issueRoot, issueStatus, issuePriority), ct);
                     else
-                        await mediator.Send(new IssueAddCommand(issueRoot), ct);
+                        await mediator.Send(new IssueAddCommand(issueRoot, issueStatus, issuePriority), ct);
                 }
 
                 foreach (var (databaseIssue, nexusModsIssueRoot) in existingIssues)
