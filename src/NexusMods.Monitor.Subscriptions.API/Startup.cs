@@ -47,13 +47,10 @@ namespace NexusMods.Monitor.Subscriptions.API
 
             services.AddMediatR(typeof(SubscriptionAddCommand).Assembly);
 
-            var assemblyName = Assembly.GetEntryAssembly()?.GetName();
-            var userAgent = $"{assemblyName?.Name ?? "NexusMods.Monitor.Subscriptions"} v{Assembly.GetEntryAssembly()?.GetName().Version}";
             services.AddHttpClient("Metadata.API", (sp, client) =>
             {
                 var backendOptions = sp.GetRequiredService<IOptions<MetadataAPIOptions>>().Value;
                 client.BaseAddress = new Uri(backendOptions.APIEndpointV1);
-                client.DefaultRequestHeaders.Add("User-Agent", userAgent);
             }).AddPolicyHandler(PollyUtils.PolicySelector);
 
             services.Configure<MetadataAPIOptions>(Configuration.GetSection("MetadataAPI"));

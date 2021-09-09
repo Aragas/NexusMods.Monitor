@@ -18,7 +18,10 @@ namespace NexusMods.Monitor.Shared.Host
             return Policy.HandleResult<HttpResponseMessage>(r => !r.IsSuccessStatusCode)
                 .OrTransientHttpError()
                 .Or<SocketException>()
-                .WaitAndRetryAsync(20, _ => TimeSpan.FromSeconds(2), (delegateResult, time) => { logger.LogError("Exception during HTTP connection. Waiting {time}...", time); });
+                .WaitAndRetryAsync(20, _ => TimeSpan.FromSeconds(2), (delegateResult, time) =>
+                {
+                    logger.LogError(delegateResult.Exception, "Exception during HTTP connection. HttpResult {@HttpResult}. Waiting {Time}...", time, delegateResult.Result);
+                });
         }
     }
 }

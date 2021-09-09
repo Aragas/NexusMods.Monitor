@@ -63,8 +63,8 @@ namespace NexusMods.Monitor.Metadata.Application.Queries.Issues
                 {
                     await _timeLimiterIssues;
 
-                    using var response = await _httpClientFactory.CreateClient().GetAsync(
-                        $"https://www.nexusmods.com/Core/Libs/Common/Widgets/ModBugsTab?RH_ModBugsTab=game_id:{gameId},id:{modId},sort_by:last_reply,order:DESC,page:{page}", ct);
+                    using var response = await _httpClientFactory.CreateClient("NexusMods").GetAsync(
+                        $"Core/Libs/Common/Widgets/ModBugsTab?RH_ModBugsTab=game_id:{gameId},id:{modId},sort_by:last_reply,order:DESC,page:{page}", ct);
                     var content = await response.Content.ReadAsStringAsync(ct);
 
                     var config = Configuration.Default.WithDefaultLoader();
@@ -117,8 +117,8 @@ namespace NexusMods.Monitor.Metadata.Application.Queries.Issues
             {
                 await _timeLimiterIssueReplies;
 
-                using var response = await _httpClientFactory.CreateClient().PostAsync(
-                    "https://www.nexusmods.com/Core/Libs/Common/Widgets/ModBugReplyList",
+                using var response = await _httpClientFactory.CreateClient("NexusMods").PostAsync(
+                    "Core/Libs/Common/Widgets/ModBugReplyList",
                     new FormUrlEncodedContent(new[] { new KeyValuePair<string?, string?>("issue_id", issueId.ToString()) }), ct);
                 var content = await response.Content.ReadAsStringAsync(ct);
 

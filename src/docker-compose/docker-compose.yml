@@ -79,6 +79,7 @@ services:
     environment:
       Serilog__WriteTo__1__Args__serverUrl: http://seq:5341
       NexusMods__APIKey: PLACEHOLDER
+      NexusMods__Endpoint: https://www.nexusmods.com/
       ASPNETCORE_URLS: "http://*:80"
     build:
       context: ../../.

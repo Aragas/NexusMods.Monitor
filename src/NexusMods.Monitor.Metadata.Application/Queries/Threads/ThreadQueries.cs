@@ -33,7 +33,7 @@ namespace NexusMods.Monitor.Metadata.Application.Queries.Threads
                 var games = _nexusModsGameQueries.GetAllAsync(ct);
                 var gameIdText = (await games.FirstOrDefaultAsync(x => x.Id == gameId, ct))?.DomainName ?? "ERROR";
 
-                using var response = await _httpClientFactory.CreateClient().GetAsync($"https://www.nexusmods.com/{gameIdText}/mods/{modId}", ct);
+                using var response = await _httpClientFactory.CreateClient("NexusMods").GetAsync($"{gameIdText}/mods/{modId}", ct);
                 var content = await response.Content.ReadAsStringAsync(ct);
 
                 var config = Configuration.Default.WithDefaultLoader();

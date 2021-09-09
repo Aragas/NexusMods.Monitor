@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Options;
 using Microsoft.OpenApi.Models;
 
 using NexusMods.Monitor.Metadata.API.Options;
@@ -13,12 +14,15 @@ using NexusMods.Monitor.Metadata.Application.Queries.Games;
 using NexusMods.Monitor.Metadata.Application.Queries.Issues;
 using NexusMods.Monitor.Metadata.Application.Queries.Mods;
 using NexusMods.Monitor.Metadata.Application.Queries.Threads;
+using NexusMods.Monitor.Shared.Host;
 
 using NexusModsNET;
 
 using NodaTime;
 using NodaTime.Serialization.SystemTextJson;
 
+using System;
+using System.Reflection;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 
@@ -37,7 +41,15 @@ namespace NexusMods.Monitor.Metadata.API
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddMemoryCache();
-            services.AddHttpClient();
+
+            var assemblyName = Assembly.GetEntryAssembly()?.GetName();
+            var userAgent = $"{assemblyName?.Name ?? "NexusMods.Monitor.Metadata"} v{Assembly.GetEntryAssembly()?.GetName().Version}";
+            services.AddHttpClient("NexusMods", (sp, client) =>
+            {
+                var backendOptions = sp.GetRequiredService<IOptions<NexusModsOptions>>().Value;
+                client.BaseAddress = new Uri(backendOptions.Endpoint);
+                client.DefaultRequestHeaders.Add("User-Agent", userAgent);
+            }).AddPolicyHandler(PollyUtils.PolicySelector);
 
             services.Configure<NexusModsOptions>(Configuration.GetSection("NexusMods"));
 

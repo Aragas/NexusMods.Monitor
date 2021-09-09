@@ -62,8 +62,8 @@ namespace NexusMods.Monitor.Metadata.Application.Queries.Comments
                 {
                     await _timeLimiterComments;
 
-                    using var response = await _httpClientFactory.CreateClient().GetAsync(
-                        $"https://www.nexusmods.com/Core/Libs/Common/Widgets/CommentContainer?RH_CommentContainer=game_id:{gameId},object_id:{modId},object_type:1,thread_id:{threadId},page:{page}", ct);
+                    using var response = await _httpClientFactory.CreateClient("NexusMods").GetAsync(
+                        $"Core/Libs/Common/Widgets/CommentContainer?RH_CommentContainer=game_id:{gameId},object_id:{modId},object_type:1,thread_id:{threadId},page:{page}", ct);
                     var content = await response.Content.ReadAsStringAsync(ct);
 
                     var config = Configuration.Default.WithDefaultLoader();
