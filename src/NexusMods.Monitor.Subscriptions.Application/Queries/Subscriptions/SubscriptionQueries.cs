@@ -19,10 +19,12 @@ namespace NexusMods.Monitor.Subscriptions.Application.Queries.Subscriptions
         private readonly INexusModsGameQueries _nexusModsGameQueries;
         private readonly INexusModsModQueries _nexusModsModQueries;
 
-        public SubscriptionQueries(ILogger<SubscriptionQueries> logger, SubscriptionDb context)
+        public SubscriptionQueries(ILogger<SubscriptionQueries> logger, SubscriptionDb context, INexusModsGameQueries nexusModsGameQueries, INexusModsModQueries nexusModsModQueries)
         {
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
             _context = context ?? throw new ArgumentNullException(nameof(context));
+            _nexusModsGameQueries = nexusModsGameQueries ?? throw new ArgumentNullException(nameof(nexusModsGameQueries));
+            _nexusModsModQueries = nexusModsModQueries ?? throw new ArgumentNullException(nameof(nexusModsModQueries));
         }
 
         public IAsyncEnumerable<SubscriptionViewModel> GetSubscriptionsAsync(CancellationToken ct = default) => _context.SubscriptionEntities
