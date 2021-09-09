@@ -6,6 +6,7 @@
     <Nullable>enable</Nullable>
     <DisableImplicitNamespaceImports>true</DisableImplicitNamespaceImports>
     <NoWarn>1073;MSB4011;CA2252;CS8032;</NoWarn>
+    <Version>2.0</Version>
   </PropertyGroup>
 
   <!--GitHub Actions-->

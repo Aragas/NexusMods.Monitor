@@ -23,6 +23,7 @@ using NodaTime.Serialization.SystemTextJson;
 
 using System;
 using System.Reflection;
+using System.Runtime.InteropServices;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 using System.Threading;
@@ -45,8 +46,8 @@ namespace NexusMods.Monitor.Metadata.API
 
             services.AddMemoryCache();
 
-            var assemblyName = Assembly.GetEntryAssembly()?.GetName();
-            var userAgent = $"{assemblyName?.Name ?? "NexusMods.Monitor.Metadata"} v{Assembly.GetEntryAssembly()?.GetName().Version}";
+            var assemblyName = Assembly.GetEntryAssembly()!.GetName();
+            var userAgent = $"{assemblyName.Name} v{assemblyName.Version} ({Environment.OSVersion}; {RuntimeInformation.OSArchitecture}) {RuntimeInformation.FrameworkDescription}";
             services.AddHttpClient("NexusMods", (sp, client) =>
                 {
                     var backendOptions = sp.GetRequiredService<IOptions<NexusModsOptions>>().Value;
