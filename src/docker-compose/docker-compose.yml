@@ -17,7 +17,7 @@ services:
     environment:
       Serilog__WriteTo__1__Args__serverUrl: http://seq:5341
       Discord__BotToken: PLACEHOLDER
-      Subscriptions__APIEndpointV1: http://nexusmods_monitor_subscriptions/api/v1/subscriptions
+      Subscriptions__APIEndpointV1: http://nexusmods_monitor_subscriptions/api/v1/subscriptions/
       EventBus__Servers__0: nats://nats:4222
     build:
       context: ../../.
@@ -37,7 +37,7 @@ services:
     environment:
       Serilog__WriteTo__1__Args__serverUrl: http://seq:5341
       Slack__BotToken: PLACEHOLDER
-      Subscriptions__APIEndpointV1: http://nexusmods_monitor_subscriptions/api/v1/subscriptions
+      Subscriptions__APIEndpointV1: http://nexusmods_monitor_subscriptions/api/v1/subscriptions/
       EventBus__Servers__0: nats://nats:4222
     build:
       context: ../../.
@@ -79,6 +79,7 @@ services:
     environment:
       Serilog__WriteTo__1__Args__serverUrl: http://seq:5341
       NexusMods__APIKey: PLACEHOLDER
+      NexusMods__APIEndpoint: https://api.nexusmods.com/
       NexusMods__Endpoint: https://www.nexusmods.com/
       ASPNETCORE_URLS: "http://*:80"
     build:

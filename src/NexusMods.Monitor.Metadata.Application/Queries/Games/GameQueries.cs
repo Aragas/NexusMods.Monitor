@@ -1,13 +1,15 @@
 ﻿using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Logging;
 
-using NexusModsNET;
-using NexusModsNET.Inquirers;
+using NexusMods.Monitor.Shared.Application;
 
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net;
+using System.Net.Http;
 using System.Runtime.CompilerServices;
+using System.Text.Json.Serialization;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -16,14 +18,16 @@ namespace NexusMods.Monitor.Metadata.Application.Queries.Games
     public sealed class GameQueries : IGameQueries
     {
         private readonly ILogger _logger;
-        private readonly INexusModsClient _nexusModsClient;
         private readonly IMemoryCache _cache;
+        private readonly IHttpClientFactory _httpClientFactory;
+        private readonly DefaultJsonSerializer _jsonSerializer;
 
-        public GameQueries(ILogger<GameQueries> logger, INexusModsClient nexusModsClient, IMemoryCache cache)
+        public GameQueries(ILogger<GameQueries> logger, IMemoryCache cache, IHttpClientFactory httpClientFactory, DefaultJsonSerializer jsonSerializer)
         {
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
-            _nexusModsClient = nexusModsClient ?? throw new ArgumentNullException(nameof(nexusModsClient));
             _cache = cache ?? throw new ArgumentNullException(nameof(cache));
+            _httpClientFactory = httpClientFactory ?? throw new ArgumentNullException(nameof(httpClientFactory));
+            _jsonSerializer = jsonSerializer ?? throw new ArgumentNullException(nameof(jsonSerializer));
         }
 
         public async Task<GameViewModel?> GetAsync(uint gameId, CancellationToken ct = default) => await GetAllAsync(ct).FirstOrDefaultAsync(x => x.Id == gameId, ct);
@@ -33,16 +37,38 @@ namespace NexusMods.Monitor.Metadata.Application.Queries.Games
         {
             if (!_cache.TryGetValue("games", out GameViewModel[] cacheEntry))
             {
-                var gameInquirer = new GamesInquirer(_nexusModsClient);
-                var games = await gameInquirer.GetGamesAsync(cancellationToken: ct);
+                var response = await _httpClientFactory.CreateClient("NexusMods.API").GetAsync("v1/games.json?include_unapproved=false", ct);
+                if (response.IsSuccessStatusCode && response.StatusCode != HttpStatusCode.NoContent)
+                {
+                    var content = await response.Content.ReadAsStringAsync(ct);
+                    var games = _jsonSerializer.Deserialize<GameDTO[]?>(content) ?? Array.Empty<GameDTO>();
 
-                cacheEntry = games.Select(g => new GameViewModel((uint) g.Id, g.Name, g.ForumUrl.ToString(), g.NexusmodsUrl.ToString(), g.DomainName)).ToArray();
-                var cacheEntryOptions = new MemoryCacheEntryOptions().SetSize(1).SetAbsoluteExpiration(TimeSpan.FromHours(8));
-                _cache.Set("games", cacheEntry, cacheEntryOptions);
+                    cacheEntry = games.Select(g => new GameViewModel(g.Id, g.Name, g.ForumUrl.ToString(), g.Url.ToString(), g.DomainName)).ToArray();
+                    var cacheEntryOptions = new MemoryCacheEntryOptions().SetSize(1).SetAbsoluteExpiration(TimeSpan.FromHours(8));
+                    _cache.Set("games", cacheEntry, cacheEntryOptions);
+                }
             }
 
             foreach (var nexusModsGame in cacheEntry)
                 yield return nexusModsGame;
+        }
+
+        private record GameDTO
+        {
+            [JsonPropertyName("id")]
+            public uint Id { get; init; }
+
+            [JsonPropertyName("name")]
+            public string Name { get; init; }
+
+            [JsonPropertyName("forum_url")]
+            public string ForumUrl { get; init; }
+
+            [JsonPropertyName("nexusmods_url")]
+            public string Url { get; init; }
+
+            [JsonPropertyName("domain_name")]
+            public string DomainName { get; init; }
         }
     }
 }

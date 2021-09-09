@@ -1,16 +1,12 @@
 ﻿using AngleSharp;
 using AngleSharp.Dom;
 
-using ComposableAsync;
-
 using Microsoft.Extensions.Caching.Memory;
 
 using NexusMods.Monitor.Metadata.Application.Extensions;
 using NexusMods.Monitor.Metadata.Application.Queries.Games;
 using NexusMods.Monitor.Metadata.Application.Queries.Mods;
 using NexusMods.Monitor.Metadata.Application.Queries.Threads;
-
-using RateLimiter;
 
 using System;
 using System.Collections.Generic;
@@ -28,7 +24,6 @@ namespace NexusMods.Monitor.Metadata.Application.Queries.Comments
         private readonly IGameQueries _nexusModsGameQueries;
         private readonly IModQueries _nexusModsModQueries;
         private readonly IThreadQueries _nexusModsThreadQueries;
-        private readonly TimeLimiter _timeLimiterComments;
 
         public CommentQueries(IHttpClientFactory httpClientFactory, IMemoryCache cache, IGameQueries nexusModsGameQueries, IModQueries nexusModsModQueries, IThreadQueries nexusModsThreadQueries)
         {
@@ -37,10 +32,6 @@ namespace NexusMods.Monitor.Metadata.Application.Queries.Comments
             _nexusModsGameQueries = nexusModsGameQueries ?? throw new ArgumentNullException(nameof(nexusModsGameQueries));
             _nexusModsModQueries = nexusModsModQueries ?? throw new ArgumentNullException(nameof(nexusModsModQueries));
             _nexusModsThreadQueries = nexusModsThreadQueries ?? throw new ArgumentNullException(nameof(nexusModsThreadQueries));
-
-            var timeLimiterCommentsConstraint1 = new CountByIntervalAwaitableConstraint(30, TimeSpan.FromMinutes(1));
-            var timeLimiterCommentsConstraint2 = new CountByIntervalAwaitableConstraint(1, TimeSpan.FromMilliseconds(500));
-            _timeLimiterComments = TimeLimiter.Compose(timeLimiterCommentsConstraint1, timeLimiterCommentsConstraint2);
         }
 
         public async IAsyncEnumerable<CommentViewModel> GetAllAsync(uint gameId, uint modId, [EnumeratorCancellation] CancellationToken ct = default)
@@ -60,8 +51,6 @@ namespace NexusMods.Monitor.Metadata.Application.Queries.Comments
                 var commentRoots = new List<CommentViewModel>();
                 for (var page = 1; ; page++)
                 {
-                    await _timeLimiterComments;
-
                     using var response = await _httpClientFactory.CreateClient("NexusMods").GetAsync(
                         $"Core/Libs/Common/Widgets/CommentContainer?RH_CommentContainer=game_id:{gameId},object_id:{modId},object_type:1,thread_id:{threadId},page:{page}", ct);
                     var content = await response.Content.ReadAsStringAsync(ct);
@@ -84,7 +73,7 @@ namespace NexusMods.Monitor.Metadata.Application.Queries.Comments
                 }
 
                 cacheEntry = commentRoots.Distinct(new CommentViewModelComparer()).ToArray();
-                var cacheEntryOptions = new MemoryCacheEntryOptions().SetSize(1).SetAbsoluteExpiration(TimeSpan.FromSeconds(10));
+                var cacheEntryOptions = new MemoryCacheEntryOptions().SetSize(1).SetAbsoluteExpiration(TimeSpan.FromSeconds(60));
                 _cache.Set(key, cacheEntry, cacheEntryOptions);
 
                 yield break;

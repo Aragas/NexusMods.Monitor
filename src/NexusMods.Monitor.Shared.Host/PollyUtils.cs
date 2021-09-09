@@ -14,8 +14,7 @@ namespace NexusMods.Monitor.Shared.Host
     {
         private static TimeSpan GetServerWaitDuration(DelegateResult<HttpResponseMessage> response)
         {
-            var retryAfter = response?.Result?.Headers?.RetryAfter;
-            if (retryAfter == null)
+            if (response.Result?.Headers.RetryAfter is not { } retryAfter)
                 return TimeSpan.Zero;
 
             return retryAfter.Date.HasValue ? retryAfter.Date.Value - DateTime.UtcNow : retryAfter.Delta.GetValueOrDefault(TimeSpan.Zero);

@@ -1,15 +1,11 @@
 ﻿using AngleSharp;
 using AngleSharp.Dom;
 
-using ComposableAsync;
-
 using Microsoft.Extensions.Caching.Memory;
 
 using NexusMods.Monitor.Metadata.Application.Extensions;
 using NexusMods.Monitor.Metadata.Application.Queries.Games;
 using NexusMods.Monitor.Metadata.Application.Queries.Mods;
-
-using RateLimiter;
 
 using System;
 using System.Collections.Generic;
@@ -27,8 +23,6 @@ namespace NexusMods.Monitor.Metadata.Application.Queries.Issues
         private readonly IMemoryCache _cache;
         private readonly IGameQueries _nexusModsGameQueries;
         private readonly IModQueries _nexusModsModQueries;
-        private readonly TimeLimiter _timeLimiterIssues;
-        private readonly TimeLimiter _timeLimiterIssueReplies;
 
         public IssueQueries(IHttpClientFactory httpClientFactory, IMemoryCache cache, IGameQueries nexusModsGameQueries, IModQueries nexusModsModQueries)
         {
@@ -36,14 +30,6 @@ namespace NexusMods.Monitor.Metadata.Application.Queries.Issues
             _cache = cache ?? throw new ArgumentNullException(nameof(cache));
             _nexusModsGameQueries = nexusModsGameQueries ?? throw new ArgumentNullException(nameof(nexusModsGameQueries));
             _nexusModsModQueries = nexusModsModQueries ?? throw new ArgumentNullException(nameof(nexusModsModQueries));
-
-            var timeLimiterIssuesConstraint1 = new CountByIntervalAwaitableConstraint(30, TimeSpan.FromMinutes(1));
-            var timeLimiterIssuesConstraint2 = new CountByIntervalAwaitableConstraint(1, TimeSpan.FromMilliseconds(500));
-            _timeLimiterIssues = TimeLimiter.Compose(timeLimiterIssuesConstraint1, timeLimiterIssuesConstraint2);
-
-            var timeLimiterIssueRepliesConstraint1 = new CountByIntervalAwaitableConstraint(10, TimeSpan.FromMinutes(1));
-            var timeLimiterIssueRepliesConstraint2 = new CountByIntervalAwaitableConstraint(1, TimeSpan.FromMilliseconds(500));
-            _timeLimiterIssueReplies = TimeLimiter.Compose(timeLimiterIssueRepliesConstraint1, timeLimiterIssueRepliesConstraint2);
         }
 
         public async IAsyncEnumerable<IssueViewModel> GetAllAsync(uint gameId, uint modId, [EnumeratorCancellation] CancellationToken ct = default)
@@ -61,8 +47,6 @@ namespace NexusMods.Monitor.Metadata.Application.Queries.Issues
                 var issueRoots = new List<IssueViewModel>();
                 for (var page = 1; ; page++)
                 {
-                    await _timeLimiterIssues;
-
                     using var response = await _httpClientFactory.CreateClient("NexusMods").GetAsync(
                         $"Core/Libs/Common/Widgets/ModBugsTab?RH_ModBugsTab=game_id:{gameId},id:{modId},sort_by:last_reply,order:DESC,page:{page}", ct);
                     var content = await response.Content.ReadAsStringAsync(ct);
@@ -85,7 +69,7 @@ namespace NexusMods.Monitor.Metadata.Application.Queries.Issues
                 }
 
                 cacheEntry = issueRoots.Distinct(new IssueViewModelComparer()).ToArray();
-                var cacheEntryOptions = new MemoryCacheEntryOptions().SetSize(1).SetAbsoluteExpiration(TimeSpan.FromSeconds(10));
+                var cacheEntryOptions = new MemoryCacheEntryOptions().SetSize(1).SetAbsoluteExpiration(TimeSpan.FromSeconds(60));
                 _cache.Set(key, cacheEntry, cacheEntryOptions);
 
                 yield break;
@@ -115,8 +99,6 @@ namespace NexusMods.Monitor.Metadata.Application.Queries.Issues
         {
             if (!_cache.TryGetValue($"issue_replies_{issueId}", out IDocument cacheEntry))
             {
-                await _timeLimiterIssueReplies;
-
                 using var response = await _httpClientFactory.CreateClient("NexusMods").PostAsync(
                     "Core/Libs/Common/Widgets/ModBugReplyList",
                     new FormUrlEncodedContent(new[] { new KeyValuePair<string?, string?>("issue_id", issueId.ToString()) }), ct);
