@@ -9,6 +9,7 @@ using Microsoft.Extensions.Logging;
 using NexusMods.Monitor.Bot.Slack.Application;
 using NexusMods.Monitor.Bot.Slack.Application.Commands;
 using NexusMods.Monitor.Bot.Slack.Application.Queries;
+using NexusMods.Monitor.Bot.Slack.Application.Queries.Authorizations;
 using NexusMods.Monitor.Bot.Slack.Application.Queries.RateLimits;
 using NexusMods.Monitor.Bot.Slack.Application.Queries.Subscriptions;
 using NexusMods.Monitor.Shared.Application;
@@ -40,6 +41,7 @@ namespace NexusMods.Monitor.Bot.Slack.Host.BackgroundServices
         private readonly IMediator _mediator;
         private readonly ISubscriptionQueries _subscriptionQueries;
         private readonly IRateLimitQueries _rateLimitQueries;
+        private readonly IAuthorizationQueries _authorizationQueries;
         private readonly IEventSubscriber _eventSubscriber;
         private readonly AsyncRetryPolicy _retryPolicy;
 
@@ -49,6 +51,7 @@ namespace NexusMods.Monitor.Bot.Slack.Host.BackgroundServices
             IMediator mediator,
             ISubscriptionQueries subscriptionQueries,
             IRateLimitQueries rateLimitQueries,
+            IAuthorizationQueries authorizationQueries,
             IEventSubscriber eventSubscriber,
             IApplicationEnder applicationEnder) : base(applicationEnder)
         {
@@ -58,6 +61,7 @@ namespace NexusMods.Monitor.Bot.Slack.Host.BackgroundServices
             _mediator = mediator ?? throw new ArgumentNullException(nameof(mediator));
             _subscriptionQueries = subscriptionQueries ?? throw new ArgumentNullException(nameof(subscriptionQueries));
             _rateLimitQueries = rateLimitQueries ?? throw new ArgumentNullException(nameof(rateLimitQueries));
+            _authorizationQueries = authorizationQueries ?? throw new ArgumentNullException(nameof(authorizationQueries));
             _eventSubscriber = eventSubscriber ?? throw new ArgumentNullException(nameof(eventSubscriber));
             _retryPolicy = Policy.Handle<Exception>(ex => ex.GetType() != typeof(TaskCanceledException))
                 .WaitAndRetryAsync(10, _ => TimeSpan.FromSeconds(2),
@@ -188,6 +192,24 @@ namespace NexusMods.Monitor.Bot.Slack.Host.BackgroundServices
 
                     var embed = AttachmentHelper.RateLimits(rateLimit);
                     await message.ReplyWith(new BotMessage { Attachments = { embed } });
+                }
+
+                const string authorize = "authorize";
+                if (command.StartsWith(authorize))
+                {
+                    var isAuthorized = await _authorizationQueries.IsAuthorizedAsync();
+                    if (isAuthorized)
+                    {
+                        await message.ReplyWith("Already authorized!");
+                        return;
+                    }
+
+                    var uuid = Guid.NewGuid();
+                    var applicationSlug = "vortex";
+                    if (await _mediator.Send(new SSOAuthorizeCommand(uuid)))
+                        await message.ReplyWith($"https://www.nexusmods.com/sso?id={uuid}&application={applicationSlug}");
+                    else
+                        await message.ReplyWith("Failed!");
                 }
 
                 const string help = "help";

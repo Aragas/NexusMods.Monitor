@@ -7,6 +7,7 @@ using Microsoft.Extensions.Logging;
 
 using NexusMods.Monitor.Bot.Discord.Application;
 using NexusMods.Monitor.Bot.Discord.Application.Commands;
+using NexusMods.Monitor.Bot.Discord.Application.Queries.Authorizations;
 using NexusMods.Monitor.Bot.Discord.Application.Queries.RateLimits;
 using NexusMods.Monitor.Bot.Discord.Application.Queries.Subscriptions;
 using NexusMods.Monitor.Shared.Application;
@@ -29,14 +30,16 @@ namespace NexusMods.Monitor.Bot.Discord.Host
         private readonly IMediator _mediator;
         private readonly ISubscriptionQueries _subscriptionQueries;
         private readonly IRateLimitQueries _rateLimitQueries;
+        private readonly IAuthorizationQueries _authorizationQueries;
         private readonly IClock _clock;
 
-        public DiscordCommands(ILogger<DiscordCommands> loggerService, IMediator mediator, ISubscriptionQueries subscriptionQueries, IRateLimitQueries rateLimitQueries, IClock clock)
+        public DiscordCommands(ILogger<DiscordCommands> loggerService, IMediator mediator, ISubscriptionQueries subscriptionQueries, IRateLimitQueries rateLimitQueries, IAuthorizationQueries authorizationQueries, IClock clock)
         {
             _loggerService = loggerService ?? throw new ArgumentNullException(nameof(loggerService));
             _mediator = mediator ?? throw new ArgumentNullException(nameof(mediator));
             _subscriptionQueries = subscriptionQueries ?? throw new ArgumentNullException(nameof(subscriptionQueries));
             _rateLimitQueries = rateLimitQueries ?? throw new ArgumentNullException(nameof(rateLimitQueries));
+            _authorizationQueries = authorizationQueries ?? throw new ArgumentNullException(nameof(authorizationQueries));
             _clock = clock ?? throw new ArgumentNullException(nameof(clock));
         }
 
@@ -191,6 +194,26 @@ unsubscribe [Game Id] [Mod Id]");
             }
 
             await Context.Channel.SendMessageAsync(embed: embed);
+        }
+
+        [Command("authorize")]
+        public async Task Authorize()
+        {
+            _loggerService.LogInformation("Received 'ratelimits' command from user '{User}'.", Context.User.ToString());
+
+            var isAuthorized = await _authorizationQueries.IsAuthorizedAsync();
+            if (isAuthorized)
+            {
+                await Context.User.SendMessageAsync("Already authorized!");
+                return;
+            }
+
+            var uuid = Guid.NewGuid();
+            var applicationSlug = "vortex";
+            if (await _mediator.Send(new SSOAuthorizeCommand(uuid)))
+                await Context.User.SendMessageAsync($"https://www.nexusmods.com/sso?id={uuid}&application={applicationSlug}");
+            else
+                await Context.Message.AddReactionAsync(new Emoji("❎"));
         }
     }
 }

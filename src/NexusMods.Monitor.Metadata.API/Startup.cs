@@ -60,9 +60,10 @@ namespace NexusMods.Monitor.Metadata.API
             services.AddHttpClient("NexusMods.API", (sp, client) =>
                 {
                     var backendOptions = sp.GetRequiredService<IOptions<NexusModsOptions>>().Value;
+                    var apiKeyProvider = sp.GetRequiredService<NexusModsAPIKeyProvider>();
                     client.BaseAddress = new Uri(backendOptions.APIEndpoint);
                     client.DefaultRequestHeaders.Add("User-Agent", userAgent);
-                    client.DefaultRequestHeaders.Add("apikey", backendOptions.APIKey);
+                    client.DefaultRequestHeaders.Add("apikey", apiKeyProvider.Get());
                     client.Timeout = TimeSpan.FromHours(1);
                 })
                 .ConfigurePrimaryHttpMessageHandler(sp => sp.GetRequiredService<APIRateLimitHttpMessageHandler>())
@@ -70,6 +71,7 @@ namespace NexusMods.Monitor.Metadata.API
                 .SetHandlerLifetime(Timeout.InfiniteTimeSpan);
 
             services.Configure<NexusModsOptions>(Configuration.GetSection("NexusMods"));
+            services.AddSingleton<NexusModsAPIKeyProvider>();
 
             services.AddSingleton<SiteRateLimitHttpMessageHandler>();
             services.AddSingleton<APIRateLimitHttpMessageHandler>();

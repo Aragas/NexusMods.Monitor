@@ -13,6 +13,7 @@ using Microsoft.Extensions.Options;
 
 using NexusMods.Monitor.Bot.Discord.Application.CommandHandlers;
 using NexusMods.Monitor.Bot.Discord.Application.IntegrationEventHandlers.Comments;
+using NexusMods.Monitor.Bot.Discord.Application.Queries.Authorizations;
 using NexusMods.Monitor.Bot.Discord.Application.Queries.RateLimits;
 using NexusMods.Monitor.Bot.Discord.Application.Queries.Subscriptions;
 using NexusMods.Monitor.Bot.Discord.Host.BackgroundServices;
@@ -119,6 +120,7 @@ namespace NexusMods.Monitor.Bot.Discord.Host
 
                 services.AddTransient<ISubscriptionQueries, SubscriptionQueries>();
                 services.AddTransient<IRateLimitQueries, RateLimitQueries>();
+                services.AddTransient<IAuthorizationQueries, AuthorizationQueries>();
             })
             .ConfigureAppConfiguration((hostingContext, config) => config.AddEnvironmentVariables())
             .UseSerilog();
