@@ -3,6 +3,7 @@
 using Microsoft.Extensions.Logging;
 
 using NexusMods.Monitor.Bot.Discord.Application.Queries;
+using NexusMods.Monitor.Bot.Discord.Application.Queries.Subscriptions;
 using NexusMods.Monitor.Shared.Application.IntegrationEvents.Issues;
 
 using System;

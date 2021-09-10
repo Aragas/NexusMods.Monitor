@@ -7,7 +7,7 @@ using System.Net.Http;
 using System.Runtime.CompilerServices;
 using System.Threading;
 
-namespace NexusMods.Monitor.Bot.Discord.Application.Queries
+namespace NexusMods.Monitor.Bot.Discord.Application.Queries.Subscriptions
 {
     public sealed class SubscriptionQueries : ISubscriptionQueries
     {

@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 
+using NexusMods.Monitor.Metadata.API.RateLimits;
 using NexusMods.Monitor.Metadata.Application.Queries.Comments;
 using NexusMods.Monitor.Metadata.Application.Queries.Games;
 using NexusMods.Monitor.Metadata.Application.Queries.Issues;
@@ -19,71 +20,78 @@ namespace NexusMods.Monitor.Metadata.API.Controllers
     [ApiController]
     public class MetadataController : ControllerBase
     {
-        private readonly ILogger<MetadataController> _logger;
-        private readonly ICommentQueries _commentQueries;
-        private readonly IIssueQueries _issueQueries;
-        private readonly IGameQueries _gameQueries;
-        private readonly IModQueries _modQueries;
-        private readonly IThreadQueries _threadQueries;
+        public record RateLimitViewModel(APILimitViewModel APILimit, SiteLimitViewModel SiteLimit);
+        public record APILimitViewModel(int HourlyLimit, int HourlyRemaining, DateTime HourlyReset, int DailyLimit, int DailyRemaining, DateTime DailyReset);
+        public record SiteLimitViewModel(DateTimeOffset? RetryAfter);
 
-        public MetadataController(ILogger<MetadataController> logger, ICommentQueries commentQueries, IIssueQueries issueQueries, IGameQueries gameQueries, IModQueries modQueries, IThreadQueries threadQueries)
+        private readonly ILogger<MetadataController> _logger;
+
+        public MetadataController(ILogger<MetadataController> logger, IGameQueries gameQueries)
         {
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
-            _commentQueries = commentQueries ?? throw new ArgumentNullException(nameof(commentQueries));
-            _issueQueries = issueQueries ?? throw new ArgumentNullException(nameof(issueQueries));
-            _gameQueries = gameQueries ?? throw new ArgumentNullException(nameof(gameQueries));
-            _modQueries = modQueries ?? throw new ArgumentNullException(nameof(modQueries));
-            _threadQueries = threadQueries ?? throw new ArgumentNullException(nameof(threadQueries));
         }
 
         [HttpGet("comments/id")]
         [Produces("application/json")]
         [ProducesResponseType(typeof(IAsyncEnumerable<CommentViewModel>), StatusCodes.Status200OK)]
-        public IActionResult GetCommentsAllAsync(uint gameId, uint modId, CancellationToken ct) => Ok(_commentQueries.GetAllAsync(gameId, modId, ct));
+        public IActionResult GetCommentsAllAsync(uint gameId, uint modId, CancellationToken ct, [FromServices] ICommentQueries commentQueries) => Ok(commentQueries.GetAllAsync(gameId, modId, ct));
 
         [HttpGet("issues/id")]
         [Produces("application/json")]
         [ProducesResponseType(typeof(IAsyncEnumerable<IssueViewModel>), StatusCodes.Status200OK)]
-        public IActionResult GetIssuesAllAsync(uint gameId, uint modId, CancellationToken ct) => Ok(_issueQueries.GetAllAsync(gameId, modId, ct));
+        public IActionResult GetIssuesAllAsync(uint gameId, uint modId, CancellationToken ct, [FromServices] IIssueQueries issueQueries) => Ok(issueQueries.GetAllAsync(gameId, modId, ct));
 
         [HttpGet("issues/content")]
         [Produces("application/json")]
         [ProducesResponseType(typeof(IssueContentViewModel), StatusCodes.Status200OK)]
-        public async Task<IActionResult> GetIssueContentAsync(uint issueId, CancellationToken ct) => Ok(await _issueQueries.GetContentAsync(issueId, ct));
+        public async Task<IActionResult> GetIssueContentAsync(uint issueId, CancellationToken ct, [FromServices] IIssueQueries issueQueries) => Ok(await issueQueries.GetContentAsync(issueId, ct));
 
         [HttpGet("issues/replies")]
         [Produces("application/json")]
         [ProducesResponseType(typeof(IAsyncEnumerable<IssueReplyViewModel>), StatusCodes.Status200OK)]
-        public IActionResult GetIssueRepliesAsync(uint issueId, CancellationToken ct) => Ok(_issueQueries.GetRepliesAsync(issueId, ct));
+        public IActionResult GetIssueRepliesAsync(uint issueId, CancellationToken ct, [FromServices] IIssueQueries issueQueries) => Ok(issueQueries.GetRepliesAsync(issueId, ct));
 
         [HttpGet("game/id")]
         [Produces("application/json")]
         [ProducesResponseType(typeof(GameViewModel), StatusCodes.Status200OK)]
-        public async Task<IActionResult> GetGameAsync(uint gameId, CancellationToken ct) => Ok(await _gameQueries.GetAsync(gameId, ct));
+        public async Task<IActionResult> GetGameAsync(uint gameId, CancellationToken ct, [FromServices] IGameQueries gameQueries) => Ok(await gameQueries.GetAsync(gameId, ct));
 
         [HttpGet("game/domain")]
         [Produces("application/json")]
         [ProducesResponseType(typeof(GameViewModel), StatusCodes.Status200OK)]
-        public async Task<IActionResult> GetGameAsync(string gameDomain, CancellationToken ct) => Ok(await _gameQueries.GetAsync(gameDomain, ct));
-
-        [HttpGet("mod/id")]
-        [Produces("application/json")]
-        [ProducesResponseType(typeof(GameViewModel), StatusCodes.Status200OK)]
-        public async Task<IActionResult> GetModAsync(uint gameId, uint modId, CancellationToken ct) => Ok(await _modQueries.GetAsync(gameId, modId, ct));
-
-        [HttpGet("mod/domain")]
-        [Produces("application/json")]
-        [ProducesResponseType(typeof(GameViewModel), StatusCodes.Status200OK)]
-        public async Task<IActionResult> GetModAsync(string gameDomain, uint modId, CancellationToken ct) => Ok(await _modQueries.GetAsync(gameDomain, modId, ct));
+        public async Task<IActionResult> GetGameAsync(string gameDomain, CancellationToken ct, [FromServices] IGameQueries gameQueries) => Ok(await gameQueries.GetAsync(gameDomain, ct));
 
         [HttpGet("game/all")]
         [Produces("application/json")]
         [ProducesResponseType(typeof(IAsyncEnumerable<GameViewModel>), StatusCodes.Status200OK)]
-        public IActionResult GetGamesAsync(CancellationToken ct) => Ok(_gameQueries.GetAllAsync(ct));
+        public IActionResult GetGamesAsync(CancellationToken ct, [FromServices] IGameQueries gameQueries) => Ok(gameQueries.GetAllAsync(ct));
+
+        [HttpGet("mod/id")]
+        [Produces("application/json")]
+        [ProducesResponseType(typeof(GameViewModel), StatusCodes.Status200OK)]
+        public async Task<IActionResult> GetModAsync(uint gameId, uint modId, CancellationToken ct, [FromServices] IModQueries modQueries) => Ok(await modQueries.GetAsync(gameId, modId, ct));
+
+        [HttpGet("mod/domain")]
+        [Produces("application/json")]
+        [ProducesResponseType(typeof(GameViewModel), StatusCodes.Status200OK)]
+        public async Task<IActionResult> GetModAsync(string gameDomain, uint modId, CancellationToken ct, [FromServices] IModQueries modQueries) => Ok(await modQueries.GetAsync(gameDomain, modId, ct));
 
         [HttpGet("thread/id")]
         [Produces("application/json")]
         [ProducesResponseType(typeof(ThreadViewModel), StatusCodes.Status200OK)]
-        public async Task<IActionResult> GetThreadAsync(uint gameId, uint modId, CancellationToken ct) => Ok(await _threadQueries.GetAsync(gameId, modId, ct));
+        public async Task<IActionResult> GetThreadAsync(uint gameId, uint modId, CancellationToken ct, [FromServices] IThreadQueries threadQueries) => Ok(await threadQueries.GetAsync(gameId, modId, ct));
+
+        [HttpGet("ratelimits")]
+        [Produces("application/json")]
+        [ProducesResponseType(typeof(RateLimitViewModel), StatusCodes.Status200OK)]
+        public IActionResult GetRateLimits([FromServices] APIRateLimitHttpMessageHandler apiRateLimit, [FromServices] SiteRateLimitHttpMessageHandler siteRateLimit)
+        {
+            var (hourlyLimit, hourlyRemaining, hourlyReset, dailyLimit, dailyRemaining, dailyReset) = apiRateLimit.APILimitState;
+            var retryAfter = siteRateLimit.APILimitState.RetryAfter;
+            return Ok(new RateLimitViewModel(
+                new APILimitViewModel(hourlyLimit, hourlyRemaining, hourlyReset, dailyLimit, dailyRemaining, dailyReset),
+                new SiteLimitViewModel(retryAfter))
+            );
+        }
     }
 }

@@ -9,6 +9,8 @@ using Microsoft.Extensions.Logging;
 using NexusMods.Monitor.Bot.Slack.Application;
 using NexusMods.Monitor.Bot.Slack.Application.Commands;
 using NexusMods.Monitor.Bot.Slack.Application.Queries;
+using NexusMods.Monitor.Bot.Slack.Application.Queries.RateLimits;
+using NexusMods.Monitor.Bot.Slack.Application.Queries.Subscriptions;
 using NexusMods.Monitor.Shared.Application;
 
 using NodaTime;
@@ -37,6 +39,7 @@ namespace NexusMods.Monitor.Bot.Slack.Host.BackgroundServices
         private readonly IClock _clock;
         private readonly IMediator _mediator;
         private readonly ISubscriptionQueries _subscriptionQueries;
+        private readonly IRateLimitQueries _rateLimitQueries;
         private readonly IEventSubscriber _eventSubscriber;
         private readonly AsyncRetryPolicy _retryPolicy;
 
@@ -45,6 +48,7 @@ namespace NexusMods.Monitor.Bot.Slack.Host.BackgroundServices
             IClock clock,
             IMediator mediator,
             ISubscriptionQueries subscriptionQueries,
+            IRateLimitQueries rateLimitQueries,
             IEventSubscriber eventSubscriber,
             IApplicationEnder applicationEnder) : base(applicationEnder)
         {
@@ -53,6 +57,7 @@ namespace NexusMods.Monitor.Bot.Slack.Host.BackgroundServices
             _clock = clock ?? throw new ArgumentNullException(nameof(clock));
             _mediator = mediator ?? throw new ArgumentNullException(nameof(mediator));
             _subscriptionQueries = subscriptionQueries ?? throw new ArgumentNullException(nameof(subscriptionQueries));
+            _rateLimitQueries = rateLimitQueries ?? throw new ArgumentNullException(nameof(rateLimitQueries));
             _eventSubscriber = eventSubscriber ?? throw new ArgumentNullException(nameof(eventSubscriber));
             _retryPolicy = Policy.Handle<Exception>(ex => ex.GetType() != typeof(TaskCanceledException))
                 .WaitAndRetryAsync(10, _ => TimeSpan.FromSeconds(2),
@@ -169,6 +174,20 @@ namespace NexusMods.Monitor.Bot.Slack.Host.BackgroundServices
                     {
                         await message.ReplyWith("No subscriptions found!");
                     }
+                }
+
+                const string ratelimits = "ratelimits";
+                if (command.StartsWith(ratelimits))
+                {
+                    var rateLimit = await _rateLimitQueries.GetAsync();
+                    if (rateLimit is null)
+                    {
+                        await message.ReplyWith("Failed to get Rate Limits!");
+                        return;
+                    }
+
+                    var embed = AttachmentHelper.RateLimits(rateLimit);
+                    await message.ReplyWith(new BotMessage { Attachments = { embed } });
                 }
 
                 const string help = "help";

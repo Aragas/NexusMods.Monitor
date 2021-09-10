@@ -7,9 +7,11 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Options;
 
+using NexusMods.Monitor.Bot.Discord.Host.Options;
 using NexusMods.Monitor.Bot.Slack.Application.CommandHandlers;
 using NexusMods.Monitor.Bot.Slack.Application.IntegrationEventHandlers.Comments;
-using NexusMods.Monitor.Bot.Slack.Application.Queries;
+using NexusMods.Monitor.Bot.Slack.Application.Queries.RateLimits;
+using NexusMods.Monitor.Bot.Slack.Application.Queries.Subscriptions;
 using NexusMods.Monitor.Bot.Slack.Host.BackgroundServices;
 using NexusMods.Monitor.Bot.Slack.Host.Options;
 using NexusMods.Monitor.Shared.Application.Extensions;
@@ -93,19 +95,26 @@ namespace NexusMods.Monitor.Bot.Slack.Host
                     var backendOptions = sp.GetRequiredService<IOptions<SubscriptionsAPIOptions>>().Value;
                     client.BaseAddress = new Uri(backendOptions.APIEndpointV1);
                 }).AddPolicyHandler(PollyUtils.PolicySelector);
+                services.AddHttpClient("Metadata.API", (sp, client) =>
+                {
+                    var backendOptions = sp.GetRequiredService<IOptions<MetadataAPIOptions>>().Value;
+                    client.BaseAddress = new Uri(backendOptions.APIEndpointV1);
+                }).AddPolicyHandler(PollyUtils.PolicySelector);
                 services.AddTransient<IClock, SystemClock>(_ => SystemClock.Instance);
                 services.AddEventBusNatsAndEventHandlers(context.Configuration.GetSection("EventBus"), typeof(CommentAddedNewIntegrationEventHandler).Assembly);
 
                 services.AddBetterHostedServices();
 
                 services.Configure<SlackOptions>(context.Configuration.GetSection("Slack"));
-                services.Configure<SubscriptionsAPIOptions>(context.Configuration.GetSection("Subscriptions"));
+                services.Configure<SubscriptionsAPIOptions>(context.Configuration.GetSection("SubscriptionsAPI"));
+                services.Configure<MetadataAPIOptions>(context.Configuration.GetSection("MetadataAPI"));
 
                 services.AddSingleton<ISlackBot, SlackBotWrapper>();
 
                 services.AddHostedServiceAsSingleton<SlackService>();
 
                 services.AddTransient<ISubscriptionQueries, SubscriptionQueries>();
+                services.AddTransient<IRateLimitQueries, RateLimitQueries>();
             })
             .ConfigureAppConfiguration((hostingContext, config) => config.AddEnvironmentVariables())
             .UseSerilog();

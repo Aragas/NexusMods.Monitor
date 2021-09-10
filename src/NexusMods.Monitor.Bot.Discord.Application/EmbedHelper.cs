@@ -1,5 +1,6 @@
 ﻿using Discord;
 
+using NexusMods.Monitor.Bot.Discord.Application.Queries.RateLimits;
 using NexusMods.Monitor.Shared.Application;
 
 using NodaTime;
@@ -35,6 +36,23 @@ Subscriptions: {subscriptionCount}"))
             .WithFooter(
                 $"Uptime: {uptime.Days}d {uptime.Hours}h {uptime.Minutes}m {uptime.Seconds}s",
                 "https://cdn.discordapp.com/app-icons/751048410357956658/168781156967a40bba1362042f7f1713.png")
+            .Build();
+
+        public static Embed RateLimits(RateLimitViewModel rateLimit) => new EmbedBuilder()
+            .WithTitle("API Rate Limits")
+            .WithThumbnailUrl("https://cdn.discordapp.com/app-icons/751048410357956658/168781156967a40bba1362042f7f1713.png")
+            .WithCurrentTimestamp()
+            .WithColor(Color)
+            .WithFields(
+                new EmbedFieldBuilder()
+                    .WithName("Site")
+                    .WithValue($"Retry After: {rateLimit.SiteLimit.RetryAfter?.ToString("O") ?? "None"}"),
+                new EmbedFieldBuilder()
+                    .WithName("API")
+                    .WithValue(@$"Hourly Remaining: {rateLimit.APILimit.HourlyRemaining}
+Hourly Reset: {rateLimit.APILimit.HourlyReset}
+Daily Remaining: {rateLimit.APILimit.DailyRemaining}
+Daily Reset: {rateLimit.APILimit.DailyReset}"))
             .Build();
 
         public static Embed NewIssue(IssueDTO issue) => new EmbedBuilder()

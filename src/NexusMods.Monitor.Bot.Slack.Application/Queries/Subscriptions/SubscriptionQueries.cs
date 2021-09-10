@@ -1,6 +1,4 @@
-﻿using Microsoft.Extensions.Options;
-
-using NexusMods.Monitor.Shared.Application;
+﻿using NexusMods.Monitor.Shared.Application;
 
 using System;
 using System.Collections.Generic;
@@ -9,7 +7,7 @@ using System.Net.Http;
 using System.Runtime.CompilerServices;
 using System.Threading;
 
-namespace NexusMods.Monitor.Bot.Slack.Application.Queries
+namespace NexusMods.Monitor.Bot.Slack.Application.Queries.Subscriptions
 {
     public sealed class SubscriptionQueries : ISubscriptionQueries
     {

@@ -7,7 +7,8 @@ using Microsoft.Extensions.Logging;
 
 using NexusMods.Monitor.Bot.Discord.Application;
 using NexusMods.Monitor.Bot.Discord.Application.Commands;
-using NexusMods.Monitor.Bot.Discord.Application.Queries;
+using NexusMods.Monitor.Bot.Discord.Application.Queries.RateLimits;
+using NexusMods.Monitor.Bot.Discord.Application.Queries.Subscriptions;
 using NexusMods.Monitor.Shared.Application;
 
 using NodaTime;
@@ -27,13 +28,15 @@ namespace NexusMods.Monitor.Bot.Discord.Host
         private readonly ILogger _loggerService;
         private readonly IMediator _mediator;
         private readonly ISubscriptionQueries _subscriptionQueries;
+        private readonly IRateLimitQueries _rateLimitQueries;
         private readonly IClock _clock;
 
-        public DiscordCommands(ILogger<DiscordCommands> loggerService, IMediator mediator, ISubscriptionQueries subscriptionQueries, IClock clock)
+        public DiscordCommands(ILogger<DiscordCommands> loggerService, IMediator mediator, ISubscriptionQueries subscriptionQueries, IRateLimitQueries rateLimitQueries, IClock clock)
         {
             _loggerService = loggerService ?? throw new ArgumentNullException(nameof(loggerService));
             _mediator = mediator ?? throw new ArgumentNullException(nameof(mediator));
             _subscriptionQueries = subscriptionQueries ?? throw new ArgumentNullException(nameof(subscriptionQueries));
+            _rateLimitQueries = rateLimitQueries ?? throw new ArgumentNullException(nameof(rateLimitQueries));
             _clock = clock ?? throw new ArgumentNullException(nameof(clock));
         }
 
@@ -165,6 +168,29 @@ unsubscribe [Game Id] [Mod Id]");
                 await Context.Message.AddReactionAsync(new Emoji("✅"));
             else
                 await Context.Message.AddReactionAsync(new Emoji("❎"));
+        }
+
+        [Command("ratelimits")]
+        public async Task RateLimits()
+        {
+            _loggerService.LogInformation("Received 'ratelimits' command from user '{User}'.", Context.User.ToString());
+
+            var rateLimit = await _rateLimitQueries.GetAsync();
+            if (rateLimit is null)
+            {
+                await Context.User.SendMessageAsync("Failed to get Rate Limits!");
+                return;
+            }
+
+            var embed = EmbedHelper.RateLimits(rateLimit);
+
+            if (Context.IsPrivate)
+            {
+                await Context.User.SendMessageAsync(embed: embed);
+                return;
+            }
+
+            await Context.Channel.SendMessageAsync(embed: embed);
         }
     }
 }

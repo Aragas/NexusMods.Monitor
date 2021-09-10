@@ -12,6 +12,10 @@ namespace NexusMods.Monitor.Metadata.API.RateLimits
 {
     public class APIRateLimitHttpMessageHandler : DelegatingHandler
     {
+        public record APILimit(int HourlyLimit, int HourlyRemaining, DateTime HourlyReset, int DailyLimit, int DailyRemaining, DateTime DailyReset);
+
+        public APILimit APILimitState { get; private set; } = new(0, 0, DateTime.MinValue, 0, 0, DateTime.MinValue);
+
         private readonly SemaphoreSlim _lock = new(1, 1);
         private TimeLimiter _timeLimiter = TimeLimiter.GetFromMaxCountByInterval(30, TimeSpan.FromSeconds(1));
 
@@ -40,7 +44,7 @@ namespace NexusMods.Monitor.Metadata.API.RateLimits
             }
         }
 
-        private static TimeLimiter? ParseResponseLimits(HttpResponseMessage response)
+        private TimeLimiter? ParseResponseLimits(HttpResponseMessage response)
         {
             if (!response.Headers.TryGetValues("X-RL-Hourly-Limit", out var hourlyLimitEnum))
                 return null;
@@ -55,33 +59,30 @@ namespace NexusMods.Monitor.Metadata.API.RateLimits
             if (!response.Headers.TryGetValues("X-RL-Daily-Reset", out var dailyResetEnum))
                 return null;
 
+            APILimitState = new APILimit(
+                int.TryParse(hourlyLimitEnum.FirstOrDefault(), out var hourlyLimitVal) ? hourlyLimitVal : 0,
+                int.TryParse(hourlyRemainingEnum.FirstOrDefault(), out var hourlyRemainingVal) ? hourlyRemainingVal : 0,
+                DateTime.TryParse(hourlyResetEnum.FirstOrDefault(), out var hourlyResetVal) ? hourlyResetVal : DateTime.UtcNow,
+                int.TryParse(dailyLimitEnum.FirstOrDefault(), out var dailyLimitVal) ? dailyLimitVal : 0,
+                int.TryParse(dailyRemainingEnum.FirstOrDefault(), out var dailyRemainingVal) ? dailyRemainingVal : 0,
+                DateTime.TryParse(dailyResetEnum.FirstOrDefault(), out var dailyResetVal) ? dailyResetVal : DateTime.UtcNow
+            );
 
             // A 429 status code can also be served by nginx if the client sends more than 30 requests per second.
             // Nginx will however allow bursts over this for very short periods of time.
             var constraint = new CountByIntervalAwaitableConstraint(30, TimeSpan.FromSeconds(1));
 
+            var hourlyLimitConstraint = new CountByIntervalAwaitableConstraint(APILimitState.HourlyLimit, TimeSpan.FromHours(1));
+            var hourlyTimeLeft = APILimitState.HourlyReset - DateTime.UtcNow;
+            var hourlyRemainingConstraint = APILimitState.HourlyRemaining <= 0
+                ? (IAwaitableConstraint) new BlockUntilDateConstraint(APILimitState.HourlyReset)
+                : (IAwaitableConstraint) new CountByIntervalAwaitableConstraint(APILimitState.HourlyRemaining, hourlyTimeLeft);
 
-            var hourlyLimit = int.TryParse(hourlyLimitEnum.FirstOrDefault(), out var hourlyLimitVal) ? hourlyLimitVal : 0;
-            var hourlyLimitConstraint = new CountByIntervalAwaitableConstraint(hourlyLimit, TimeSpan.FromHours(1));
-
-            var hourlyRemaining = int.TryParse(hourlyRemainingEnum.FirstOrDefault(), out var hourlyRemainingVal) ? hourlyRemainingVal : 0;
-            var hourlyReset = DateTime.TryParse(hourlyResetEnum.FirstOrDefault(), out var hourlyResetVal) ? hourlyResetVal : DateTime.UtcNow;
-            var hourlyTimeLeft = hourlyReset - DateTime.UtcNow;
-            var hourlyRemainingConstraint = hourlyRemaining <= 0
-                ? (IAwaitableConstraint) new BlockUntilDateConstraint(hourlyReset)
-                : (IAwaitableConstraint) new CountByIntervalAwaitableConstraint(hourlyRemaining, hourlyTimeLeft);
-
-
-            var dailyLimit = int.TryParse(dailyLimitEnum.FirstOrDefault(), out var dailyLimitVal) ? dailyLimitVal : 0;
-            var dailyLimitConstraint = new CountByIntervalAwaitableConstraint(dailyLimit, TimeSpan.FromDays(1));
-
-            var dailyRemaining = int.TryParse(dailyRemainingEnum.FirstOrDefault(), out var dailyRemainingVal) ? dailyRemainingVal : 0;
-            var dailyReset = DateTime.TryParse(dailyResetEnum.FirstOrDefault(), out var dailyResetVal) ? dailyResetVal : DateTime.UtcNow;
-            var dailyTimeLeft = dailyReset - DateTime.UtcNow;
-            var dailyRemainingConstraint = dailyRemaining <= 0
-                ? (IAwaitableConstraint) new BlockUntilDateConstraint(dailyReset)
-                : (IAwaitableConstraint) new CountByIntervalAwaitableConstraint(dailyRemaining, dailyTimeLeft);
-
+            var dailyLimitConstraint = new CountByIntervalAwaitableConstraint(APILimitState.DailyLimit, TimeSpan.FromDays(1));
+            var dailyTimeLeft = APILimitState.DailyReset - DateTime.UtcNow;
+            var dailyRemainingConstraint = APILimitState.DailyRemaining <= 0
+                ? (IAwaitableConstraint) new BlockUntilDateConstraint(APILimitState.DailyReset)
+                : (IAwaitableConstraint) new CountByIntervalAwaitableConstraint(APILimitState.DailyRemaining, dailyTimeLeft);
 
             return TimeLimiter.Compose(constraint, hourlyLimitConstraint, hourlyRemainingConstraint, dailyLimitConstraint, dailyRemainingConstraint);
         }

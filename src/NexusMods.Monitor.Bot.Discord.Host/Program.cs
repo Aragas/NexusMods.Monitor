@@ -13,7 +13,8 @@ using Microsoft.Extensions.Options;
 
 using NexusMods.Monitor.Bot.Discord.Application.CommandHandlers;
 using NexusMods.Monitor.Bot.Discord.Application.IntegrationEventHandlers.Comments;
-using NexusMods.Monitor.Bot.Discord.Application.Queries;
+using NexusMods.Monitor.Bot.Discord.Application.Queries.RateLimits;
+using NexusMods.Monitor.Bot.Discord.Application.Queries.Subscriptions;
 using NexusMods.Monitor.Bot.Discord.Host.BackgroundServices;
 using NexusMods.Monitor.Bot.Discord.Host.Options;
 using NexusMods.Monitor.Shared.Application.Extensions;
@@ -95,6 +96,11 @@ namespace NexusMods.Monitor.Bot.Discord.Host
                     var backendOptions = sp.GetRequiredService<IOptions<SubscriptionsAPIOptions>>().Value;
                     client.BaseAddress = new Uri(backendOptions.APIEndpointV1);
                 }).AddPolicyHandler(PollyUtils.PolicySelector);
+                services.AddHttpClient("Metadata.API", (sp, client) =>
+                {
+                    var backendOptions = sp.GetRequiredService<IOptions<MetadataAPIOptions>>().Value;
+                    client.BaseAddress = new Uri(backendOptions.APIEndpointV1);
+                }).AddPolicyHandler(PollyUtils.PolicySelector);
 
                 services.AddTransient<IClock, SystemClock>(_ => SystemClock.Instance);
                 services.AddEventBusNatsAndEventHandlers(context.Configuration.GetSection("EventBus"), typeof(CommentAddedNewIntegrationEventHandler).Assembly);
@@ -102,7 +108,8 @@ namespace NexusMods.Monitor.Bot.Discord.Host
                 services.AddBetterHostedServices();
 
                 services.Configure<DiscordOptions>(context.Configuration.GetSection("Discord"));
-                services.Configure<SubscriptionsAPIOptions>(context.Configuration.GetSection("Subscriptions"));
+                services.Configure<SubscriptionsAPIOptions>(context.Configuration.GetSection("SubscriptionsAPI"));
+                services.Configure<MetadataAPIOptions>(context.Configuration.GetSection("MetadataAPI"));
 
                 services.AddSingleton<DiscordSocketClient>();
                 services.AddSingleton<IDiscordClient, DiscordSocketClient>(sp => sp.GetRequiredService<DiscordSocketClient>());
@@ -111,6 +118,7 @@ namespace NexusMods.Monitor.Bot.Discord.Host
                 services.AddHostedServiceAsSingleton<DiscordService>();
 
                 services.AddTransient<ISubscriptionQueries, SubscriptionQueries>();
+                services.AddTransient<IRateLimitQueries, RateLimitQueries>();
             })
             .ConfigureAppConfiguration((hostingContext, config) => config.AddEnvironmentVariables())
             .UseSerilog();
