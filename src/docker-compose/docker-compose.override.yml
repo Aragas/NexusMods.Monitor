@@ -1,4 +1,5 @@
 version: '3.8'
+
 services:
   nexusmods_monitor_bot_discord:
     environment:

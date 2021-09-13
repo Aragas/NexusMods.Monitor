@@ -100,11 +100,8 @@ services:
       - 34222:4222
       - 36222:6222
       - 38222:8222
-    depends_on:
-      - graylog
     networks:
       - eventbus
-      - logging
 
 
   postgres:
