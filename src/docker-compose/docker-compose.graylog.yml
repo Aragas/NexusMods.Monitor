@@ -1,0 +1,103 @@
+version: '3.8'
+
+volumes:
+  mongo_data: { }
+  es_data: { }
+  graylog_journal: { }
+
+networks:
+  logging:
+  logging_internal:
+
+services:
+  nexusmods_monitor_bot_discord:
+    environment:
+      Serilog__WriteTo__1__Args__hostnameOrAddress: graylog
+    depends_on:
+      - graylog
+    networks:
+      - logging
+
+  nexusmods_monitor_bot_slack:
+    environment:
+      Serilog__WriteTo__1__Args__hostnameOrAddress: graylog
+    depends_on:
+      - graylog
+    networks:
+      - logging
+
+  nexusmods_monitor_scraper:
+    environment:
+      Serilog__WriteTo__1__Args__hostnameOrAddress: graylog
+    depends_on:
+      - graylog
+    networks:
+      - logging
+
+  nexusmods_monitor_metadata:
+    environment:
+      Serilog__WriteTo__1__Args__hostnameOrAddress: graylog
+    depends_on:
+      - graylog
+    networks:
+      - logging
+
+  nexusmods_monitor_subscriptions:
+    environment:
+      Serilog__WriteTo__1__Args__hostnameOrAddress: graylog
+    depends_on:
+      - graylog
+    networks:
+      - logging
+
+
+  mongo:
+    image: mongo:4.2
+    volumes:
+      - mongo_data:/data/db
+    networks:
+      - logging_internal
+
+  elasticsearch:
+    image: docker.elastic.co/elasticsearch/elasticsearch-oss:7.10.2
+    environment:
+      - http.host=0.0.0.0
+      - transport.host=localhost
+      - network.host=0.0.0.0
+      - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
+    volumes:
+      - es_data:/usr/share/elasticsearch/data
+    ulimits:
+      memlock:
+        soft: -1
+        hard: -1
+    deploy:
+      resources:
+        limits:
+          memory: 1g
+    networks:
+      - logging_internal
+
+  graylog:
+    image: graylog/graylog:4.1-jre11
+    environment:
+      - GRAYLOG_PASSWORD_SECRET=nexusmodsmonitor
+      # Password: nexusmodsmonitor
+      - GRAYLOG_ROOT_PASSWORD_SHA2=bc0164fb72397bec1da3e568da86334f5fb365f2f27617abf4759819163e7d5f
+      - GRAYLOG_HTTP_EXTERNAL_URI=http://127.0.0.1:9000/
+      - GRAYLOG_CONTENT_PACKS_AUTO_INSTALL=nexusmodsmonitor.json
+      - GRAYLOG_CONTENT_PACKS_DIR=data/contentpacks
+      - GRAYLOG_CONTENT_PACKS_LOADER_ENABLED=true
+    entrypoint: /usr/bin/tini -- wait-for-it elasticsearch:9200 --  /docker-entrypoint.sh
+    volumes:
+      - ./graylog/contentpacks:/usr/share/graylog/data/contentpacks
+      - graylog_journal:/usr/share/graylog/data/journal
+    networks:
+      - logging
+      - logging_internal
+    restart: always
+    depends_on:
+      - mongo
+      - elasticsearch
+    ports:
+      - 9000:9000

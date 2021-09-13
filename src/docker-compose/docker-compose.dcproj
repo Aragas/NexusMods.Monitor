@@ -1,11 +1,19 @@
-<?xml version="1.0" encoding="utf-8"?>
+﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="15.0" Sdk="Microsoft.Docker.Sdk">
   <PropertyGroup Label="Globals">
     <ProjectVersion>2.1</ProjectVersion>
     <DockerTargetOS>Linux</DockerTargetOS>
     <ProjectGuid>33720e89-2f26-423a-9287-c6d83413eb60</ProjectGuid>
+    <AdditionalComposeFilePaths>docker-compose.graylog.yml;</AdditionalComposeFilePaths>
+    <DockerComposeProjectName>nexmusmodsmonitor</DockerComposeProjectName>
   </PropertyGroup>
   <ItemGroup>
+    <None Include="docker-compose.graylog.yml">
+      <DependentUpon>docker-compose.yml</DependentUpon>
+    </None>
+    <None Include="docker-compose.seq.yml">
+      <DependentUpon>docker-compose.yml</DependentUpon>
+    </None>
     <None Include="docker-compose.override.yml">
       <DependentUpon>docker-compose.yml</DependentUpon>
     </None>

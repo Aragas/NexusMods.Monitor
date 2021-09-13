@@ -2,20 +2,16 @@ version: '3.8'
 
 volumes:
   postgresql_data: { }
-  seq_data: { }
 
 networks:
   internal:
   eventbus:
   database:
-  logging:
-  logging_internal:
 
 services:
   nexusmods_monitor_bot_discord:
     image: ${DOCKER_REGISTRY-}nexusmods_monitor_bot_discord
     environment:
-      Serilog__WriteTo__1__Args__hostnameOrAddress: graylog
       Discord__BotToken: PLACEHOLDER
       MetadataAPI__APIEndpointV1: http://nexusmods_monitor_metadata/api/v1/metadata/
       SubscriptionsAPI__APIEndpointV1: http://nexusmods_monitor_subscriptions/api/v1/subscriptions/
@@ -27,16 +23,13 @@ services:
       - nexusmods_monitor_subscriptions
       - nexusmods_monitor_scraper
       - nats
-      - graylog
     networks:
       - internal
       - eventbus
-      - logging
 
   nexusmods_monitor_bot_slack:
     image: ${DOCKER_REGISTRY-}nexusmods_monitor_bot_slack
     environment:
-      Serilog__WriteTo__1__Args__hostnameOrAddress: graylog
       Slack__BotToken: PLACEHOLDER
       MetadataAPI__APIEndpointV1: http://nexusmods_monitor_metadata/api/v1/metadata/
       SubscriptionsAPI__APIEndpointV1: http://nexusmods_monitor_subscriptions/api/v1/subscriptions/
@@ -48,16 +41,13 @@ services:
       - nexusmods_monitor_subscriptions
       - nexusmods_monitor_scraper
       - nats
-      - graylog
     networks:
       - internal
       - eventbus
-      - logging
 
   nexusmods_monitor_scraper:
     image: ${DOCKER_REGISTRY-}nexusmods_monitor_scraper
     environment:
-      Serilog__WriteTo__1__Args__hostnameOrAddress: graylog
       MetadataAPI__APIEndpointV1: http://nexusmods_monitor_metadata/api/v1/metadata/
       SubscriptionsAPI__APIEndpointV1: http://nexusmods_monitor_subscriptions/api/v1/subscriptions/
       EventBus__Servers__0: nats://nats:4222
@@ -69,17 +59,14 @@ services:
       - nexusmods_monitor_subscriptions
       - postgres
       - nats
-      - graylog
     networks:
       - internal
       - eventbus
       - database
-      - logging
 
   nexusmods_monitor_metadata:
     image: ${DOCKER_REGISTRY-}nexusmods_monitor_metadata
     environment:
-      Serilog__WriteTo__1__Args__hostnameOrAddress: graylog
       NexusMods__APIKey: PLACEHOLDER
       NexusMods__APIEndpoint: https://api.nexusmods.com/
       NexusMods__Endpoint: https://www.nexusmods.com/
@@ -87,16 +74,12 @@ services:
     build:
       context: ../../.
       dockerfile: src/NexusMods.Monitor.Metadata.API/Dockerfile
-    depends_on:
-      - graylog
     networks:
       - internal
-      - logging
 
   nexusmods_monitor_subscriptions:
     image: ${DOCKER_REGISTRY-}nexusmods_monitor_subscriptions
     environment:
-      Serilog__WriteTo__1__Args__hostnameOrAddress: graylog
       MetadataAPI__APIEndpointV1: http://nexusmods_monitor_metadata/api/v1/metadata/
       ConnectionStrings__Subscriptions: Host=postgres;Port=5432;Database=subscriptions;Username=nexusmodsmonitor;Password=nexusmodsmonitor;Include Error Detail=true;
       ASPNETCORE_URLS: "http://*:80"
@@ -105,11 +88,9 @@ services:
       dockerfile: src/NexusMods.Monitor.Subscriptions.API/Dockerfile
     depends_on:
       - postgres
-      - graylog
     networks:
       - internal
       - database
-      - logging
 
 
   nats:
@@ -137,50 +118,3 @@ services:
       - 35432:5432
     networks:
       - database
-
-
-  mongo:
-    image: mongo:4.2
-    networks:
-      - logging_internal
-
-  elasticsearch:
-    image: docker.elastic.co/elasticsearch/elasticsearch-oss:7.10.2
-    environment:
-      - http.host=0.0.0.0
-      - transport.host=localhost
-      - network.host=0.0.0.0
-      - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
-    ulimits:
-      memlock:
-        soft: -1
-        hard: -1
-    deploy:
-      resources:
-        limits:
-          memory: 1g
-    networks:
-      - logging_internal
-
-  graylog:
-    image: graylog/graylog:4.1
-    environment:
-      - GRAYLOG_PASSWORD_SECRET=nexusmodsmonitor
-      # Password: nexusmodsmonitor
-      - GRAYLOG_ROOT_PASSWORD_SHA2=bc0164fb72397bec1da3e568da86334f5fb365f2f27617abf4759819163e7d5f
-      - GRAYLOG_HTTP_EXTERNAL_URI=http://127.0.0.1:9000/
-      - GRAYLOG_CONTENT_PACKS_AUTO_INSTALL=nexusmodsmonitor.json
-      - GRAYLOG_CONTENT_PACKS_DIR=data/contentpacks
-      - GRAYLOG_CONTENT_PACKS_LOADER_ENABLED=true
-    entrypoint: /usr/bin/tini -- wait-for-it elasticsearch:9200 --  /docker-entrypoint.sh
-    networks:
-      - logging
-      - logging_internal
-    restart: always
-    depends_on:
-      - mongo
-      - elasticsearch
-    ports:
-      - 9000:9000
-    volumes:
-      - ./graylog/contentpacks:/usr/share/graylog/data/contentpacks
