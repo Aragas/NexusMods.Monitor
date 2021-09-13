@@ -8,7 +8,11 @@
       "launchUrl": "swagger",
       "applicationUrl": "http://localhost:5000",
       "environmentVariables": {
-        "ASPNETCORE_ENVIRONMENT": "Development"
+        "ASPNETCORE_ENVIRONMENT": "Development",
+        "Serilog__WriteTo__1__Args__serverUrl": "http://seq:5341",
+        "NexusMods__APIKey": "PLACEHOLDER",
+        "NexusMods__APIEndpoint": "https://api.nexusmods.com/",
+        "NexusMods__Endpoint": "https://www.nexusmods.com/"
       }
     },
     "Docker": {

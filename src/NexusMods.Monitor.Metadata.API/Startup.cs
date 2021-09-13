@@ -22,6 +22,7 @@ using NodaTime;
 using NodaTime.Serialization.SystemTextJson;
 
 using System;
+using System.IO;
 using System.Reflection;
 using System.Runtime.InteropServices;
 using System.Text.Json;
@@ -98,6 +99,10 @@ namespace NexusMods.Monitor.Metadata.API
                 options.SwaggerDoc("v1", new OpenApiInfo { Title = "NexusMods.Monitor.Metadata.API", Version = "v1" });
                 options.SupportNonNullableReferenceTypes();
                 options.ConfigureForNodaTimeWithSystemTextJson();
+
+                var xmlFile = $"{Assembly.GetExecutingAssembly().GetName().Name}.xml";
+                var xmlPath = Path.Combine(AppContext.BaseDirectory, xmlFile);
+                options.IncludeXmlComments(xmlPath);
             });
         }
 
@@ -110,7 +115,11 @@ namespace NexusMods.Monitor.Metadata.API
             }
 
             app.UseSwagger();
-            app.UseSwaggerUI(options => options.SwaggerEndpoint("/swagger/v1/swagger.json", "NexusMods.Monitor.Metadata.API v1"));
+            app.UseSwaggerUI(options =>
+            {
+                options.SwaggerEndpoint("/swagger/v1/swagger.json", "NexusMods.Monitor.Metadata.API v1");
+                //options.ConfigObject.re
+            });
 
             app.UseRouting();
 

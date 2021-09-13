@@ -42,7 +42,7 @@ namespace NexusMods.Monitor.Metadata.Application.Queries.Issues
             var modName = mod?.Name ?? "ERROR";
 
             var key = $"issues_{gameId},{modId}";
-            if (!_cache.TryGetValue(key, out IssueViewModel[] cacheEntry))
+            if (!_cache.TryGetValue(key, out IssueViewModel[]? cacheEntry))
             {
                 var issueRoots = new List<IssueViewModel>();
                 for (var page = 1; ; page++)
@@ -75,29 +75,29 @@ namespace NexusMods.Monitor.Metadata.Application.Queries.Issues
                 yield break;
             }
 
-            foreach (var nexusModsCommentRoot in cacheEntry)
+            foreach (var nexusModsCommentRoot in cacheEntry ?? Array.Empty<IssueViewModel>())
                 yield return nexusModsCommentRoot;
         }
 
         public async Task<IssueContentViewModel?> GetContentAsync(uint issueId, CancellationToken ct = default)
         {
             var document = await GetModBugReplyListAsync(issueId, ct);
-            var commentTags = document.Body?.GetElementsByClassName("comments").FirstOrDefault()?.GetElementsByClassName("comment") ?? Enumerable.Empty<IElement>();
+            var commentTags = document?.Body?.GetElementsByClassName("comments").FirstOrDefault()?.GetElementsByClassName("comment") ?? Enumerable.Empty<IElement>();
             return commentTags.Select(IssueContentViewModel.FromElement).FirstOrDefault();
         }
 
         public async IAsyncEnumerable<IssueReplyViewModel> GetRepliesAsync(uint issueId, [EnumeratorCancellation] CancellationToken ct = default)
         {
             var document = await GetModBugReplyListAsync(issueId, ct);
-            var commentTags = document.Body?.GetElementsByClassName("comments").FirstOrDefault()?.GetElementsByClassName("comment") ?? Enumerable.Empty<IElement>();
+            var commentTags = document?.Body?.GetElementsByClassName("comments").FirstOrDefault()?.GetElementsByClassName("comment") ?? Enumerable.Empty<IElement>();
             foreach (var issueReply in commentTags.Skip(1))
                 yield return IssueReplyViewModel.FromElement(issueReply);
         }
 
 
-        private async Task<IDocument> GetModBugReplyListAsync(uint issueId, CancellationToken ct = default)
+        private async Task<IDocument?> GetModBugReplyListAsync(uint issueId, CancellationToken ct = default)
         {
-            if (!_cache.TryGetValue($"issue_replies_{issueId}", out IDocument cacheEntry))
+            if (!_cache.TryGetValue($"issue_replies_{issueId}", out IDocument? cacheEntry))
             {
                 using var response = await _httpClientFactory.CreateClient("NexusMods").PostAsync(
                     "Core/Libs/Common/Widgets/ModBugReplyList",

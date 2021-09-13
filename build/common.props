@@ -5,7 +5,7 @@
     <LangVersion>preview</LangVersion>
     <Nullable>enable</Nullable>
     <DisableImplicitNamespaceImports>true</DisableImplicitNamespaceImports>
-    <NoWarn>1073;MSB4011;CA2252;CS8032;</NoWarn>
+    <NoWarn>1073;MSB4011;CA2252;CS8032;CS1591;</NoWarn>
     <Version>2.0</Version>
   </PropertyGroup>
 

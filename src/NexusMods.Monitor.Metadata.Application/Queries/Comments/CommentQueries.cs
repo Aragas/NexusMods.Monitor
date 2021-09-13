@@ -37,16 +37,23 @@ namespace NexusMods.Monitor.Metadata.Application.Queries.Comments
         public async IAsyncEnumerable<CommentViewModel> GetAllAsync(uint gameId, uint modId, [EnumeratorCancellation] CancellationToken ct = default)
         {
             var game = await _nexusModsGameQueries.GetAsync(gameId, ct);
-            var gameDomain = game?.DomainName ?? "ERROR";
-            var gameName = game?.Name ?? "ERROR";
+            if (game is null)
+                yield break;
+            var gameDomain = game.DomainName;
+            var gameName = game.Name;
 
             var mod = await _nexusModsModQueries.GetAsync(gameDomain, modId, ct);
-            var modName = mod?.Name ?? "ERROR";
+            if (mod is null)
+                yield break;
+            var modName = mod.Name;
 
-            var (_, _, threadId) = await _nexusModsThreadQueries.GetAsync(gameId, modId, ct);
+            var threadViewModel = await _nexusModsThreadQueries.GetAsync(gameId, modId, ct);
+            if (threadViewModel is null)
+                yield break;
+            var threadId = threadViewModel.ThreadId;
 
             var key = $"comments_{gameId},{modId},{threadId}";
-            if (!_cache.TryGetValue(key, out CommentViewModel[] cacheEntry))
+            if (!_cache.TryGetValue(key, out CommentViewModel[]? cacheEntry))
             {
                 var commentRoots = new List<CommentViewModel>();
                 for (var page = 1; ; page++)
@@ -79,7 +86,7 @@ namespace NexusMods.Monitor.Metadata.Application.Queries.Comments
                 yield break;
             }
 
-            foreach (var nexusModsCommentRoot in cacheEntry)
+            foreach (var nexusModsCommentRoot in cacheEntry ?? Array.Empty<CommentViewModel>())
                 yield return nexusModsCommentRoot;
         }
     }

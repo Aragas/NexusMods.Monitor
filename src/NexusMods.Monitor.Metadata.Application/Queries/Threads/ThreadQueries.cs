@@ -25,10 +25,10 @@ namespace NexusMods.Monitor.Metadata.Application.Queries.Threads
             _cache = cache ?? throw new ArgumentNullException(nameof(cache));
         }
 
-        public async Task<ThreadViewModel> GetAsync(uint gameId, uint modId, CancellationToken ct = default)
+        public async Task<ThreadViewModel?> GetAsync(uint gameId, uint modId, CancellationToken ct = default)
         {
             var key = $"thread_id({gameId}, {modId})";
-            if (!_cache.TryGetValue(key, out ThreadViewModel cacheEntry))
+            if (!_cache.TryGetValue(key, out ThreadViewModel? cacheEntry))
             {
                 var games = _nexusModsGameQueries.GetAllAsync(ct);
                 var gameIdText = (await games.FirstOrDefaultAsync(x => x.Id == gameId, ct))?.DomainName ?? "ERROR";

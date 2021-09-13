@@ -42,30 +42,25 @@ namespace NexusMods.Monitor.Metadata.Application.Queries.Mods
         public async Task<ModViewModel?> GetAsync(string gameDomain, uint modId, CancellationToken ct = default)
         {
             var key = $"mod({gameDomain}, {modId})";
-            if (!_cache.TryGetValue(key, out ModViewModel cacheEntry))
+            if (!_cache.TryGetValue(key, out ModViewModel? cacheEntry))
             {
                 var response = await _httpClientFactory.CreateClient("NexusMods.API").GetAsync($"v1/games/{gameDomain}/mods/{modId}.json", ct);
                 if (response.IsSuccessStatusCode && response.StatusCode != HttpStatusCode.NoContent)
                 {
                     var content = await response.Content.ReadAsStringAsync(ct);
                     var mod = _jsonSerializer.Deserialize<ModDTO?>(content);
-
-                    cacheEntry = new ModViewModel((uint) mod.ModId, mod.Name);
-                    var cacheEntryOptions = new MemoryCacheEntryOptions().SetSize(1).SetAbsoluteExpiration(TimeSpan.FromHours(8));
-                    _cache.Set(key, cacheEntry, cacheEntryOptions);
+                    if (mod is not null)
+                    {
+                        cacheEntry = new ModViewModel((uint) mod.ModId, mod.Name);
+                        var cacheEntryOptions = new MemoryCacheEntryOptions().SetSize(1).SetAbsoluteExpiration(TimeSpan.FromHours(8));
+                        _cache.Set(key, cacheEntry, cacheEntryOptions);
+                    }
                 }
             }
 
             return cacheEntry;
         }
 
-        private record ModDTO
-        {
-            [JsonPropertyName("name")]
-            public string Name { get; init; }
-
-            [JsonPropertyName("mod_id")]
-            public long ModId { get; init; }
-        }
+        private record ModDTO([property: JsonPropertyName("name")] string Name, [property: JsonPropertyName("mod_id")] long ModId);
     }
 }

@@ -1,8 +1,8 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Logging;
 
+using NexusMods.Monitor.Metadata.API.Extensions;
 using NexusMods.Monitor.Metadata.API.RateLimits;
 using NexusMods.Monitor.Metadata.Application.Queries.Comments;
 using NexusMods.Monitor.Metadata.Application.Queries.Games;
@@ -13,7 +13,6 @@ using NexusMods.Monitor.Shared.Application;
 
 using System;
 using System.Collections.Generic;
-using System.Net;
 using System.Net.Http;
 using System.Net.WebSockets;
 using System.Text;
@@ -27,7 +26,6 @@ namespace NexusMods.Monitor.Metadata.API.Controllers
     [ApiController]
     public class MetadataController : ControllerBase
     {
-        public record SSOAuthorizeRequest(Guid Id);
         private record SSORequest([property: JsonPropertyName("id")] Guid Id, [property: JsonPropertyName("token")] string? Token, [property: JsonPropertyName("protocol")] int Protocol);
         private record SSOResponse([property: JsonPropertyName("success")] bool Success, [property: JsonPropertyName("data")] SSOResponseData? Data);
         private record SSOResponseData([property: JsonPropertyName("connection_token")] string? ConnectionToken, [property: JsonPropertyName("api_key")] string? ApiKey);
@@ -48,52 +46,52 @@ namespace NexusMods.Monitor.Metadata.API.Controllers
         [HttpGet("comments/id")]
         [Produces("application/json")]
         [ProducesResponseType(typeof(IAsyncEnumerable<CommentViewModel>), StatusCodes.Status200OK)]
-        public IActionResult GetCommentsAllAsync(uint gameId, uint modId, CancellationToken ct, [FromServices] ICommentQueries commentQueries) => Ok(commentQueries.GetAllAsync(gameId, modId, ct));
+        public IActionResult GetCommentsAllAsync(uint gameId, uint modId, [FromServices] ICommentQueries commentQueries, CancellationToken ct) => Ok(commentQueries.GetAllAsync(gameId, modId, ct));
 
         [HttpGet("issues/id")]
         [Produces("application/json")]
         [ProducesResponseType(typeof(IAsyncEnumerable<IssueViewModel>), StatusCodes.Status200OK)]
-        public IActionResult GetIssuesAllAsync(uint gameId, uint modId, CancellationToken ct, [FromServices] IIssueQueries issueQueries) => Ok(issueQueries.GetAllAsync(gameId, modId, ct));
+        public IActionResult GetIssuesAllAsync(uint gameId, uint modId, [FromServices] IIssueQueries issueQueries, CancellationToken ct) => Ok(issueQueries.GetAllAsync(gameId, modId, ct));
 
         [HttpGet("issues/content")]
         [Produces("application/json")]
         [ProducesResponseType(typeof(IssueContentViewModel), StatusCodes.Status200OK)]
-        public async Task<IActionResult> GetIssueContentAsync(uint issueId, CancellationToken ct, [FromServices] IIssueQueries issueQueries) => Ok(await issueQueries.GetContentAsync(issueId, ct));
+        public async Task<IActionResult> GetIssueContentAsync(uint issueId, [FromServices] IIssueQueries issueQueries, CancellationToken ct) => Ok(await issueQueries.GetContentAsync(issueId, ct));
 
         [HttpGet("issues/replies")]
         [Produces("application/json")]
         [ProducesResponseType(typeof(IAsyncEnumerable<IssueReplyViewModel>), StatusCodes.Status200OK)]
-        public IActionResult GetIssueRepliesAsync(uint issueId, CancellationToken ct, [FromServices] IIssueQueries issueQueries) => Ok(issueQueries.GetRepliesAsync(issueId, ct));
+        public IActionResult GetIssueRepliesAsync(uint issueId, [FromServices] IIssueQueries issueQueries, CancellationToken ct) => Ok(issueQueries.GetRepliesAsync(issueId, ct));
 
         [HttpGet("game/id")]
         [Produces("application/json")]
         [ProducesResponseType(typeof(GameViewModel), StatusCodes.Status200OK)]
-        public async Task<IActionResult> GetGameAsync(uint gameId, CancellationToken ct, [FromServices] IGameQueries gameQueries) => Ok(await gameQueries.GetAsync(gameId, ct));
+        public async Task<IActionResult> GetGameAsync(uint gameId, [FromServices] IGameQueries gameQueries, CancellationToken ct) => Ok(await gameQueries.GetAsync(gameId, ct));
 
         [HttpGet("game/domain")]
         [Produces("application/json")]
         [ProducesResponseType(typeof(GameViewModel), StatusCodes.Status200OK)]
-        public async Task<IActionResult> GetGameAsync(string gameDomain, CancellationToken ct, [FromServices] IGameQueries gameQueries) => Ok(await gameQueries.GetAsync(gameDomain, ct));
+        public async Task<IActionResult> GetGameAsync(string gameDomain, [FromServices] IGameQueries gameQueries, CancellationToken ct) => Ok(await gameQueries.GetAsync(gameDomain, ct));
 
         [HttpGet("game/all")]
         [Produces("application/json")]
         [ProducesResponseType(typeof(IAsyncEnumerable<GameViewModel>), StatusCodes.Status200OK)]
-        public IActionResult GetGamesAsync(CancellationToken ct, [FromServices] IGameQueries gameQueries) => Ok(gameQueries.GetAllAsync(ct));
+        public IActionResult GetGamesAsync([FromServices] IGameQueries gameQueries, CancellationToken ct) => Ok(gameQueries.GetAllAsync(ct));
 
         [HttpGet("mod/id")]
         [Produces("application/json")]
         [ProducesResponseType(typeof(GameViewModel), StatusCodes.Status200OK)]
-        public async Task<IActionResult> GetModAsync(uint gameId, uint modId, CancellationToken ct, [FromServices] IModQueries modQueries) => Ok(await modQueries.GetAsync(gameId, modId, ct));
+        public async Task<IActionResult> GetModAsync(uint gameId, uint modId, [FromServices] IModQueries modQueries, CancellationToken ct) => Ok(await modQueries.GetAsync(gameId, modId, ct));
 
         [HttpGet("mod/domain")]
         [Produces("application/json")]
         [ProducesResponseType(typeof(GameViewModel), StatusCodes.Status200OK)]
-        public async Task<IActionResult> GetModAsync(string gameDomain, uint modId, CancellationToken ct, [FromServices] IModQueries modQueries) => Ok(await modQueries.GetAsync(gameDomain, modId, ct));
+        public async Task<IActionResult> GetModAsync(string gameDomain, uint modId, [FromServices] IModQueries modQueries, CancellationToken ct) => Ok(await modQueries.GetAsync(gameDomain, modId, ct));
 
         [HttpGet("thread/id")]
         [Produces("application/json")]
         [ProducesResponseType(typeof(ThreadViewModel), StatusCodes.Status200OK)]
-        public async Task<IActionResult> GetThreadAsync(uint gameId, uint modId, CancellationToken ct, [FromServices] IThreadQueries threadQueries) => Ok(await threadQueries.GetAsync(gameId, modId, ct));
+        public async Task<IActionResult> GetThreadAsync(uint gameId, uint modId, [FromServices] IThreadQueries threadQueries, CancellationToken ct) => Ok(await threadQueries.GetAsync(gameId, modId, ct));
 
         [HttpGet("ratelimits")]
         [Produces("application/json")]
@@ -108,63 +106,87 @@ namespace NexusMods.Monitor.Metadata.API.Controllers
             );
         }
 
-        [HttpPost("sso-authorize")]
-        [Produces("application/json")]
+        /// <remarks>
+        /// events:
+        /// - connecting
+        /// - connected
+        /// - api-key-failed-to-get
+        /// - api-key-received
+        /// - finished
+        /// </remarks>
+        [HttpGet("sso-authorize")]
+        [Produces("text/event-stream")]
         [ProducesResponseType(typeof(void), StatusCodes.Status200OK)]
-        public async Task<IActionResult> SSOAuthorizeAsync([FromBody] SSOAuthorizeRequest authorizeRequest, CancellationToken ct, [FromServices] NexusModsAPIKeyProvider apiKeyProvider, [FromServices] DefaultJsonSerializer jsonSerializer)
+        public IActionResult SSOAuthorizeAsync(Guid uuid, [FromServices] NexusModsAPIKeyProvider apiKeyProvider, [FromServices] DefaultJsonSerializer jsonSerializer, CancellationToken ct)
         {
-            var client = new ClientWebSocket();
-            var timeoutToken = CancellationTokenSource.CreateLinkedTokenSource(new CancellationTokenSource(60000).Token, ct).Token;
-            var connectionToken = null as string;
-
-            async Task ReceiveLoop()
+            async IAsyncEnumerable<SSEMessage> SSEEvents()
             {
-                var buffer = new ArraySegment<byte>(new byte[1024]);
-                var sb = new StringBuilder();
-                while (!timeoutToken.IsCancellationRequested && client.State == WebSocketState.Open)
+                var client = new ClientWebSocket();
+                var timeoutToken = CancellationTokenSource.CreateLinkedTokenSource(new CancellationTokenSource(60000).Token, ct).Token;
+                var connectionToken = null as string;
+
+                yield return new SSEMessage(Event: "connecting");
+
+                var receivedAPIKey = false;
+                async Task ReceiveLoop()
                 {
-                    var received = await client.ReceiveAsync(buffer, timeoutToken);
-                    if (received.MessageType == WebSocketMessageType.Close)
-                        break;
-
-                    sb.Append(Encoding.UTF8.GetString(buffer.AsSpan(0, received.Count)));
-                    if (received.EndOfMessage)
+                    var buffer = new ArraySegment<byte>(new byte[1024]);
+                    var sb = new StringBuilder();
+                    while (!timeoutToken.IsCancellationRequested && client.State == WebSocketState.Open)
                     {
-                        var text = sb.ToString();
-                        sb.Clear();
+                        var received = await client.ReceiveAsync(buffer, timeoutToken);
+                        if (received.MessageType == WebSocketMessageType.Close)
+                            break;
 
-                        var response = jsonSerializer.Deserialize<SSOResponse?>(text);
-                        if (response is not null && response.Success && response.Data is not null)
+                        sb.Append(Encoding.UTF8.GetString(buffer.AsSpan(0, received.Count)));
+                        if (received.EndOfMessage)
                         {
-                            if (response.Data.ConnectionToken is not null)
+                            var text = sb.ToString();
+                            sb.Clear();
+
+                            var response = jsonSerializer.Deserialize<SSOResponse?>(text);
+                            if (response is not null && response.Success && response.Data is not null)
                             {
-                                connectionToken = response.Data.ConnectionToken;
+                                if (response.Data.ConnectionToken is not null)
+                                {
+                                    connectionToken = response.Data.ConnectionToken;
+                                }
+
+                                if (response.Data.ApiKey is not null)
+                                {
+                                    receivedAPIKey = true;
+                                    apiKeyProvider.Override(response.Data.ApiKey);
+                                    await client.CloseAsync(WebSocketCloseStatus.NormalClosure, "Bye", timeoutToken);
+                                }
                             }
 
-                            if (response.Data.ApiKey is not null)
-                            {
-                                apiKeyProvider.Override(response.Data.ApiKey);
-                                await client.CloseAsync(WebSocketCloseStatus.NormalClosure, "Bye", timeoutToken);
-                            }
                         }
-
                     }
                 }
+
+                await client.ConnectAsync(new Uri("wss://sso.nexusmods.com"), timeoutToken);
+                var receiveTask = ReceiveLoop();
+                var request = jsonSerializer.SerializeToUtf8Bytes(new SSORequest(uuid, connectionToken, 2));
+                await client.SendAsync(request, WebSocketMessageType.Text, true, timeoutToken);
+
+                yield return new SSEMessage(Event: "connected");
+
+                await receiveTask;
+                if (!receivedAPIKey)
+                    yield return new SSEMessage(Event: "api-key-failed-to-get");
+                else
+                    yield return new SSEMessage(Event: "api-key-received");
+
+                yield return new SSEMessage(Event: "finished");
             }
 
-            await client.ConnectAsync(new Uri("wss://sso.nexusmods.com"), timeoutToken);
-            var receiveTask = ReceiveLoop();
-            var request = jsonSerializer.SerializeToUtf8Bytes(new SSORequest(authorizeRequest.Id, connectionToken, 2));
-            await client.SendAsync(request, WebSocketMessageType.Text, true, timeoutToken);
-            await receiveTask;
-
-            return Ok();
+            return new SSEActionResult(SSEEvents());
         }
 
-        [HttpPost("authorization-status")]
+        [HttpGet("authorization-status")]
         [Produces("application/json")]
-        [ProducesResponseType(typeof(void), StatusCodes.Status200OK)]
-        public async Task<IActionResult> GetAuthorizationStatusAsync(CancellationToken ct, [FromServices] IHttpClientFactory httpClientFactory, [FromServices] DefaultJsonSerializer jsonSerializer)
+        [ProducesResponseType(typeof(AuthorizationStatusResponse), StatusCodes.Status200OK)]
+        public async Task<IActionResult> GetAuthorizationStatusAsync([FromServices] IHttpClientFactory httpClientFactory, CancellationToken ct)
         {
             var response = await httpClientFactory.CreateClient("NexusMods.API").GetAsync("v1/users/validate.json", ct);
             return Ok(new AuthorizationStatusResponse(response.IsSuccessStatusCode));

@@ -10,6 +10,7 @@ using Microsoft.Extensions.Options;
 using NexusMods.Monitor.Bot.Discord.Host.Options;
 using NexusMods.Monitor.Bot.Slack.Application.CommandHandlers;
 using NexusMods.Monitor.Bot.Slack.Application.IntegrationEventHandlers.Comments;
+using NexusMods.Monitor.Bot.Slack.Application.Queries.Authorizations;
 using NexusMods.Monitor.Bot.Slack.Application.Queries.RateLimits;
 using NexusMods.Monitor.Bot.Slack.Application.Queries.Subscriptions;
 using NexusMods.Monitor.Bot.Slack.Host.BackgroundServices;
@@ -115,6 +116,7 @@ namespace NexusMods.Monitor.Bot.Slack.Host
 
                 services.AddTransient<ISubscriptionQueries, SubscriptionQueries>();
                 services.AddTransient<IRateLimitQueries, RateLimitQueries>();
+                services.AddTransient<IAuthorizationQueries, AuthorizationQueries>();
             })
             .ConfigureAppConfiguration((hostingContext, config) => config.AddEnvironmentVariables())
             .UseSerilog();

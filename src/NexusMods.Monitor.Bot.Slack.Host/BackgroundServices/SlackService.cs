@@ -107,7 +107,7 @@ namespace NexusMods.Monitor.Bot.Slack.Host.BackgroundServices
                     {
                         if (await _mediator.Send(new SubscribeCommand(message.Conversation.Id, gameId, modId)))
                         {
-                            await message.ReplyWith("Successful!");
+                            await message.ReplyWith("Successful!", true);
                             return;
                         }
                     }
@@ -115,13 +115,13 @@ namespace NexusMods.Monitor.Bot.Slack.Host.BackgroundServices
                     {
                         if (await _mediator.Send(new Subscribe2Command(message.Conversation.Id, args[0])))
                         {
-                            await message.ReplyWith("Successful!");
+                            await message.ReplyWith("Successful!", true);
                             return;
                         }
                     }
                     else
                     {
-                        await message.ReplyWith("Failed!");
+                        await message.ReplyWith("Failed!", true);
                         return;
                     }
                 }
@@ -135,7 +135,7 @@ namespace NexusMods.Monitor.Bot.Slack.Host.BackgroundServices
                     {
                         if (await _mediator.Send(new UnsubscribeCommand(message.Conversation.Id, gameId, modId)))
                         {
-                            await message.ReplyWith("Successful!");
+                            await message.ReplyWith("Successful!", true);
                             return;
                         }
                     }
@@ -143,13 +143,13 @@ namespace NexusMods.Monitor.Bot.Slack.Host.BackgroundServices
                     {
                         if (await _mediator.Send(new Unsubscribe2Command(message.Conversation.Id, args[0])))
                         {
-                            await message.ReplyWith("Successful!");
+                            await message.ReplyWith("Successful!", true);
                             return;
                         }
                     }
                     else
                     {
-                        await message.ReplyWith("Failed!");
+                        await message.ReplyWith("Failed!", true);
                         return;
                     }
                 }
@@ -160,7 +160,7 @@ namespace NexusMods.Monitor.Bot.Slack.Host.BackgroundServices
                     var uptime = _clock.GetCurrentInstant() - Process.GetCurrentProcess().StartTime.ToUniversalTime().ToInstant();
                     var subscriptionCount = await _subscriptionQueries.GetAllAsync().CountAsync();
                     var embed = AttachmentHelper.About(subscriptionCount, uptime);
-                    await message.ReplyWith(new BotMessage { Attachments = { embed } });
+                    await message.ReplyWith(new BotMessage { Attachments = { embed } }, true);
                 }
 
                 const string subscriptions = "subscriptions";
@@ -172,11 +172,11 @@ namespace NexusMods.Monitor.Bot.Slack.Host.BackgroundServices
                         await message.ReplyWith($@"Subscriptions:
 ```
 {string.Join('\n', subscriptionList.Select(s => $"Game: {s.NexusModsGameId}; Mod: {s.NexusModsModId}"))}
-```");
+```", true);
                     }
                     else
                     {
-                        await message.ReplyWith("No subscriptions found!");
+                        await message.ReplyWith("No subscriptions found!", true);
                     }
                 }
 
@@ -186,7 +186,7 @@ namespace NexusMods.Monitor.Bot.Slack.Host.BackgroundServices
                     var rateLimit = await _rateLimitQueries.GetAsync();
                     if (rateLimit is null)
                     {
-                        await message.ReplyWith("Failed to get Rate Limits!");
+                        await message.ReplyWith("Failed to get Rate Limits!", true);
                         return;
                     }
 
@@ -200,16 +200,26 @@ namespace NexusMods.Monitor.Bot.Slack.Host.BackgroundServices
                     var isAuthorized = await _authorizationQueries.IsAuthorizedAsync();
                     if (isAuthorized)
                     {
-                        await message.ReplyWith("Already authorized!");
+                        await message.ReplyWith("Already authorized!", true);
                         return;
                     }
 
                     var uuid = Guid.NewGuid();
-                    var applicationSlug = "vortex";
-                    if (await _mediator.Send(new SSOAuthorizeCommand(uuid)))
-                        await message.ReplyWith($"https://www.nexusmods.com/sso?id={uuid}&application={applicationSlug}");
-                    else
-                        await message.ReplyWith("Failed!");
+                    await using var ssoAuthorizationHandler = await _mediator.Send(new SSOAuthorizeCommand(uuid));
+                    ssoAuthorizationHandler.OnReadyAsync += async () =>
+                    {
+                        var applicationSlug = "vortex";
+                        await message.ReplyWith($"https://www.nexusmods.com/sso?id={uuid}&application={applicationSlug}", true);
+                    };
+                    ssoAuthorizationHandler.OnErrorAsync += async () =>
+                    {
+                        await message.ReplyWith("Failed!", true);
+                    };
+                    ssoAuthorizationHandler.OnAuthorizedAsync += async () =>
+                    {
+                        await message.ReplyWith("Successful!", true);
+                    };
+                    await ssoAuthorizationHandler;
                 }
 
                 const string help = "help";
@@ -219,7 +229,11 @@ namespace NexusMods.Monitor.Bot.Slack.Host.BackgroundServices
 about
 subscriptions
 subscribe [Game Id] [Mod Id]
-unsubscribe [Game Id] [Mod Id]");
+unsubscribe [Game Id] [Mod Id]
+subscribe [Mod Url]
+unsubscribe [Mod Url]
+ratelimits
+authorize", true);
                 }
             }
         }

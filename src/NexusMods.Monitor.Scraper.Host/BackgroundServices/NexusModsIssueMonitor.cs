@@ -71,6 +71,9 @@ namespace NexusMods.Monitor.Scraper.Host.BackgroundServices
             await foreach (var (nexusModsGameId, nexusModsModId) in subscriptionQueries.GetAllAsync(ct).Distinct(new SubscriptionViewModelComparer()).WithCancellation(ct))
             {
                 var nexusModsIssues = await nexusModsIssueQueries.GetAllAsync(nexusModsGameId, nexusModsModId, ct).ToImmutableArrayAsync(ct);//.ToDictionaryAsync(x => x.NexusModsIssue.Id, x => x, ct);
+                if (nexusModsIssues.Length == 0)
+                    continue;
+
                 var databaseIssues = await issueQueries.GetAllAsync(ct).Where(x => x.NexusModsGameId == nexusModsGameId && x.NexusModsModId == nexusModsModId).ToImmutableArrayAsync(ct);
 
                 var newIssues = nexusModsIssues.Where(x => databaseIssues.All(y => y.Id != x.NexusModsIssue.Id));

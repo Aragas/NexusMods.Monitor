@@ -141,7 +141,7 @@ namespace NexusMods.Monitor.Bot.Discord.Host.BackgroundServices
 
                 if (result.Error.HasValue && result.Error.Value != CommandError.UnknownCommand)
                 {
-                    _logger.LogError(result.ToString());
+                    _logger.LogError("Error! {result}", result.ToString());
                     await context.Message.AddReactionAsync(new Emoji("⁉️"));
                 }
                 else if (result.Error is CommandError.UnknownCommand)

@@ -5,8 +5,10 @@ using Polly;
 using Polly.Extensions.Http;
 
 using System;
+using System.Net;
 using System.Net.Http;
 using System.Net.Sockets;
+using System.Threading.Tasks;
 
 namespace NexusMods.Monitor.Shared.Host
 {
@@ -25,11 +27,11 @@ namespace NexusMods.Monitor.Shared.Host
             var logger = sp.GetRequiredService<ILogger<PollyUtils>>();
 
             return Policy
-                .HandleResult<HttpResponseMessage>(r => !r.IsSuccessStatusCode)
+                .HandleResult<HttpResponseMessage>(r => !r.IsSuccessStatusCode && r.StatusCode != HttpStatusCode.Unauthorized)
                 .OrTransientHttpError()
                 .Or<SocketException>()
                 .WaitAndRetryAsync(
-                    retryCount: 20,
+                    retryCount: 5,
                     sleepDurationProvider: (i, result, context) =>
                     {
                         var clientWaitDuration = TimeSpan.FromSeconds(2);
@@ -37,9 +39,10 @@ namespace NexusMods.Monitor.Shared.Host
                         var waitDuration = Math.Max(clientWaitDuration.TotalMilliseconds, serverWaitDuration.TotalMilliseconds);
                         return TimeSpan.FromMilliseconds(waitDuration);
                     },
-                    onRetryAsync: async (result, timeSpan, retryCount, context) =>
+                    onRetryAsync: (result, timeSpan, retryCount, context) =>
                     {
                         logger.LogError(result.Exception, "Exception during HTTP connection. HttpResult {@HttpResult}. Retry count {RetryCount}. Waiting {Time}...", result.Result, retryCount, timeSpan);
+                        return Task.CompletedTask;
                     });
         }
     }

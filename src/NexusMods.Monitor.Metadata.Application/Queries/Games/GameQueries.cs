@@ -35,7 +35,7 @@ namespace NexusMods.Monitor.Metadata.Application.Queries.Games
 
         public async IAsyncEnumerable<GameViewModel> GetAllAsync([EnumeratorCancellation] CancellationToken ct = default)
         {
-            if (!_cache.TryGetValue("games", out GameViewModel[] cacheEntry))
+            if (!_cache.TryGetValue("games", out GameViewModel[]? cacheEntry))
             {
                 var response = await _httpClientFactory.CreateClient("NexusMods.API").GetAsync("v1/games.json?include_unapproved=false", ct);
                 if (response.IsSuccessStatusCode && response.StatusCode != HttpStatusCode.NoContent)
@@ -49,26 +49,10 @@ namespace NexusMods.Monitor.Metadata.Application.Queries.Games
                 }
             }
 
-            foreach (var nexusModsGame in cacheEntry)
+            foreach (var nexusModsGame in cacheEntry ?? Array.Empty<GameViewModel>())
                 yield return nexusModsGame;
         }
 
-        private record GameDTO
-        {
-            [JsonPropertyName("id")]
-            public uint Id { get; init; }
-
-            [JsonPropertyName("name")]
-            public string Name { get; init; }
-
-            [JsonPropertyName("forum_url")]
-            public string ForumUrl { get; init; }
-
-            [JsonPropertyName("nexusmods_url")]
-            public string Url { get; init; }
-
-            [JsonPropertyName("domain_name")]
-            public string DomainName { get; init; }
-        }
+        private record GameDTO([property: JsonPropertyName("id")] uint Id, [property: JsonPropertyName("name")] string Name, [property: JsonPropertyName("forum_url")] string ForumUrl, [property: JsonPropertyName("nexusmods_url")] string Url, [property: JsonPropertyName("domain_name")] string DomainName);
     }
 }

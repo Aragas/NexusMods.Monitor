@@ -52,7 +52,11 @@ namespace NexusMods.Monitor.Bot.Discord.Host
 about
 subscriptions
 subscribe [Game Id] [Mod Id]
-unsubscribe [Game Id] [Mod Id]");
+unsubscribe [Game Id] [Mod Id]
+subscribe [Mod Url]
+unsubscribe [Mod Url]
+ratelimits
+authorize");
         }
 
         [Command("about")]
@@ -188,12 +192,9 @@ unsubscribe [Game Id] [Mod Id]");
             var embed = EmbedHelper.RateLimits(rateLimit);
 
             if (Context.IsPrivate)
-            {
                 await Context.User.SendMessageAsync(embed: embed);
-                return;
-            }
-
-            await Context.Channel.SendMessageAsync(embed: embed);
+            else
+                await Context.Channel.SendMessageAsync(embed: embed);
         }
 
         [Command("authorize")]
@@ -204,16 +205,29 @@ unsubscribe [Game Id] [Mod Id]");
             var isAuthorized = await _authorizationQueries.IsAuthorizedAsync();
             if (isAuthorized)
             {
-                await Context.User.SendMessageAsync("Already authorized!");
+                if (Context.IsPrivate)
+                    await Context.User.SendMessageAsync("Already authorized!");
+                else
+                    await Context.Channel.SendMessageAsync("Already authorized!");
                 return;
             }
 
             var uuid = Guid.NewGuid();
-            var applicationSlug = "vortex";
-            if (await _mediator.Send(new SSOAuthorizeCommand(uuid)))
+            await using var ssoAuthorizationHandler = await _mediator.Send(new SSOAuthorizeCommand(uuid));
+            ssoAuthorizationHandler.OnReadyAsync += async () =>
+            {
+                var applicationSlug = "vortex";
                 await Context.User.SendMessageAsync($"https://www.nexusmods.com/sso?id={uuid}&application={applicationSlug}");
-            else
+            };
+            ssoAuthorizationHandler.OnErrorAsync += async () =>
+            {
                 await Context.Message.AddReactionAsync(new Emoji("❎"));
+            };
+            ssoAuthorizationHandler.OnAuthorizedAsync += async () =>
+            {
+                await Context.Message.AddReactionAsync(new Emoji("✅"));
+            };
+            await ssoAuthorizationHandler;
         }
     }
 }
