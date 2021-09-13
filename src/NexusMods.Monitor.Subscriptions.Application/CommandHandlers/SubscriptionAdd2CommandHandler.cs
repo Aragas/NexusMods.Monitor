@@ -29,7 +29,12 @@ namespace NexusMods.Monitor.Subscriptions.Application.CommandHandlers
 
         public async Task<bool> Handle(SubscriptionAdd2Command message, CancellationToken ct)
         {
-            var segments = message.NexusModsUrl.Split(new[] { Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar }, StringSplitOptions.TrimEntries);
+            var uri = new Uri(message.NexusModsUrl, UriKind.RelativeOrAbsolute);
+            if (!uri.IsAbsoluteUri)
+                uri = new Uri(new Uri("https://www.nexusmods.com"), uri);
+
+            var absolutePath = Uri.UnescapeDataString(uri.AbsolutePath);
+            var segments = absolutePath.Split(new[] { Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar }, StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
             if (segments.Length != 3 || !uint.TryParse(segments.Last(), out var nexusModsModId))
             {
                 _logger.LogError("Subscription with Id {Id} provided invalid NexusModsUrl {nexusModsUrl}.", message.SubscriberId, message.NexusModsUrl);
