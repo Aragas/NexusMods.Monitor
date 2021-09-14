@@ -1,4 +1,4 @@
-﻿namespace NexusMods.Monitor.Bot.Discord.Host.Options
+﻿namespace NexusMods.Monitor.Bot.Slack.Host.Options
 {
     public sealed record MetadataAPIOptions
     {

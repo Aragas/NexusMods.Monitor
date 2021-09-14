@@ -10,6 +10,7 @@ COPY ["build/", "build/"]
 COPY ["src/Directory.Build.props", "src/"]
 COPY ["src/Directory.Build.targets", "src/"]
 
+COPY ["src/NexusMods.Monitor.Shared.API/", "src/NexusMods.Monitor.Shared.API/"]
 COPY ["src/NexusMods.Monitor.Shared.Host/", "src/NexusMods.Monitor.Shared.Host/"]
 COPY ["src/NexusMods.Monitor.Shared.Application/", "src/NexusMods.Monitor.Shared.Application/"]
 COPY ["src/NexusMods.Monitor.Shared.Infrastructure/", "src/NexusMods.Monitor.Shared.Infrastructure/"]
@@ -18,7 +19,8 @@ COPY ["src/NexusMods.Monitor.Shared.Domain/", "src/NexusMods.Monitor.Shared.Doma
 RUN dotnet build "src/NexusMods.Monitor.Shared.Domain/NexusMods.Monitor.Shared.Domain.csproj" && \
   dotnet build "src/NexusMods.Monitor.Shared.Infrastructure/NexusMods.Monitor.Shared.Infrastructure.csproj" && \
   dotnet build "src/NexusMods.Monitor.Shared.Application/NexusMods.Monitor.Shared.Application.csproj" && \
-  dotnet build "src/NexusMods.Monitor.Shared.Host/NexusMods.Monitor.Shared.Host.csproj"
+  dotnet build "src/NexusMods.Monitor.Shared.Host/NexusMods.Monitor.Shared.Host.csproj" && \
+  dotnet build "src/NexusMods.Monitor.Shared.API/NexusMods.Monitor.Shared.API.csproj"
 # Shared Layer End
 
 COPY ["src/NexusMods.Monitor.Subscriptions.API/NexusMods.Monitor.Subscriptions.API.csproj", "src/NexusMods.Monitor.Subscriptions.API/"]
@@ -37,7 +39,8 @@ RUN /bin/ash -c 'set -ex && \
     ARCH=`uname -m` && \
     if [[ "$ARCH" == "amd64" || "$ARCH" == "x86_64" ]]; then \
        echo "x86_64" && \
-       dotnet publish "src/NexusMods.Monitor.Subscriptions.API/NexusMods.Monitor.Subscriptions.API.csproj" -c Release -o ./output --os alpine --arch x64 --self-contained true /p:PublishReadyToRun=true /p:PublishReadyToRunShowWarnings=true; \
+       #dotnet publish "src/NexusMods.Monitor.Subscriptions.API/NexusMods.Monitor.Subscriptions.API.csproj" -c Release -o ./output --os alpine --arch x64 --self-contained true /p:PublishReadyToRun=true /p:PublishReadyToRunShowWarnings=true; \
+       dotnet publish "src/NexusMods.Monitor.Subscriptions.API/NexusMods.Monitor.Subscriptions.API.csproj" -c Release -o ./output --os alpine --arch x64 --self-contained true; \
     elif [[ "$ARCH" == "aarch64" || "$ARCH" == "arm64" ]]; then \
        echo "aarch64" && \
        dotnet publish "src/NexusMods.Monitor.Subscriptions.API/NexusMods.Monitor.Subscriptions.API.csproj" -c Release -o ./output --os alpine --arch arm64 --self-contained true; \

@@ -14,13 +14,8 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="MicroElements.Swashbuckle.NodaTime" Version="4.0.1" />
-    <PackageReference Include="Swashbuckle.AspNetCore" Version="6.2.1" />
-  </ItemGroup>
-
-  <ItemGroup>
     <ProjectReference Include="..\NexusMods.Monitor.Metadata.Application\NexusMods.Monitor.Metadata.Application.csproj" />
-    <ProjectReference Include="..\NexusMods.Monitor.Shared.Host\NexusMods.Monitor.Shared.Host.csproj" />
+    <ProjectReference Include="..\NexusMods.Monitor.Shared.API\NexusMods.Monitor.Shared.API.csproj" />
   </ItemGroup>
 
 </Project>

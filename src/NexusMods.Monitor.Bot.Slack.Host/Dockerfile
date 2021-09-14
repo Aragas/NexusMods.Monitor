@@ -33,7 +33,8 @@ RUN /bin/ash -c 'set -ex && \
     ARCH=`uname -m` && \
     if [[ "$ARCH" == "amd64" || "$ARCH" == "x86_64" ]]; then \
        echo "x86_64" && \
-       dotnet publish "src/NexusMods.Monitor.Bot.Slack.Host/NexusMods.Monitor.Bot.Slack.Host.csproj" -c Release -o ./output --os alpine --arch x64 --self-contained true /p:PublishReadyToRun=true /p:PublishReadyToRunShowWarnings=true; \
+       #dotnet publish "src/NexusMods.Monitor.Bot.Slack.Host/NexusMods.Monitor.Bot.Slack.Host.csproj" -c Release -o ./output --os alpine --arch x64 --self-contained true /p:PublishReadyToRun=true /p:PublishReadyToRunShowWarnings=true; \
+       dotnet publish "src/NexusMods.Monitor.Bot.Slack.Host/NexusMods.Monitor.Bot.Slack.Host.csproj" -c Release -o ./output --os alpine --arch x64 --self-contained true; \
     elif [[ "$ARCH" == "aarch64" || "$ARCH" == "arm64" ]]; then \
        echo "aarch64" && \
        dotnet publish "src/NexusMods.Monitor.Bot.Slack.Host/NexusMods.Monitor.Bot.Slack.Host.csproj" -c Release -o ./output --os alpine --arch arm64 --self-contained true; \

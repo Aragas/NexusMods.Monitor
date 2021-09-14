@@ -4,29 +4,23 @@
     <InvariantGlobalization>true</InvariantGlobalization>
     <UserSecretsId>03381fc8-8fdd-4db1-82ca-950685502e8d</UserSecretsId>
     <DockerDefaultTargetOS>Linux</DockerDefaultTargetOS>
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
   </PropertyGroup>
 
-    <ItemGroup>
-        <None Include="..\.dockerignore" Link=".dockerignore">
-            <DependentUpon>$(DockerDefaultDockerfile)</DependentUpon>
-        </None>
-    </ItemGroup>
+  <ItemGroup>
+    <None Include="..\.dockerignore" Link=".dockerignore">
+      <DependentUpon>$(DockerDefaultDockerfile)</DependentUpon>
+    </None>
+  </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="MicroElements.Swashbuckle.NodaTime" Version="4.0.1" />
     <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="6.0.0-preview7" />
     <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL.NodaTime" Version="6.0.0-preview7" />
-    <PackageReference Include="Swashbuckle.AspNetCore" Version="6.2.1" />
   </ItemGroup>
 
-    <ItemGroup>
-    <ProjectReference Include="..\NexusMods.Monitor.Shared.Host\NexusMods.Monitor.Shared.Host.csproj" />
+  <ItemGroup>
+    <ProjectReference Include="..\NexusMods.Monitor.Shared.API\NexusMods.Monitor.Shared.API.csproj" />
     <ProjectReference Include="..\NexusMods.Monitor.Subscriptions.Application\NexusMods.Monitor.Subscriptions.Application.csproj" />
   </ItemGroup>
-
-    <ItemGroup>
-      <PackageReference Update="Microsoft.SourceLink.GitHub" Version="1.1.0-beta-20204-02" />
-    </ItemGroup>
-
 
 </Project>

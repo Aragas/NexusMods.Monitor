@@ -2,13 +2,14 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 
-using NexusMods.Monitor.Metadata.API.Extensions;
 using NexusMods.Monitor.Metadata.API.RateLimits;
+using NexusMods.Monitor.Metadata.API.Services;
 using NexusMods.Monitor.Metadata.Application.Queries.Comments;
 using NexusMods.Monitor.Metadata.Application.Queries.Games;
 using NexusMods.Monitor.Metadata.Application.Queries.Issues;
 using NexusMods.Monitor.Metadata.Application.Queries.Mods;
 using NexusMods.Monitor.Metadata.Application.Queries.Threads;
+using NexusMods.Monitor.Shared.API.SSE;
 using NexusMods.Monitor.Shared.Application;
 
 using System;

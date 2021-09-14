@@ -1,4 +1,5 @@
-﻿using MicroElements.Swashbuckle.NodaTime;
+﻿using CorrelationId;
+using CorrelationId.HttpClient;
 
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
@@ -6,27 +7,22 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Options;
-using Microsoft.OpenApi.Models;
 
 using NexusMods.Monitor.Metadata.API.Options;
 using NexusMods.Monitor.Metadata.API.RateLimits;
+using NexusMods.Monitor.Metadata.API.Services;
 using NexusMods.Monitor.Metadata.Application.Queries.Comments;
 using NexusMods.Monitor.Metadata.Application.Queries.Games;
 using NexusMods.Monitor.Metadata.Application.Queries.Issues;
 using NexusMods.Monitor.Metadata.Application.Queries.Mods;
 using NexusMods.Monitor.Metadata.Application.Queries.Threads;
+using NexusMods.Monitor.Shared.API.Extensions;
 using NexusMods.Monitor.Shared.Application.Extensions;
 using NexusMods.Monitor.Shared.Host;
 
-using NodaTime;
-using NodaTime.Serialization.SystemTextJson;
-
 using System;
-using System.IO;
 using System.Reflection;
 using System.Runtime.InteropServices;
-using System.Text.Json;
-using System.Text.Json.Serialization;
 using System.Threading;
 
 namespace NexusMods.Monitor.Metadata.API
@@ -44,6 +40,7 @@ namespace NexusMods.Monitor.Metadata.API
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddApplication();
+            services.AddAPI();
 
             services.AddMemoryCache();
 
@@ -54,9 +51,13 @@ namespace NexusMods.Monitor.Metadata.API
                     var backendOptions = sp.GetRequiredService<IOptions<NexusModsOptions>>().Value;
                     client.BaseAddress = new Uri(backendOptions.Endpoint);
                     client.DefaultRequestHeaders.Add("User-Agent", userAgent);
+
+                    var correlationIdOptions = sp.GetRequiredService<IOptions<CorrelationIdOptions>>().Value;
+                    client.DefaultRequestHeaders.Add(correlationIdOptions.RequestHeader, Guid.NewGuid().ToString());
                 })
                 .ConfigurePrimaryHttpMessageHandler(sp => sp.GetRequiredService<SiteRateLimitHttpMessageHandler>())
                 .AddPolicyHandler(PollyUtils.PolicySelector)
+                .AddCorrelationIdOverrideForwarding()
                 .SetHandlerLifetime(Timeout.InfiniteTimeSpan);
             services.AddHttpClient("NexusMods.API", (sp, client) =>
                 {
@@ -66,9 +67,13 @@ namespace NexusMods.Monitor.Metadata.API
                     client.DefaultRequestHeaders.Add("User-Agent", userAgent);
                     client.DefaultRequestHeaders.Add("apikey", apiKeyProvider.Get());
                     client.Timeout = TimeSpan.FromHours(1);
+
+                    var correlationIdOptions = sp.GetRequiredService<IOptions<CorrelationIdOptions>>().Value;
+                    client.DefaultRequestHeaders.Add(correlationIdOptions.RequestHeader, Guid.NewGuid().ToString());
                 })
                 .ConfigurePrimaryHttpMessageHandler(sp => sp.GetRequiredService<APIRateLimitHttpMessageHandler>())
                 .AddPolicyHandler(PollyUtils.PolicySelector)
+                .AddCorrelationIdOverrideForwarding()
                 .SetHandlerLifetime(Timeout.InfiniteTimeSpan);
 
             services.Configure<NexusModsOptions>(Configuration.GetSection("NexusMods"));
@@ -82,28 +87,6 @@ namespace NexusMods.Monitor.Metadata.API
             services.AddTransient<IGameQueries, GameQueries>();
             services.AddTransient<IModQueries, ModQueries>();
             services.AddTransient<IThreadQueries, ThreadQueries>();
-
-            services.AddControllers().AddJsonOptions(options =>
-            {
-                options.JsonSerializerOptions.PropertyNameCaseInsensitive = true;
-                options.JsonSerializerOptions.PropertyNamingPolicy = JsonNamingPolicy.CamelCase;
-                options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter(JsonNamingPolicy.CamelCase));
-                options.JsonSerializerOptions.ConfigureForNodaTime(DateTimeZoneProviders.Tzdb);
-            });
-            services.AddRouting(options =>
-            {
-                options.LowercaseUrls = true;
-            });
-            services.AddSwaggerGen(options =>
-            {
-                options.SwaggerDoc("v1", new OpenApiInfo { Title = "NexusMods.Monitor.Metadata.API", Version = "v1" });
-                options.SupportNonNullableReferenceTypes();
-                options.ConfigureForNodaTimeWithSystemTextJson();
-
-                var xmlFile = $"{Assembly.GetExecutingAssembly().GetName().Name}.xml";
-                var xmlPath = Path.Combine(AppContext.BaseDirectory, xmlFile);
-                options.IncludeXmlComments(xmlPath);
-            });
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -114,19 +97,7 @@ namespace NexusMods.Monitor.Metadata.API
                 app.UseDeveloperExceptionPage();
             }
 
-            app.UseSwagger();
-            app.UseSwaggerUI(options =>
-            {
-                options.SwaggerEndpoint("/swagger/v1/swagger.json", "NexusMods.Monitor.Metadata.API v1");
-                //options.ConfigObject.re
-            });
-
-            app.UseRouting();
-
-            app.UseEndpoints(endpoints =>
-            {
-                endpoints.MapControllers();
-            });
+            app.UseAPI();
         }
     }
 }

@@ -56,6 +56,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "NexusMods.Monitor.Metadata.
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "NexusMods.Monitor.Metadata.Application", "NexusMods.Monitor.Metadata.Application\NexusMods.Monitor.Metadata.Application.csproj", "{8BC13ECF-EC44-4228-A13E-CDA74166949A}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "NexusMods.Monitor.Shared.API", "NexusMods.Monitor.Shared.API\NexusMods.Monitor.Shared.API.csproj", "{21D695B6-F93A-4951-A7EE-BA69B8DC63C0}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -138,6 +140,10 @@ Global
 		{8BC13ECF-EC44-4228-A13E-CDA74166949A}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{8BC13ECF-EC44-4228-A13E-CDA74166949A}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{8BC13ECF-EC44-4228-A13E-CDA74166949A}.Release|Any CPU.Build.0 = Release|Any CPU
+		{21D695B6-F93A-4951-A7EE-BA69B8DC63C0}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{21D695B6-F93A-4951-A7EE-BA69B8DC63C0}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{21D695B6-F93A-4951-A7EE-BA69B8DC63C0}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{21D695B6-F93A-4951-A7EE-BA69B8DC63C0}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

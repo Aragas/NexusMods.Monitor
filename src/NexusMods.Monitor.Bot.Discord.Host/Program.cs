@@ -1,5 +1,8 @@
 ﻿using BetterHostedServices;
 
+using CorrelationId;
+using CorrelationId.HttpClient;
+
 using Discord;
 using Discord.Commands;
 using Discord.WebSocket;
@@ -91,17 +94,27 @@ namespace NexusMods.Monitor.Bot.Discord.Host
 
                 services.AddMediatR(typeof(SubscribeCommandHandler).Assembly);
                 services.AddMemoryCache();
-                services.AddHttpClient();
+
                 services.AddHttpClient("Subscriptions.API", (sp, client) =>
-                {
-                    var backendOptions = sp.GetRequiredService<IOptions<SubscriptionsAPIOptions>>().Value;
-                    client.BaseAddress = new Uri(backendOptions.APIEndpointV1);
-                }).AddPolicyHandler(PollyUtils.PolicySelector);
+                    {
+                        var backendOptions = sp.GetRequiredService<IOptions<SubscriptionsAPIOptions>>().Value;
+                        client.BaseAddress = new Uri(backendOptions.APIEndpointV1);
+
+                        var correlationIdOptions = sp.GetRequiredService<IOptions<CorrelationIdOptions>>().Value;
+                        client.DefaultRequestHeaders.Add(correlationIdOptions.RequestHeader, Guid.NewGuid().ToString());
+                    })
+                    .AddPolicyHandler(PollyUtils.PolicySelector)
+                    .AddCorrelationIdOverrideForwarding();
                 services.AddHttpClient("Metadata.API", (sp, client) =>
-                {
-                    var backendOptions = sp.GetRequiredService<IOptions<MetadataAPIOptions>>().Value;
-                    client.BaseAddress = new Uri(backendOptions.APIEndpointV1);
-                }).AddPolicyHandler(PollyUtils.PolicySelector);
+                    {
+                        var backendOptions = sp.GetRequiredService<IOptions<MetadataAPIOptions>>().Value;
+                        client.BaseAddress = new Uri(backendOptions.APIEndpointV1);
+
+                        var correlationIdOptions = sp.GetRequiredService<IOptions<CorrelationIdOptions>>().Value;
+                        client.DefaultRequestHeaders.Add(correlationIdOptions.RequestHeader, Guid.NewGuid().ToString());
+                    })
+                    .AddPolicyHandler(PollyUtils.PolicySelector)
+                    .AddCorrelationIdOverrideForwarding();
 
                 services.AddTransient<IClock, SystemClock>(_ => SystemClock.Instance);
                 services.AddEventBusNatsAndEventHandlers(context.Configuration.GetSection("EventBus"), typeof(CommentAddedNewIntegrationEventHandler).Assembly);

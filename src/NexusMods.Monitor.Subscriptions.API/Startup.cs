@@ -1,6 +1,7 @@
-﻿using MediatR;
+﻿using CorrelationId;
+using CorrelationId.HttpClient;
 
-using MicroElements.Swashbuckle.NodaTime;
+using MediatR;
 
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
@@ -9,8 +10,8 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Options;
-using Microsoft.OpenApi.Models;
 
+using NexusMods.Monitor.Shared.API.Extensions;
 using NexusMods.Monitor.Shared.Application.Extensions;
 using NexusMods.Monitor.Shared.Host;
 using NexusMods.Monitor.Subscriptions.API.Options;
@@ -22,12 +23,7 @@ using NexusMods.Monitor.Subscriptions.Domain.AggregatesModel.SubscriptionAggrega
 using NexusMods.Monitor.Subscriptions.Infrastructure.Contexts;
 using NexusMods.Monitor.Subscriptions.Infrastructure.Repositories;
 
-using NodaTime;
-using NodaTime.Serialization.SystemTextJson;
-
 using System;
-using System.Text.Json;
-using System.Text.Json.Serialization;
 
 namespace NexusMods.Monitor.Subscriptions.API
 {
@@ -43,14 +39,20 @@ namespace NexusMods.Monitor.Subscriptions.API
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddApplication();
+            services.AddAPI();
 
             services.AddMediatR(typeof(SubscriptionAddCommand).Assembly);
 
             services.AddHttpClient("Metadata.API", (sp, client) =>
-            {
-                var backendOptions = sp.GetRequiredService<IOptions<MetadataAPIOptions>>().Value;
-                client.BaseAddress = new Uri(backendOptions.APIEndpointV1);
-            }).AddPolicyHandler(PollyUtils.PolicySelector);
+                {
+                    var backendOptions = sp.GetRequiredService<IOptions<MetadataAPIOptions>>().Value;
+                    client.BaseAddress = new Uri(backendOptions.APIEndpointV1);
+
+                    var correlationIdOptions = sp.GetRequiredService<IOptions<CorrelationIdOptions>>().Value;
+                    client.DefaultRequestHeaders.Add(correlationIdOptions.RequestHeader, Guid.NewGuid().ToString());
+                })
+                .AddPolicyHandler(PollyUtils.PolicySelector)
+                .AddCorrelationIdOverrideForwarding();
 
             services.Configure<MetadataAPIOptions>(Configuration.GetSection("MetadataAPI"));
 
@@ -62,23 +64,6 @@ namespace NexusMods.Monitor.Subscriptions.API
             services.AddTransient<INexusModsGameQueries, NexusModsGameQueries>();
             services.AddTransient<INexusModsModQueries, NexusModsModQueries>();
 
-            services.AddControllers().AddJsonOptions(options =>
-            {
-                options.JsonSerializerOptions.PropertyNameCaseInsensitive = true;
-                options.JsonSerializerOptions.PropertyNamingPolicy = JsonNamingPolicy.CamelCase;
-                options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter(JsonNamingPolicy.CamelCase));
-                options.JsonSerializerOptions.ConfigureForNodaTime(DateTimeZoneProviders.Tzdb);
-            });
-            services.AddRouting(options =>
-            {
-                options.LowercaseUrls = true;
-            });
-            services.AddSwaggerGen(options =>
-            {
-                options.SwaggerDoc("v1", new OpenApiInfo { Title = "NexusMods.Monitor.Subscriptions.API", Version = "v1" });
-                options.SupportNonNullableReferenceTypes();
-                options.ConfigureForNodaTimeWithSystemTextJson();
-            });
         }
 
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
@@ -88,15 +73,7 @@ namespace NexusMods.Monitor.Subscriptions.API
                 app.UseDeveloperExceptionPage();
             }
 
-            app.UseSwagger();
-            app.UseSwaggerUI(options => options.SwaggerEndpoint("/swagger/v1/swagger.json", "NexusMods.Monitor.Subscriptions.API v1"));
-
-            app.UseRouting();
-
-            app.UseEndpoints(endpoints =>
-            {
-                endpoints.MapControllers();
-            });
+            app.UseAPI();
         }
     }
 }

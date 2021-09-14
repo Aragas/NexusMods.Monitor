@@ -2,7 +2,7 @@
 
 using NexusMods.Monitor.Metadata.API.Options;
 
-namespace NexusMods.Monitor.Metadata.API
+namespace NexusMods.Monitor.Metadata.API.Services
 {
     public sealed class NexusModsAPIKeyProvider
     {
