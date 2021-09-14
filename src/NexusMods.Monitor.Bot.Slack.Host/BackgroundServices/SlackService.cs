@@ -110,12 +110,22 @@ namespace NexusMods.Monitor.Bot.Slack.Host.BackgroundServices
                             await message.ReplyWith("Successful!", true);
                             return;
                         }
+                        else
+                        {
+                            await message.ReplyWith("Failed!", true);
+                            return;
+                        }
                     }
                     if (args.Length == 1)
                     {
                         if (await _mediator.Send(new Subscribe2Command(message.Conversation.Id, args[0])))
                         {
                             await message.ReplyWith("Successful!", true);
+                            return;
+                        }
+                        else
+                        {
+                            await message.ReplyWith("Failed!", true);
                             return;
                         }
                     }
@@ -138,12 +148,22 @@ namespace NexusMods.Monitor.Bot.Slack.Host.BackgroundServices
                             await message.ReplyWith("Successful!", true);
                             return;
                         }
+                        else
+                        {
+                            await message.ReplyWith("Failed!", true);
+                            return;
+                        }
                     }
                     if (args.Length == 1)
                     {
                         if (await _mediator.Send(new Unsubscribe2Command(message.Conversation.Id, args[0])))
                         {
                             await message.ReplyWith("Successful!", true);
+                            return;
+                        }
+                        else
+                        {
+                            await message.ReplyWith("Failed!", true);
                             return;
                         }
                     }

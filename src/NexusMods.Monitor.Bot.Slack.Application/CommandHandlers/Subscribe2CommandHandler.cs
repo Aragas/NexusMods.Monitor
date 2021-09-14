@@ -36,6 +36,6 @@ namespace NexusMods.Monitor.Bot.Slack.Application.CommandHandlers
             return response.IsSuccessStatusCode;
         }
 
-        private sealed record SubscribeDTO(string SubscriberId, string Subscribe2Command);
+        private sealed record SubscribeDTO(string SubscriberId, string NexusModsUrl);
     }
 }
