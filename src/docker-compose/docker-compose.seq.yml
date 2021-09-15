@@ -42,7 +42,7 @@ services:
 
   nexusmods_monitor_subscriptions:
     environment:
-      Serilog__WriteTo__1__Args__serverUrl: http://seq:5341
+      Serilog__WriteTo__2__Args__serverUrl: http://seq:5341
     depends_on:
       - seq
     networks:
