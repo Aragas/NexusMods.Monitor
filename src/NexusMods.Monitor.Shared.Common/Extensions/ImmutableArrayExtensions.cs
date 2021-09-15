@@ -4,7 +4,7 @@ using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace NexusMods.Monitor.Shared.Application
+namespace NexusMods.Monitor.Shared.Common.Extensions
 {
     public static class ImmutableArrayExtensions
     {

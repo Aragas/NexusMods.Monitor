@@ -1,6 +1,6 @@
 ﻿using System.Runtime.Serialization;
 
-namespace NexusMods.Monitor.Shared.Domain
+namespace NexusMods.Monitor.Shared.Common
 {
     public static class RecordUtils
     {

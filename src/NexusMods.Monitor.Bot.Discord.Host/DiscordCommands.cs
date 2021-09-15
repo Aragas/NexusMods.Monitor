@@ -11,6 +11,7 @@ using NexusMods.Monitor.Bot.Discord.Application.Queries.Authorizations;
 using NexusMods.Monitor.Bot.Discord.Application.Queries.RateLimits;
 using NexusMods.Monitor.Bot.Discord.Application.Queries.Subscriptions;
 using NexusMods.Monitor.Shared.Application;
+using NexusMods.Monitor.Shared.Common.Extensions;
 
 using NodaTime;
 using NodaTime.Extensions;

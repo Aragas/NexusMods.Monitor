@@ -2,6 +2,7 @@
 
 using NexusMods.Monitor.Bot.Discord.Application.Queries.RateLimits;
 using NexusMods.Monitor.Shared.Application;
+using NexusMods.Monitor.Shared.Application.Models;
 
 using NodaTime;
 

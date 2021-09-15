@@ -5,6 +5,7 @@ using Microsoft.Extensions.Options;
 
 using NexusMods.Monitor.Bot.Discord.Application.Commands;
 using NexusMods.Monitor.Shared.Application;
+using NexusMods.Monitor.Shared.Common;
 
 using System;
 using System.Net.Http;

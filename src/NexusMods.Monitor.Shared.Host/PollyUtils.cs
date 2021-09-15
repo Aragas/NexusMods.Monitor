@@ -22,7 +22,7 @@ namespace NexusMods.Monitor.Shared.Host
             return retryAfter.Date.HasValue ? retryAfter.Date.Value - DateTime.UtcNow : retryAfter.Delta.GetValueOrDefault(TimeSpan.Zero);
         }
 
-        public static IAsyncPolicy<HttpResponseMessage> PolicySelector(IServiceProvider sp, HttpRequestMessage request)
+        public static IAsyncPolicy<HttpResponseMessage> PolicySelector(IServiceProvider sp, HttpRequestMessage _)
         {
             var logger = sp.GetRequiredService<ILogger<PollyUtils>>();
 

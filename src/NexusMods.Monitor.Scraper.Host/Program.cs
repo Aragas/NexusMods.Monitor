@@ -1,19 +1,13 @@
 ﻿using BetterHostedServices;
 
-using CorrelationId;
-using CorrelationId.HttpClient;
-
 using MediatR;
 
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
-using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Options;
 
 using NexusMods.Monitor.Scraper.Application.CommandHandlers.Comments;
-using NexusMods.Monitor.Scraper.Application.Extensions;
 using NexusMods.Monitor.Scraper.Application.Queries.Comments;
 using NexusMods.Monitor.Scraper.Application.Queries.Issues;
 using NexusMods.Monitor.Scraper.Application.Queries.NexusModsComments;
@@ -24,82 +18,25 @@ using NexusMods.Monitor.Scraper.Application.Queries.Subscriptions;
 using NexusMods.Monitor.Scraper.Domain.AggregatesModel.CommentAggregate;
 using NexusMods.Monitor.Scraper.Domain.AggregatesModel.IssueAggregate;
 using NexusMods.Monitor.Scraper.Host.BackgroundServices;
-using NexusMods.Monitor.Scraper.Host.Options;
 using NexusMods.Monitor.Scraper.Infrastructure.Contexts;
 using NexusMods.Monitor.Scraper.Infrastructure.Repositories;
-using NexusMods.Monitor.Shared.Application;
 using NexusMods.Monitor.Shared.Application.Extensions;
-using NexusMods.Monitor.Shared.Domain.SeedWork;
+using NexusMods.Monitor.Shared.Application.Models;
 using NexusMods.Monitor.Shared.Host;
 using NexusMods.Monitor.Shared.Host.Extensions;
 
 using NodaTime;
 
 using Serilog;
-using Serilog.Exceptions;
-using Serilog.Exceptions.Core;
-using Serilog.Exceptions.EntityFrameworkCore.Destructurers;
 
 using System;
-using System.Reflection;
 using System.Threading.Tasks;
 
 namespace NexusMods.Monitor.Scraper.Host
 {
     public class Program
     {
-        public static async Task Main(string[] args)
-        {
-            var configuration = GetInitialConfiguration();
-            Log.Logger = new LoggerConfiguration()
-                .Enrich.FromLogContext()
-                .Enrich.WithAssemblyName()
-                .Enrich.WithAssemblyVersion()
-                .Enrich.WithThreadId()
-                .Enrich.WithThreadName()
-                .Enrich.WithExceptionDetails(new DestructuringOptionsBuilder()
-                    .WithDefaultDestructurers()
-                    .WithDestructurers(new[] { new DbUpdateExceptionDestructurer() }))
-                .ReadFrom.Configuration(configuration)
-                .CreateLogger();
-
-            try
-            {
-                Log.Warning("Starting");
-
-                var hostBuilder = CreateHostBuilder(args);
-
-                var host = hostBuilder.Build();
-                await EnsureDatabasesCreated(host);
-                host.MigrateDbContext<NexusModsDb>((context, services) =>
-                {
-                    var logger = services.GetRequiredService<ILogger<NexusModsDbSeed>>();
-                    NexusModsDbSeed.SeedAsync(logger, context).Wait();
-                });
-
-                await host.RunAsync();
-            }
-            catch (Exception ex)
-            {
-                Log.Fatal(ex, "Fatal exception");
-                throw;
-            }
-            finally
-            {
-                Log.Warning("Stopped.");
-                Log.CloseAndFlush();
-            }
-        }
-
-        private static IConfigurationRoot GetInitialConfiguration()
-        {
-            var env = Environment.GetEnvironmentVariable("DOTNET_ENVIRONMENT") ?? "Development";
-            return new ConfigurationBuilder()
-                .AddJsonFile("appsettings.json", false)
-                .AddJsonFile($"appsettings.{env}.json", true)
-                .AddEnvironmentVariables()
-                .Build();
-        }
+        public static async Task Main(string[] args) => await new HostManager(CreateHostBuilder).StartAsync(args);
 
         private static async Task EnsureDatabasesCreated(IHost host)
         {
@@ -128,39 +65,14 @@ namespace NexusMods.Monitor.Scraper.Host
                     cfg.CreateMap<IssueContentEntity, IssueContentDTO>();
                     cfg.CreateMap<IssueReplyEntity, IssueReplyDTO>();
                 });
+
                 services.AddMediatR(typeof(CommentAddCommandHandler).Assembly);
 
-                services.AddHttpClient("Subscriptions.API", (sp, client) =>
-                    {
-                        var backendOptions = sp.GetRequiredService<IOptions<SubscriptionsAPIOptions>>().Value;
-                        client.BaseAddress = new Uri(backendOptions.APIEndpointV1);
-
-                        var correlationIdOptions = sp.GetRequiredService<IOptions<CorrelationIdOptions>>().Value;
-                        client.DefaultRequestHeaders.Add(correlationIdOptions.RequestHeader, Guid.NewGuid().ToString());
-                    })
-                    .AddPolicyHandler(PollyUtils.PolicySelector)
-                    .AddCorrelationIdOverrideForwarding();
-                services.AddHttpClient("Metadata.API", (sp, client) =>
-                    {
-                        var backendOptions = sp.GetRequiredService<IOptions<MetadataAPIOptions>>().Value;
-                        client.BaseAddress = new Uri(backendOptions.APIEndpointV1);
-
-                        var correlationIdOptions = sp.GetRequiredService<IOptions<CorrelationIdOptions>>().Value;
-                        client.DefaultRequestHeaders.Add(correlationIdOptions.RequestHeader, Guid.NewGuid().ToString());
-                    })
-                    .AddPolicyHandler(PollyUtils.PolicySelector)
-                    .AddCorrelationIdOverrideForwarding();
-
                 services.AddTransient<IClock, SystemClock>(_ => SystemClock.Instance);
-                services.AddEventBusNatsAndEventHandlers(context.Configuration.GetSection("EventBus"), typeof(HostExtensions).Assembly);
 
                 services.AddBetterHostedServices();
 
-                services.Configure<MetadataAPIOptions>(context.Configuration.GetSection("MetadataAPI"));
-                services.Configure<SubscriptionsAPIOptions>(context.Configuration.GetSection("SubscriptionsAPI"));
-
                 services.AddDbContext<NexusModsDb>(opt => opt.UseNpgsql(context.Configuration.GetConnectionString("NexusMods"), o => o.UseNodaTime()));
-                services.AddTransient<IUnitOfWork>(sp => sp.GetRequiredService<NexusModsDb>());
 
                 services.AddHostedServiceAsSingleton<NexusModsIssueMonitor>();
                 services.AddHostedServiceAsSingleton<NexusModsCommentsMonitor>();
@@ -177,6 +89,9 @@ namespace NexusMods.Monitor.Scraper.Host
                 services.AddTransient<ISubscriptionQueries, SubscriptionQueries>();
             })
             .ConfigureAppConfiguration(config => config.AddEnvironmentVariables())
+            .AddEventBusNatsAndEventHandlers(typeof(Application.Extensions.HostExtensions).Assembly)
+            .AddMetadataHttpClient()
+            .AddSubscriptionsHttpClient()
             .UseSerilog();
     }
 }

@@ -11,6 +11,7 @@ using NexusMods.Monitor.Metadata.Application.Queries.Mods;
 using NexusMods.Monitor.Metadata.Application.Queries.Threads;
 using NexusMods.Monitor.Shared.API.SSE;
 using NexusMods.Monitor.Shared.Application;
+using NexusMods.Monitor.Shared.Common;
 
 using System;
 using System.Collections.Generic;
@@ -39,7 +40,7 @@ namespace NexusMods.Monitor.Metadata.API.Controllers
 
         private readonly ILogger<MetadataController> _logger;
 
-        public MetadataController(ILogger<MetadataController> logger, IGameQueries gameQueries)
+        public MetadataController(ILogger<MetadataController> logger)
         {
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
         }

@@ -7,6 +7,7 @@ using MediatR;
 using Microsoft.Extensions.DependencyInjection;
 
 using NexusMods.Monitor.Shared.Application.Behaviours;
+using NexusMods.Monitor.Shared.Common;
 
 using System.Reflection;
 

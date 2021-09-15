@@ -9,9 +9,10 @@ using System.Text.Json.Serialization;
 using System.Text.Unicode;
 using System.Threading;
 using System.Threading.Tasks;
+
 // ReSharper disable UnusedMember.Global
 
-namespace NexusMods.Monitor.Shared.Application
+namespace NexusMods.Monitor.Shared.Common
 {
 #pragma warning disable CA1822 // Mark members as static
     public class DefaultJsonSerializer

@@ -10,6 +10,7 @@ using NexusMods.Monitor.Scraper.Application.Queries.Issues;
 using NexusMods.Monitor.Scraper.Application.Queries.NexusModsIssues;
 using NexusMods.Monitor.Scraper.Application.Queries.Subscriptions;
 using NexusMods.Monitor.Shared.Application;
+using NexusMods.Monitor.Shared.Common.Extensions;
 
 using NodaTime;
 

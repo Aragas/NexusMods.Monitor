@@ -7,6 +7,7 @@
   <ItemGroup>
     <ProjectReference Include="..\NexusMods.Monitor.Scraper.Infrastructure\NexusMods.Monitor.Scraper.Infrastructure.csproj" />
     <ProjectReference Include="..\NexusMods.Monitor.Shared.Application\NexusMods.Monitor.Shared.Application.csproj" />
+    <ProjectReference Include="..\NexusMods.Monitor.Shared.Host\NexusMods.Monitor.Shared.Host.csproj" />
   </ItemGroup>
 
 </Project>

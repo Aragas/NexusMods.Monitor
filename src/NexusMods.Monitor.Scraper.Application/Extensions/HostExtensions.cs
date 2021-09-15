@@ -1,8 +1,9 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
+
+using NexusMods.Monitor.Shared.Host.Extensions;
 
 using Polly;
 
@@ -13,13 +14,6 @@ namespace NexusMods.Monitor.Scraper.Application.Extensions
 {
     public static class HostExtensions
     {
-        public static bool IsInKubernetes(this IHost host)
-        {
-            var cfg = host.Services.GetRequiredService<IConfiguration>();
-            var orchestratorType = cfg["OrchestratorType"];
-            return orchestratorType?.ToUpper() == "K8S";
-        }
-
         public static IHost MigrateDbContext<TContext>(this IHost host, Action<TContext, IServiceProvider> seeder) where TContext : DbContext
         {
             var underK8s = host.IsInKubernetes();

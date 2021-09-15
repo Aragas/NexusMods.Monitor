@@ -1,5 +1,6 @@
 ﻿using NexusMods.Monitor.Bot.Slack.Application.Queries.RateLimits;
 using NexusMods.Monitor.Shared.Application;
+using NexusMods.Monitor.Shared.Application.Models;
 
 using NodaTime;
 
