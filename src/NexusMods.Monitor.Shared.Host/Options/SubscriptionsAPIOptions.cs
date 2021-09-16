@@ -12,6 +12,6 @@ namespace NexusMods.Monitor.Shared.Host.Options
 
     public sealed record SubscriptionsAPIOptions
     {
-        public string APIEndpointV1 { get; set; } = default!;
+        public string APIEndpointV1 { get; init; } = default!;
     }
 }

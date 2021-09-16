@@ -14,8 +14,8 @@ namespace NexusMods.Monitor.Metadata.API.Options
 
     public sealed record NexusModsOptions
     {
-        public string Endpoint { get; set; } = default!;
-        public string APIEndpoint { get; set; } = default!;
-        public string APIKey { get; set; } = default!;
+        public string Endpoint { get; init; } = default!;
+        public string APIEndpoint { get; init; } = default!;
+        public string APIKey { get; init; } = default!;
     }
 }

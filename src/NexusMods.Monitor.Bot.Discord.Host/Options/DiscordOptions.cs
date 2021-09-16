@@ -12,6 +12,6 @@ namespace NexusMods.Monitor.Bot.Discord.Host.Options
 
     public sealed record DiscordOptions
     {
-        public string BotToken { get; set; } = default!;
+        public string BotToken { get; init; } = default!;
     }
 }

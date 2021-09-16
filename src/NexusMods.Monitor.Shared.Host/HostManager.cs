@@ -96,7 +96,7 @@ namespace NexusMods.Monitor.Shared.Host
             var env = Environment.GetEnvironmentVariable("DOTNET_ENVIRONMENT") ?? Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT") ?? "Development";
             return builder
                 .AddJsonFile($"appsettings.json", false, true)
-                .AddJsonFile($"appsettings.{env}.json", false, true)
+                .AddJsonFile($"appsettings.{env}.json", true, true)
                 .AddEnvironmentVariables();
         }
     }

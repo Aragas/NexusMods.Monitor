@@ -19,7 +19,7 @@ namespace NexusMods.Monitor.Shared.Host
             if (response.Result?.Headers.RetryAfter is not { } retryAfter)
                 return TimeSpan.Zero;
 
-            return retryAfter.Date.HasValue ? retryAfter.Date.Value - DateTime.UtcNow : retryAfter.Delta.GetValueOrDefault(TimeSpan.Zero);
+            return retryAfter.Date is not null ? retryAfter.Date.Value - DateTime.UtcNow : retryAfter.Delta.GetValueOrDefault(TimeSpan.Zero);
         }
 
         public static IAsyncPolicy<HttpResponseMessage> PolicySelector(IServiceProvider sp, HttpRequestMessage _)
