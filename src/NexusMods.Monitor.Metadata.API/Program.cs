@@ -12,8 +12,6 @@ using NexusMods.Monitor.Shared.Application.Extensions;
 using NexusMods.Monitor.Shared.Host;
 using NexusMods.Monitor.Shared.Host.Extensions;
 
-using Serilog;
-
 using System;
 using System.Reflection;
 using System.Runtime.InteropServices;
@@ -29,9 +27,7 @@ namespace NexusMods.Monitor.Metadata.API
         public static IHostBuilder CreateHostBuilder(string[] args) => Microsoft.Extensions.Hosting.Host
             .CreateDefaultBuilder(args)
             .ConfigureWebHostDefaults(webBuilder => webBuilder.UseStartup<Startup>())
-            .ConfigureAppConfiguration(config => config.AddEnvironmentVariables())
-            .AddNexusModsHttpClients()
-            .UseSerilog();
+            .AddNexusModsHttpClients();
 
         private static IHostBuilder AddNexusModsHttpClients(this IHostBuilder builder) => builder.ConfigureServices((context, services) =>
         {
@@ -65,10 +61,7 @@ namespace NexusMods.Monitor.Metadata.API
                 .AddCorrelationIdOverrideForwarding()
                 .SetHandlerLifetime(Timeout.InfiniteTimeSpan);
 
-            services.AddOptions<NexusModsOptions>()
-                .Bind(context.Configuration.GetSection("NexusMods"))
-                .ValidateViaFluent<NexusModsOptions, NexusModsOptionsValidator>()
-                .ValidateOnStart();
+            services.AddValidatedOptions<NexusModsOptions, NexusModsOptionsValidator>(context.Configuration.GetSection("NexusMods"));
 
             services.AddSingleton<NexusModsAPIKeyProvider>();
 

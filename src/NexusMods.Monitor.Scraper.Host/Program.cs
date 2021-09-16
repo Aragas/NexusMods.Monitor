@@ -27,8 +27,6 @@ using NexusMods.Monitor.Shared.Host.Extensions;
 
 using NodaTime;
 
-using Serilog;
-
 using System;
 using System.Threading.Tasks;
 
@@ -88,10 +86,8 @@ namespace NexusMods.Monitor.Scraper.Host
                 services.AddTransient<IIssueQueries, IssueQueries>();
                 services.AddTransient<ISubscriptionQueries, SubscriptionQueries>();
             })
-            .ConfigureAppConfiguration(config => config.AddEnvironmentVariables())
             .AddEventBusNatsAndEventHandlers(typeof(Application.Extensions.HostExtensions).Assembly)
             .AddMetadataHttpClient()
-            .AddSubscriptionsHttpClient()
-            .UseSerilog();
+            .AddSubscriptionsHttpClient();
     }
 }

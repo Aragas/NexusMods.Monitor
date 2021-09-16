@@ -20,8 +20,6 @@ using NexusMods.Monitor.Shared.Host.Extensions;
 
 using NodaTime;
 
-using Serilog;
-
 using SlackNet.Bot;
 
 using System.Threading.Tasks;
@@ -51,17 +49,12 @@ namespace NexusMods.Monitor.Bot.Slack.Host
             .AddEventBusNatsAndEventHandlers(typeof(CommentAddedNewIntegrationEventHandler).Assembly)
             .AddSubscriptionsHttpClient()
             .AddMetadataHttpClient()
-            .AddSlack()
-            .ConfigureAppConfiguration((hostingContext, config) => config.AddEnvironmentVariables())
-            .UseSerilog();
+            .AddSlack();
 
 
         private static IHostBuilder AddSlack(this IHostBuilder builder) => builder.ConfigureServices((context, services) =>
         {
-            services.AddOptions<SlackOptions>()
-                .Bind(context.Configuration.GetSection("Slack"))
-                .ValidateViaFluent<SlackOptions, SlackOptionsValidator>()
-                .ValidateOnStart();
+            services.AddValidatedOptions<SlackOptions, SlackOptionsValidator>(context.Configuration.GetSection("Slack"));
 
             services.AddSingleton<ISlackBot, SlackBotWrapper>();
 

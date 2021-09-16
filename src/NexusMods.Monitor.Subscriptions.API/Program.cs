@@ -10,8 +10,6 @@ using NexusMods.Monitor.Subscriptions.Infrastructure.Contexts;
 
 using Polly;
 
-using Serilog;
-
 using System;
 using System.Threading;
 using System.Threading.Tasks;
@@ -45,8 +43,6 @@ namespace NexusMods.Monitor.Subscriptions.API
         public static IHostBuilder CreateHostBuilder(string[] args) => Microsoft.Extensions.Hosting.Host
             .CreateDefaultBuilder(args)
             .ConfigureWebHostDefaults(webBuilder => webBuilder.UseStartup<Startup>())
-            .ConfigureAppConfiguration(config => config.AddEnvironmentVariables())
-            .AddMetadataHttpClient()
-            .UseSerilog();
+            .AddMetadataHttpClient();
     }
 }

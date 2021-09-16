@@ -24,8 +24,6 @@ using NexusMods.Monitor.Shared.Host.Extensions;
 
 using NodaTime;
 
-using Serilog;
-
 using System.Threading.Tasks;
 
 namespace NexusMods.Monitor.Bot.Discord.Host
@@ -53,16 +51,11 @@ namespace NexusMods.Monitor.Bot.Discord.Host
             .AddEventBusNatsAndEventHandlers(typeof(CommentAddedNewIntegrationEventHandler).Assembly)
             .AddSubscriptionsHttpClient()
             .AddMetadataHttpClient()
-            .AddDiscord()
-            .ConfigureAppConfiguration((hostingContext, config) => config.AddEnvironmentVariables())
-            .UseSerilog();
+            .AddDiscord();
 
         private static IHostBuilder AddDiscord(this IHostBuilder builder) => builder.ConfigureServices((context, services) =>
         {
-            services.AddOptions<DiscordOptions>()
-                .Bind(context.Configuration.GetSection("Discord"))
-                .ValidateViaFluent<DiscordOptions, DiscordOptionsValidator>()
-                .ValidateOnStart();
+            services.AddValidatedOptions<DiscordOptions, DiscordOptionsValidator>(context.Configuration.GetSection("Discord"));
 
             services.AddSingleton<DiscordSocketClient>();
             services.AddSingleton<IDiscordClient, DiscordSocketClient>(sp => sp.GetRequiredService<DiscordSocketClient>());

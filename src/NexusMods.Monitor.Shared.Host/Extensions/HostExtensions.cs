@@ -35,30 +35,17 @@ namespace NexusMods.Monitor.Shared.Host.Extensions
 
         public static ILogger CreateGlobalLogger(this LoggerConfiguration loggerConfiguration) => Log.Logger = loggerConfiguration.CreateLogger();
 
-        public static IConfigurationRoot GetInitialConfiguration()
-        {
-            var env = Environment.GetEnvironmentVariable("DOTNET_ENVIRONMENT") ?? Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT") ?? "Development";
-            return new ConfigurationBuilder()
-                .AddJsonFile("appsettings.json", false)
-                .AddJsonFile($"appsettings.{env}.json", true)
-                .AddEnvironmentVariables()
-                .Build();
-        }
-
-        public static LoggerConfiguration BuildSerilogLogger()
-        {
-            var configuration = GetInitialConfiguration();
-            return new LoggerConfiguration()
-                .Enrich.FromLogContext()
-                .Enrich.WithAssemblyName()
-                .Enrich.WithAssemblyVersion()
-                .Enrich.WithThreadId()
-                .Enrich.WithThreadName()
-                .Enrich.WithExceptionDetails(new DestructuringOptionsBuilder()
-                    .WithDefaultDestructurers()
-                    .WithDestructurers(new[] { new DbUpdateExceptionDestructurer() }))
-                .ReadFrom.Configuration(configuration);
-        }
+        public static LoggerConfiguration BuildSerilogLogger(this IConfiguration configuration) => new LoggerConfiguration()
+            .Enrich.FromLogContext()
+            .Enrich.WithAssemblyName()
+            .Enrich.WithAssemblyVersion()
+            .Enrich.WithThreadId()
+            .Enrich.WithThreadName()
+            .Enrich.WithExceptionDetails(new DestructuringOptionsBuilder()
+                .WithDefaultDestructurers()
+                .WithDestructurers(new[] { new DbUpdateExceptionDestructurer() })
+            )
+            .ReadFrom.Configuration(configuration);
 
         public static IHostBuilder AddSubscriptionsHttpClient(this IHostBuilder builder) => builder.ConfigureServices((context, services) =>
         {
@@ -72,10 +59,7 @@ namespace NexusMods.Monitor.Shared.Host.Extensions
                 .AddPolly()
                 .AddCorrelationIdOverrideForwarding();
 
-            services.AddOptions<SubscriptionsAPIOptions>()
-                .Bind(context.Configuration.GetSection("SubscriptionsAPI"))
-                .ValidateViaFluent<SubscriptionsAPIOptions, SubscriptionsAPIOptionsValidator>()
-                .ValidateOnStart();
+            services.AddValidatedOptions<SubscriptionsAPIOptions, SubscriptionsAPIOptionsValidator>(context.Configuration.GetSection("SubscriptionsAPI"));
         });
 
         public static IHostBuilder AddMetadataHttpClient(this IHostBuilder builder) => builder.ConfigureServices((context, services) =>
@@ -90,18 +74,12 @@ namespace NexusMods.Monitor.Shared.Host.Extensions
                 .AddPolly()
                 .AddCorrelationIdOverrideForwarding();
 
-            services.AddOptions<MetadataAPIOptions>()
-                .Bind(context.Configuration.GetSection("MetadataAPI"))
-                .ValidateViaFluent<MetadataAPIOptions, MetadataAPIOptionsValidator>()
-                .ValidateOnStart();
+            services.AddValidatedOptions<MetadataAPIOptions, MetadataAPIOptionsValidator>(context.Configuration.GetSection("MetadataAPI"));
         });
 
         public static IHostBuilder AddEventBusNatsAndEventHandlers(this IHostBuilder builder, Assembly assembly) => builder.ConfigureServices((context, services) =>
         {
-            services.AddOptions<NatsOptions>()
-                .Bind(context.Configuration.GetSection("EventBus"))
-                .ValidateViaFluent<NatsOptions, NatsOptionsValidator>()
-                .ValidateOnStart();
+            services.AddValidatedOptions<NatsOptions, NatsOptionsValidator>(context.Configuration.GetSection("EventBus"));
 
             services.AddEventBus();
             services.AddSingleton<ConnectionFactory>();
