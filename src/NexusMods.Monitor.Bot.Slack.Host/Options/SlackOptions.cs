@@ -12,6 +12,6 @@ namespace NexusMods.Monitor.Bot.Slack.Host.Options
 
     public sealed record SlackOptions
     {
-        public string BotToken {  get; init; } = default!;
+        public string BotToken { get; init; } = default!;
     }
 }

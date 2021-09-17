@@ -46,7 +46,7 @@ RUN /bin/ash -c 'set -ex && \
     fi'
 
 # Stage 2: Copy application artifacts into a smaller runtime environment, which is then used as our final image
-FROM mcr.microsoft.com/dotnet/runtime-deps:6.0.100-preview.7-alpine3.13
+FROM mcr.microsoft.com/dotnet/runtime-deps:6.0.0-preview.7-alpine3.13
 
 WORKDIR /app
 
