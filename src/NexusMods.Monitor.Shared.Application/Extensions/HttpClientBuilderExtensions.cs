@@ -21,7 +21,7 @@ namespace NexusMods.Monitor.Shared.Application.Extensions
         public static IHttpClientBuilder AddCorrelationIdOverrideForwarding(this IHttpClientBuilder builder)
         {
             if (builder == null)
-                throw new ArgumentNullException(nameof (builder));
+                throw new ArgumentNullException(nameof(builder));
             builder.Services.TryAddTransient<CorrelationIdOverrideHandler>();
             builder.AddHttpMessageHandler<CorrelationIdOverrideHandler>();
             return builder;
