@@ -2,106 +2,59 @@
 
 using NexusMods.Monitor.Scraper.Application.Queries.NexusModsIssues;
 using NexusMods.Monitor.Scraper.Domain.AggregatesModel.IssueAggregate;
+using NexusMods.Monitor.Shared.Common;
 
 using NodaTime;
 
 using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
-using System.Runtime.Serialization;
 
 namespace NexusMods.Monitor.Scraper.Application.Commands.Issues
 {
-    // TODO:
-    [DataContract]
-    public sealed record IssueAddCommand : IRequest<bool>
+    public sealed record IssueAddCommand(uint Id, uint NexusModsGameId, uint NexusModsModId, string GameName, string ModName, string Title, string Url, string ModVersion, IssueStatusEnumeration Status, IssuePriorityEnumeration Priority, bool IsPrivate, bool IsClosed, bool IsDeleted, Instant TimeOfLastPost, IssueAddCommand.IssueContentDTO? Content, IReadOnlyList<IssueAddCommand.IssueReplyDTO> Replies) : IRequest<bool>
     {
-        [DataMember]
-        private readonly IReadOnlyList<IssueReplyDTO> _replies = default!;
+        public sealed record IssueContentDTO(uint Id, string Author, string AuthorUrl, string AvatarUrl, string Content, Instant TimeOfPost);
 
-        [DataMember]
-        public uint Id { get; private set; } = default!;
-        [DataMember]
-        public uint NexusModsGameId { get; private set; } = default!;
-        [DataMember]
-        public uint NexusModsModId { get; private set; } = default!;
-        [DataMember]
-        public string GameName { get; private set; } = default!;
-        [DataMember]
-        public string ModName { get; private set; } = default!;
-        [DataMember]
-        public string Title { get; private set; } = default!;
-        [DataMember]
-        public string Url { get; private set; } = default!;
-        [DataMember]
-        public string ModVersion { get; private set; } = default!;
-        [DataMember]
-        public IssueStatusEnumeration Status { get; private set; } = default!;
-        [DataMember]
-        public IssuePriorityEnumeration Priority { get; private set; } = default!;
-        [DataMember]
-        public bool IsPrivate { get; private set; } = default!;
-        [DataMember]
-        public bool IsClosed { get; private set; } = default!;
-        [DataMember]
-        public bool IsDeleted { get; private set; } = default!;
-        [DataMember]
-        public Instant TimeOfLastPost { get; private set; } = default!;
-        [DataMember]
-        public IssueContentDTO? Content { get; private set; } = default!;
-        [DataMember]
-        public IEnumerable<IssueReplyDTO> Replies => _replies;
+        public sealed record IssueReplyDTO(uint Id, string Author, string AuthorUrl, string AvatarUrl, string Content, Instant TimeOfPost);
 
-        private IssueAddCommand()
+        public static IssueAddCommand FromViewModel(NexusModsIssueRootViewModel nexusModsIssueRoot, IssueStatusEnumeration issueStatus, IssuePriorityEnumeration issuePriority)
         {
-            _replies = new List<IssueReplyDTO>();
-        }
-        public IssueAddCommand(NexusModsIssueRootViewModel nexusModsIssueRoot, IssueStatusEnumeration issueStatus, IssuePriorityEnumeration issuePriority) : this()
-        {
-            Id = nexusModsIssueRoot.NexusModsIssue.Id;
-            NexusModsGameId = nexusModsIssueRoot.GameId;
-            NexusModsModId = nexusModsIssueRoot.ModId;
-            GameName = nexusModsIssueRoot.GameName;
-            ModName = nexusModsIssueRoot.ModName;
-            Title = nexusModsIssueRoot.NexusModsIssue.Title;
-            Url = $"https://www.nexusmods.com/{nexusModsIssueRoot.GameDomain}/mods/{NexusModsModId}/?tab=bugs&issue_id={Id}";
-            ModVersion = nexusModsIssueRoot.NexusModsIssue.ModVersion;
-            Status = issueStatus;
-            Priority = issuePriority;
-            IsPrivate = nexusModsIssueRoot.NexusModsIssue.IsPrivate;
-            IsClosed = nexusModsIssueRoot.NexusModsIssue.IsClosed;
-            IsDeleted = false;
-            TimeOfLastPost = nexusModsIssueRoot.NexusModsIssue.LastPost;
-
-            if (nexusModsIssueRoot.NexusModsIssueContent is not null)
+            return new IssueAddCommand(RecordUtils.Default<IssueAddCommand>())
             {
-                Content = new IssueContentDTO(
-                    nexusModsIssueRoot.NexusModsIssueContent.Id,
-                    nexusModsIssueRoot.NexusModsIssueContent.Author,
-                    nexusModsIssueRoot.NexusModsIssueContent.AuthorUrl,
-                    nexusModsIssueRoot.NexusModsIssueContent.AvatarUrl,
-                    nexusModsIssueRoot.NexusModsIssueContent.Content,
-                    false,
-                    nexusModsIssueRoot.NexusModsIssueContent.Time
-                );
-            }
-
-            if (nexusModsIssueRoot.NexusModsIssueReplies is not null)
-            {
-                _replies = nexusModsIssueRoot.NexusModsIssueReplies.Select(x => new IssueReplyDTO(
+                Id = nexusModsIssueRoot.NexusModsIssue.Id,
+                NexusModsGameId = nexusModsIssueRoot.GameId,
+                NexusModsModId = nexusModsIssueRoot.ModId,
+                GameName = nexusModsIssueRoot.GameName,
+                ModName = nexusModsIssueRoot.ModName,
+                Title = nexusModsIssueRoot.NexusModsIssue.Title,
+                Url = $"https://www.nexusmods.com/{nexusModsIssueRoot.GameDomain}/mods/{nexusModsIssueRoot.ModId}/?tab=bugs&issue_id={nexusModsIssueRoot.NexusModsIssue.Id}",
+                ModVersion = nexusModsIssueRoot.NexusModsIssue.ModVersion,
+                Status = issueStatus,
+                Priority = issuePriority,
+                IsPrivate = nexusModsIssueRoot.NexusModsIssue.IsPrivate,
+                IsClosed = nexusModsIssueRoot.NexusModsIssue.IsClosed,
+                IsDeleted = false,
+                TimeOfLastPost = nexusModsIssueRoot.NexusModsIssue.LastPost,
+                Content = nexusModsIssueRoot.NexusModsIssueContent is null
+                    ? null
+                    : new IssueContentDTO(
+                        nexusModsIssueRoot.NexusModsIssueContent.Id,
+                        nexusModsIssueRoot.NexusModsIssueContent.Author,
+                        nexusModsIssueRoot.NexusModsIssueContent.AuthorUrl,
+                        nexusModsIssueRoot.NexusModsIssueContent.AvatarUrl,
+                        nexusModsIssueRoot.NexusModsIssueContent.Content,
+                        nexusModsIssueRoot.NexusModsIssueContent.Time
+                    ),
+                Replies = nexusModsIssueRoot.NexusModsIssueReplies.Select(x => new IssueReplyDTO(
                     x.Id,
                     x.Author,
                     x.AuthorUrl,
                     x.AvatarUrl,
                     x.Content,
-                    false,
                     x.Time
-                )).ToImmutableArray();
-            }
+                )).ToImmutableArray(),
+            };
         }
-
-        public sealed record IssueContentDTO(uint Id, string Author, string AuthorUrl, string AvatarUrl, string Content, bool IsDeleted, Instant TimeOfPost);
-
-        public sealed record IssueReplyDTO(uint Id, string Author, string AuthorUrl, string AvatarUrl, string Content, bool IsDeleted, Instant TimeOfPost);
     }
 }

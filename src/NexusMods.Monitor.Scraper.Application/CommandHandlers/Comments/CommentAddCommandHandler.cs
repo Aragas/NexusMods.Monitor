@@ -50,7 +50,7 @@ namespace NexusMods.Monitor.Scraper.Application.CommandHandlers.Comments
                 message.Content,
                 message.IsSticky,
                 message.IsLocked,
-                message.IsDeleted,
+                false,
                 message.TimeOfPost);
 
             foreach (var commentReply in message.CommentReplies)
@@ -62,7 +62,7 @@ namespace NexusMods.Monitor.Scraper.Application.CommandHandlers.Comments
                     commentReply.AuthorUrl,
                     commentReply.AvatarUrl,
                     commentReply.Content,
-                    commentReply.IsDeleted,
+                    false,
                     commentReply.TimeOfPost);
             }
 

@@ -8,7 +8,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 
-namespace NexusMods.Monitor.Scraper.Application.Extensions
+namespace NexusMods.Monitor.Shared.Application.Extensions
 {
     public static class OptionsBuilderExtensions
     {

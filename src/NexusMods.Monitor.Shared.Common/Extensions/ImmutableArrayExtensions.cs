@@ -8,9 +8,7 @@ namespace NexusMods.Monitor.Shared.Common.Extensions
 {
     public static class ImmutableArrayExtensions
     {
-        public static async Task<ImmutableArray<TSource>> ToImmutableArrayAsync<TSource>(this IAsyncEnumerable<TSource> items, CancellationToken ct = default)
-        {
-            return ImmutableArray.Create(await items.ToArrayAsync(ct));
-        }
+        public static async Task<ImmutableArray<TSource>> ToImmutableArrayAsync<TSource>(this IAsyncEnumerable<TSource> items, CancellationToken ct = default) =>
+            ImmutableArray.Create(await items.ToArrayAsync(ct));
     }
 }

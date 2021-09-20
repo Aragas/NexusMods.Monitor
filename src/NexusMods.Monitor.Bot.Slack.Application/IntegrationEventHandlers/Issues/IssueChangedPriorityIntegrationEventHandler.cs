@@ -1,6 +1,5 @@
 ﻿using Microsoft.Extensions.Logging;
 
-using NexusMods.Monitor.Bot.Slack.Application.Queries;
 using NexusMods.Monitor.Bot.Slack.Application.Queries.Subscriptions;
 using NexusMods.Monitor.Shared.Application.IntegrationEvents.Issues;
 
@@ -26,7 +25,7 @@ namespace NexusMods.Monitor.Bot.Slack.Application.IntegrationEventHandlers.Issue
 
         protected override async Task Handle(IssueChangedPriorityIntegrationEvent command)
         {
-            var embed = AttachmentHelper.PriorityChanged(command.Issue, command.OldIssuePriority);
+            var embed = AttachmentHelper.PriorityChanged(command.Issue, command.PreviousPriority);
 
             await foreach (var (channelId, nexusModsGameId, nexusModsModId, _, _) in _subscriptionQueries.GetAllAsync())
             {

@@ -50,6 +50,7 @@ namespace NexusMods.Monitor.Scraper.Infrastructure.Repositories
 
             return commentEntity;
         }
+
         public IQueryable<CommentEntity> GetAll() => _context.CommentEntities
             .Include(x => x.Replies);
 

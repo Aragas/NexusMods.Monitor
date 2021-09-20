@@ -1,6 +1,5 @@
 ﻿using Microsoft.Extensions.Logging;
 
-using NexusMods.Monitor.Bot.Slack.Application.Queries;
 using NexusMods.Monitor.Bot.Slack.Application.Queries.Subscriptions;
 using NexusMods.Monitor.Shared.Application.IntegrationEvents.Comments;
 

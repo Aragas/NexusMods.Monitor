@@ -1,13 +1,11 @@
 ﻿using Microsoft.Extensions.Logging;
 
-using NexusMods.Monitor.Bot.Slack.Application.Queries;
 using NexusMods.Monitor.Bot.Slack.Application.Queries.Subscriptions;
 using NexusMods.Monitor.Shared.Application.IntegrationEvents.Comments;
 
 using SlackNet.Bot;
 
 using System;
-using System.Linq;
 using System.Threading.Tasks;
 
 namespace NexusMods.Monitor.Bot.Slack.Application.IntegrationEventHandlers.Comments
@@ -27,7 +25,7 @@ namespace NexusMods.Monitor.Bot.Slack.Application.IntegrationEventHandlers.Comme
 
         protected override async Task Handle(CommentAddedReplyIntegrationEvent command)
         {
-            var embed = AttachmentHelper.NewCommentReply(command.Comment, command.Comment.Replies.First(x => x.Id == command.ReplyId));
+            var embed = AttachmentHelper.NewCommentReply(command.Comment, command.Reply);
 
             await foreach (var (channelId, nexusModsGameId, nexusModsModId, _, _) in _subscriptionQueries.GetAllAsync())
             {

@@ -2,7 +2,6 @@
 
 using MediatR;
 
-using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 
@@ -13,7 +12,6 @@ using NexusMods.Monitor.Bot.Slack.Application.Queries.RateLimits;
 using NexusMods.Monitor.Bot.Slack.Application.Queries.Subscriptions;
 using NexusMods.Monitor.Bot.Slack.Host.BackgroundServices;
 using NexusMods.Monitor.Bot.Slack.Host.Options;
-using NexusMods.Monitor.Scraper.Application.Extensions;
 using NexusMods.Monitor.Shared.Application.Extensions;
 using NexusMods.Monitor.Shared.Host;
 using NexusMods.Monitor.Shared.Host.Extensions;

@@ -8,28 +8,28 @@ using System.Linq;
 
 namespace NexusMods.Monitor.Scraper.Domain.AggregatesModel.CommentAggregate
 {
-    public sealed record CommentEntity : Entity, IAggregateRoot
+    public sealed record CommentEntity(uint Id) : Entity(Id), IAggregateRoot
     {
-        public uint NexusModsGameId { get; private set; }
-        public uint NexusModsModId { get; private set; }
-        public string GameName { get; private set; }
-        public string ModName { get; private set; }
-        public string Url { get; private set; }
-        public string Author { get; private set; }
-        public string AuthorUrl { get; private set; }
-        public string AvatarUrl { get; private set; }
-        public string Content { get; private set; }
-        public bool IsSticky { get; private set; }
-        public bool IsLocked { get; private set; }
-        public bool IsDeleted { get; private set; }
-        public Instant TimeOfPost { get; private set; }
+        public uint NexusModsGameId { get; private set; } = default!;
+        public uint NexusModsModId { get; private set; } = default!;
+        public string GameName { get; private set; } = default!;
+        public string ModName { get; private set; } = default!;
+        public string Url { get; private set; } = default!;
+        public string Author { get; private set; } = default!;
+        public string AuthorUrl { get; private set; } = default!;
+        public string AvatarUrl { get; private set; } = default!;
+        public string Content { get; private set; } = default!;
+        public bool IsSticky { get; private set; } = default!;
+        public bool IsLocked { get; private set; } = default!;
+        public bool IsDeleted { get; private set; } = default!;
+        public Instant TimeOfPost { get; private set; } = default!;
+
         private readonly List<CommentReplyEntity> _replies = new();
         public IReadOnlyList<CommentReplyEntity> Replies => _replies.AsReadOnly();
 
         private CommentEntity() : this(default, default, default, default!, default!, default!, default!, default!, default!, default!, default, default, default, default) { }
-        public CommentEntity(uint id, uint nexusModsGameId, uint nexusModsModId, string gameName, string modName, string url, string author, string authorUrl, string avatarUrl, string content, bool isSticky, bool isLocked, bool isDeleted, Instant timeOfPost) : base(id)
+        public CommentEntity(uint id, uint nexusModsGameId, uint nexusModsModId, string gameName, string modName, string url, string author, string authorUrl, string avatarUrl, string content, bool isSticky, bool isLocked, bool isDeleted, Instant timeOfPost) : this(id)
         {
-            Id = id;
             NexusModsGameId = nexusModsGameId;
             NexusModsModId = nexusModsModId;
             GameName = gameName;
@@ -49,17 +49,23 @@ namespace NexusMods.Monitor.Scraper.Domain.AggregatesModel.CommentAggregate
 
         public void Remove()
         {
-            IsDeleted = true;
-            foreach (var reply in Replies)
+            if (IsDeleted != true)
             {
-                reply.Remove();
+                AddDomainEvent(new CommentRemovedEvent(Id));
+                IsDeleted = true;
+                foreach (var reply in Replies)
+                {
+                    reply.Remove();
+                }
             }
-            AddDomainEvent(new CommentRemovedEvent(Id));
         }
         public void Return()
         {
-            IsDeleted = false;
-            AddDomainEvent(new CommentAddedEvent(Id));
+            if (IsDeleted != false)
+            {
+                AddDomainEvent(new CommentAddedEvent(Id));
+                IsDeleted = false;
+            }
         }
 
         public CommentReplyEntity AddReplyEntity(uint id, string url, string author, string authorUrl, string avatarUrl, string content, bool isDeleted, Instant timeOfPost)
@@ -80,7 +86,10 @@ namespace NexusMods.Monitor.Scraper.Domain.AggregatesModel.CommentAggregate
         public void RemoveReply(uint id)
         {
             var commentReplyEntity = Replies.SingleOrDefault(o => o.Id == id);
-            commentReplyEntity?.Remove();
+            if (commentReplyEntity is not null)
+            {
+                commentReplyEntity.Remove();
+            }
         }
 
         public void SetIsSticky(bool isSticky)

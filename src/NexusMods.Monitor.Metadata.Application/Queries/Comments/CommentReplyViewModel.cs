@@ -2,7 +2,6 @@
 
 using NexusMods.Monitor.Metadata.Application.Extensions;
 using NexusMods.Monitor.Shared.Common;
-using NexusMods.Monitor.Shared.Domain;
 
 using NodaTime;
 using NodaTime.Text;

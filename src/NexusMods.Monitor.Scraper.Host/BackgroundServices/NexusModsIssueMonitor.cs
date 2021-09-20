@@ -9,7 +9,6 @@ using NexusMods.Monitor.Scraper.Application.Commands.Issues;
 using NexusMods.Monitor.Scraper.Application.Queries.Issues;
 using NexusMods.Monitor.Scraper.Application.Queries.NexusModsIssues;
 using NexusMods.Monitor.Scraper.Application.Queries.Subscriptions;
-using NexusMods.Monitor.Shared.Application;
 using NexusMods.Monitor.Shared.Common.Extensions;
 
 using NodaTime;
@@ -94,9 +93,9 @@ namespace NexusMods.Monitor.Scraper.Host.BackgroundServices
                     var issuePriority = await issueQueries.GetPriorityAsync(issueRoot.NexusModsIssue.Priority.Id, ct);
 
                     if (now - issueRoot.NexusModsIssue.LastPost < Duration.FromDays(1))
-                        await mediator.Send(new IssueAddNewCommand(issueRoot, issueStatus, issuePriority), ct);
+                        await mediator.Send(IssueAddNewCommand.FromViewModel(issueRoot, issueStatus, issuePriority), ct);
                     else
-                        await mediator.Send(new IssueAddCommand(issueRoot, issueStatus, issuePriority), ct);
+                        await mediator.Send(IssueAddCommand.FromViewModel(issueRoot, issueStatus, issuePriority), ct);
                 }
 
                 foreach (var (databaseIssue, nexusModsIssueRoot) in existingIssues)

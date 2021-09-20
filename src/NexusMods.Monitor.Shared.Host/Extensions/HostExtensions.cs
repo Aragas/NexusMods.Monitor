@@ -9,7 +9,6 @@ using Microsoft.Extensions.Options;
 
 using NATS.Client;
 
-using NexusMods.Monitor.Scraper.Application.Extensions;
 using NexusMods.Monitor.Shared.Application.Extensions;
 using NexusMods.Monitor.Shared.Host.Options;
 
@@ -26,13 +25,6 @@ namespace NexusMods.Monitor.Shared.Host.Extensions
 {
     public static class HostExtensions
     {
-        public static bool IsInKubernetes(this IHost host)
-        {
-            var cfg = host.Services.GetRequiredService<IConfiguration>();
-            var orchestratorType = cfg["OrchestratorType"];
-            return orchestratorType?.ToUpper() == "K8S";
-        }
-
         public static ILogger CreateGlobalLogger(this LoggerConfiguration loggerConfiguration) => Log.Logger = loggerConfiguration.CreateLogger();
 
         public static LoggerConfiguration BuildSerilogLogger(this IConfiguration configuration) => new LoggerConfiguration()
@@ -77,7 +69,7 @@ namespace NexusMods.Monitor.Shared.Host.Extensions
             services.AddValidatedOptions<MetadataAPIOptions, MetadataAPIOptionsValidator>(context.Configuration.GetSection("MetadataAPI"));
         });
 
-        public static IHostBuilder AddEventBusNatsAndEventHandlers(this IHostBuilder builder, Assembly assembly) => builder.ConfigureServices((context, services) =>
+        public static IHostBuilder AddEventBusNatsAndEventHandlers(this IHostBuilder builder, Assembly? assembly = null) => builder.ConfigureServices((context, services) =>
         {
             services.AddValidatedOptions<NatsOptions, NatsOptionsValidator>(context.Configuration.GetSection("EventBus"));
 
@@ -88,7 +80,7 @@ namespace NexusMods.Monitor.Shared.Host.Extensions
             services.AddSingleton<IEventSubscriber, NatsEventSubscriber>();
 
             services.Replace(new ServiceDescriptor(typeof(IEventProcessor), typeof(EventProcessorJson), ServiceLifetime.Singleton));
-            foreach (var type in assembly.GetTypes().Where(typeof(IEventHandler).IsAssignableFrom))
+            foreach (var type in assembly?.GetTypes().Where(typeof(IEventHandler).IsAssignableFrom) ?? Enumerable.Empty<Type>())
             {
                 services.AddTransient(typeof(IEventHandler), type);
             }

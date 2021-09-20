@@ -2,7 +2,6 @@
 
 using Microsoft.Extensions.Logging;
 
-using NexusMods.Monitor.Bot.Discord.Application.Queries;
 using NexusMods.Monitor.Bot.Discord.Application.Queries.Subscriptions;
 using NexusMods.Monitor.Shared.Application.IntegrationEvents.Issues;
 
@@ -28,7 +27,7 @@ namespace NexusMods.Monitor.Bot.Discord.Application.IntegrationEventHandlers.Iss
 
         protected override async Task Handle(IssueRemovedReplyIntegrationEvent command)
         {
-            var embed = EmbedHelper.DeletedIssueReply(command.Issue, command.IssueReply);
+            var embed = EmbedHelper.DeletedIssueReply(command.Issue, command.Reply);
 
             await foreach (var (channelId, nexusModsGameId, nexusModsModId, _, _) in _subscriptionQueries.GetAllAsync())
             {

@@ -86,7 +86,7 @@ namespace NexusMods.Monitor.Scraper.Host
                 services.AddTransient<IIssueQueries, IssueQueries>();
                 services.AddTransient<ISubscriptionQueries, SubscriptionQueries>();
             })
-            .AddEventBusNatsAndEventHandlers(typeof(Application.Extensions.HostExtensions).Assembly)
+            .AddEventBusNatsAndEventHandlers()
             .AddMetadataHttpClient()
             .AddSubscriptionsHttpClient();
     }

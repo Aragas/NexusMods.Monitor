@@ -3,7 +3,6 @@
 using Microsoft.Extensions.Logging;
 
 using NexusMods.Monitor.Bot.Slack.Application.Commands;
-using NexusMods.Monitor.Shared.Application;
 using NexusMods.Monitor.Shared.Common;
 
 using System;
@@ -29,8 +28,7 @@ namespace NexusMods.Monitor.Bot.Slack.Application.CommandHandlers
 
         public async Task<bool> Handle(Unsubscribe2Command message, CancellationToken ct)
         {
-            var response = await _httpClientFactory.CreateClient("Subscriptions.API").PutAsync(
-                "unsubscribe2",
+            var response = await _httpClientFactory.CreateClient("Subscriptions.API").PutAsync("unsubscribe2",
                 new StringContent(_jsonSerializer.Serialize(new UnsubscribeDTO($"Slack:{message.ChannelId}", message.NexusModsUrl)), Encoding.UTF8, "application/json"),
                 ct);
             return response.IsSuccessStatusCode;

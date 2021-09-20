@@ -2,12 +2,10 @@
 
 using Microsoft.Extensions.Logging;
 
-using NexusMods.Monitor.Bot.Discord.Application.Queries;
 using NexusMods.Monitor.Bot.Discord.Application.Queries.Subscriptions;
 using NexusMods.Monitor.Shared.Application.IntegrationEvents.Comments;
 
 using System;
-using System.Linq;
 using System.Threading.Tasks;
 
 namespace NexusMods.Monitor.Bot.Discord.Application.IntegrationEventHandlers.Comments
@@ -29,7 +27,7 @@ namespace NexusMods.Monitor.Bot.Discord.Application.IntegrationEventHandlers.Com
 
         protected override async Task Handle(CommentAddedReplyIntegrationEvent command)
         {
-            var embed = EmbedHelper.NewCommentReply(command.Comment, command.Comment.Replies.First(x => x.Id == command.ReplyId));
+            var embed = EmbedHelper.NewCommentReply(command.Comment, command.Reply);
 
             await foreach (var (channelId, nexusModsGameId, nexusModsModId, _, _) in _subscriptionQueries.GetAllAsync())
             {

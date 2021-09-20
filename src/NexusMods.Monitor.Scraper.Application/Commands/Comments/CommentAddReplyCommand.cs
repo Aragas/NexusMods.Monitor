@@ -1,48 +1,28 @@
 ﻿using MediatR;
 
 using NexusMods.Monitor.Scraper.Application.Queries.NexusModsComments;
+using NexusMods.Monitor.Shared.Common;
 
 using NodaTime;
 
-using System.Runtime.Serialization;
-
 namespace NexusMods.Monitor.Scraper.Application.Commands.Comments
 {
-    // TODO:
-    [DataContract]
-    public sealed record CommentAddReplyCommand : IRequest<bool>
+    public sealed record CommentAddReplyCommand(uint Id, uint ReplyId, string Url, string Author, string AuthorUrl, string AvatarUrl, string Content, bool IsDeleted, Instant TimeOfPost) : IRequest<bool>
     {
-        [DataMember]
-        public uint Id { get; private set; } = default!;
-        [DataMember]
-        public uint ReplyId { get; private set; } = default!;
-        [DataMember]
-        public string Url { get; private set; } = default!;
-        [DataMember]
-        public string Author { get; private set; } = default!;
-        [DataMember]
-        public string AuthorUrl { get; private set; } = default!;
-        [DataMember]
-        public string AvatarUrl { get; private set; } = default!;
-        [DataMember]
-        public string Content { get; private set; } = default!;
-        [DataMember]
-        public bool IsDeleted { get; private set; } = default!;
-        [DataMember]
-        public Instant TimeOfPost { get; private set; } = default!;
-
-        private CommentAddReplyCommand() { }
-        public CommentAddReplyCommand(NexusModsCommentRootViewModel nexusModsCommentRoot, NexusModsCommentReplyViewModel nexusModsCommentReply) : this()
+        public static CommentAddReplyCommand FromViewModel(NexusModsCommentRootViewModel nexusModsCommentRoot, NexusModsCommentReplyViewModel nexusModsCommentReply)
         {
-            Id = nexusModsCommentReply.OwnerId;
-            ReplyId = nexusModsCommentReply.Id;
-            Url = $"https://www.nexusmods.com/{nexusModsCommentRoot.GameDomain}/mods/{nexusModsCommentRoot.ModId}/?tab=posts&jump_to_comment={Id}";
-            Author = nexusModsCommentReply.Author;
-            AuthorUrl = nexusModsCommentReply.AuthorUrl;
-            AvatarUrl = nexusModsCommentReply.AvatarUrl;
-            Content = nexusModsCommentReply.Content;
-            IsDeleted = false;
-            TimeOfPost = nexusModsCommentReply.Post;
+            return new CommentAddReplyCommand(RecordUtils.Default<CommentAddReplyCommand>())
+            {
+                Id = nexusModsCommentReply.OwnerId,
+                ReplyId = nexusModsCommentReply.Id,
+                Url = $"https://www.nexusmods.com/{nexusModsCommentRoot.GameDomain}/mods/{nexusModsCommentRoot.ModId}/?tab=posts&jump_to_comment={nexusModsCommentReply.OwnerId}",
+                Author = nexusModsCommentReply.Author,
+                AuthorUrl = nexusModsCommentReply.AuthorUrl,
+                AvatarUrl = nexusModsCommentReply.AvatarUrl,
+                Content = nexusModsCommentReply.Content,
+                IsDeleted = false,
+                TimeOfPost = nexusModsCommentReply.Post,
+            };
         }
     }
 }

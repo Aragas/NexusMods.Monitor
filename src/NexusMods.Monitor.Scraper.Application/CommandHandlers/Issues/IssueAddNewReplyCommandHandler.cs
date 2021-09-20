@@ -8,7 +8,6 @@ using Microsoft.Extensions.Logging;
 
 using NexusMods.Monitor.Scraper.Application.Commands.Issues;
 using NexusMods.Monitor.Scraper.Domain.AggregatesModel.IssueAggregate;
-using NexusMods.Monitor.Shared.Application;
 using NexusMods.Monitor.Shared.Application.IntegrationEvents.Issues;
 using NexusMods.Monitor.Shared.Application.Models;
 
@@ -49,7 +48,7 @@ namespace NexusMods.Monitor.Scraper.Application.CommandHandlers.Issues
                 return false;
             }
 
-            issueEntity.AddReplyEntity(
+            var issueReplyEntity = issueEntity.AddReplyEntity(
                 message.Id,
                 message.Author,
                 message.AuthorUrl,
@@ -61,10 +60,11 @@ namespace NexusMods.Monitor.Scraper.Application.CommandHandlers.Issues
             _issueRepository.Update(issueEntity);
 
             var issueDTO = _mapper.Map<IssueEntity, IssueDTO>(issueEntity);
+            var issueReplyDTO = _mapper.Map<IssueReplyEntity, IssueReplyDTO>(issueReplyEntity);
 
             if (await _issueRepository.UnitOfWork.SaveEntitiesAsync(ct))
             {
-                await _eventPublisher.Publish(new IssueAddedReplyIntegrationEvent(issueDTO, message.Id), "issue_events", ct);
+                await _eventPublisher.Publish(new IssueAddedReplyIntegrationEvent(issueDTO, issueReplyDTO), "issue_events", ct);
                 return true;
             }
             else

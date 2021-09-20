@@ -2,12 +2,10 @@
 
 using Microsoft.Extensions.Logging;
 
-using NexusMods.Monitor.Bot.Discord.Application.Queries;
 using NexusMods.Monitor.Bot.Discord.Application.Queries.Subscriptions;
 using NexusMods.Monitor.Shared.Application.IntegrationEvents.Issues;
 
 using System;
-using System.Linq;
 using System.Threading.Tasks;
 
 namespace NexusMods.Monitor.Bot.Discord.Application.IntegrationEventHandlers.Issues
@@ -29,7 +27,7 @@ namespace NexusMods.Monitor.Bot.Discord.Application.IntegrationEventHandlers.Iss
 
         protected override async Task Handle(IssueAddedReplyIntegrationEvent command)
         {
-            var embed = EmbedHelper.NewIssueReply(command.Issue, command.Issue.Replies.First(x => x.Id == command.ReplyId));
+            var embed = EmbedHelper.NewIssueReply(command.Issue, command.Reply);
 
             await foreach (var (channelId, nexusModsGameId, nexusModsModId, _, _) in _subscriptionQueries.GetAllAsync())
             {

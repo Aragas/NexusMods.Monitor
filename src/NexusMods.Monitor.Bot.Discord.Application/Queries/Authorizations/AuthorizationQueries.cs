@@ -1,5 +1,4 @@
-﻿using NexusMods.Monitor.Shared.Application;
-using NexusMods.Monitor.Shared.Common;
+﻿using NexusMods.Monitor.Shared.Common;
 
 using System;
 using System.Net;

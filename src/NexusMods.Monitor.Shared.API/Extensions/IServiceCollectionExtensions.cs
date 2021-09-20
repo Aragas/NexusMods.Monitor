@@ -1,6 +1,4 @@
-﻿using CorrelationId.DependencyInjection;
-
-using MicroElements.Swashbuckle.NodaTime;
+﻿using MicroElements.Swashbuckle.NodaTime;
 
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.OpenApi.Models;
@@ -20,7 +18,7 @@ namespace NexusMods.Monitor.Shared.API.Extensions
     {
         public static IServiceCollection AddAPI(this IServiceCollection services)
         {
-            var appName = Assembly.GetEntryAssembly()!.GetName().Name;
+            var appName = Assembly.GetEntryAssembly()?.GetName().Name ?? "ERROR";
 
             services.AddControllers().AddJsonOptions(options =>
             {
@@ -35,7 +33,7 @@ namespace NexusMods.Monitor.Shared.API.Extensions
             });
             services.AddSwaggerGen(options =>
             {
-                options.SwaggerDoc("v1", new OpenApiInfo { Title = "NexusMods.Monitor.Metadata.API", Version = "v1" });
+                options.SwaggerDoc("v1", new OpenApiInfo { Title = appName, Version = "v1" });
                 options.SupportNonNullableReferenceTypes();
                 options.ConfigureForNodaTimeWithSystemTextJson();
 

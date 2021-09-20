@@ -29,8 +29,7 @@ namespace NexusMods.Monitor.Bot.Discord.Application.CommandHandlers
 
         public async Task<bool> Handle(Subscribe2Command message, CancellationToken ct)
         {
-            var response = await _httpClientFactory.CreateClient("Subscriptions.API").PutAsync(
-                "subscribe2",
+            var response = await _httpClientFactory.CreateClient("Subscriptions.API").PutAsync("subscribe2",
                 new StringContent(_jsonSerializer.Serialize(new SubscribeDTO($"Discord:{message.ChannelId}", message.NexusModsUrl)), Encoding.UTF8, "application/json"),
                 ct);
             return response.IsSuccessStatusCode;

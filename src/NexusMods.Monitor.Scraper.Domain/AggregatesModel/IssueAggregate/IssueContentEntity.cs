@@ -1,38 +1,47 @@
-﻿using NexusMods.Monitor.Shared.Domain.SeedWork;
+﻿using NexusMods.Monitor.Scraper.Domain.Events.Issues;
+using NexusMods.Monitor.Shared.Domain.SeedWork;
 
 using NodaTime;
 
 namespace NexusMods.Monitor.Scraper.Domain.AggregatesModel.IssueAggregate
 {
-    // Should be a ValueObject
-    public sealed record IssueContentEntity : Entity
+    public sealed record IssueContentEntity(uint Id) : Entity(Id)
     {
-        public string Author { get; private set; }
-        public string AuthorUrl { get; private set; }
-        public string AvatarUrl { get; private set; }
-        public string Content { get; private set; }
-        public bool IsDeleted { get; private set; }
-        public Instant TimeOfPost { get; private set; }
+        public string Author { get; private set; } = default!;
+        public string AuthorUrl { get; private set; } = default!;
+        public string AvatarUrl { get; private set; } = default!;
+        public string Content { get; private set; } = default!;
+        public bool IsDeleted { get; private set; } = default!;
+        public Instant TimeOfPost { get; private set; } = default!;
 
         private IssueContentEntity() : this(default, default!, default!, default!, default!, default, default) { }
-        public IssueContentEntity(uint id, string author, string authorUrl, string avatarUrl, string content, bool isDeleted, Instant timeOfPost) : base(id)
+        public IssueContentEntity(uint id, string author, string authorUrl, string avatarUrl, string content, bool isDeleted, Instant timeOfPost) : this(id)
         {
-            Id = id;
             Author = author;
             AuthorUrl = authorUrl;
             AvatarUrl = avatarUrl;
             Content = content;
             IsDeleted = isDeleted;
             TimeOfPost = timeOfPost;
+
+            AddDomainEvent(new IssueContentChangedEvent(Id));
         }
 
         public void Remove()
         {
-            IsDeleted = true;
+            if (IsDeleted != true)
+            {
+                AddDomainEvent(new IssueContentChangedEvent(Id));
+                IsDeleted = true;
+            }
         }
         public void Return()
         {
-            IsDeleted = true;
+            if (IsDeleted != false)
+            {
+                AddDomainEvent(new IssueContentChangedEvent(Id));
+                IsDeleted = false;
+            }
         }
     }
 }

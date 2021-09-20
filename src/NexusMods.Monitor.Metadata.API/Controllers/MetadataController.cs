@@ -10,7 +10,6 @@ using NexusMods.Monitor.Metadata.Application.Queries.Issues;
 using NexusMods.Monitor.Metadata.Application.Queries.Mods;
 using NexusMods.Monitor.Metadata.Application.Queries.Threads;
 using NexusMods.Monitor.Shared.API.SSE;
-using NexusMods.Monitor.Shared.Application;
 using NexusMods.Monitor.Shared.Common;
 
 using System;

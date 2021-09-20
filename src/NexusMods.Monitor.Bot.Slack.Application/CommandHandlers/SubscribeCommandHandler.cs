@@ -3,7 +3,6 @@
 using Microsoft.Extensions.Logging;
 
 using NexusMods.Monitor.Bot.Slack.Application.Commands;
-using NexusMods.Monitor.Shared.Application;
 using NexusMods.Monitor.Shared.Common;
 
 using System;
@@ -29,8 +28,7 @@ namespace NexusMods.Monitor.Bot.Slack.Application.CommandHandlers
 
         public async Task<bool> Handle(SubscribeCommand message, CancellationToken ct)
         {
-            var response = await _httpClientFactory.CreateClient("Subscriptions.API").PutAsync(
-                "subscribe",
+            var response = await _httpClientFactory.CreateClient("Subscriptions.API").PutAsync("subscribe",
                 new StringContent(_jsonSerializer.Serialize(new SubscribeDTO($"Slack:{message.ChannelId}", message.NexusModsGameId, message.NexusModsModId)), Encoding.UTF8, "application/json"),
                 ct);
             return response.IsSuccessStatusCode;

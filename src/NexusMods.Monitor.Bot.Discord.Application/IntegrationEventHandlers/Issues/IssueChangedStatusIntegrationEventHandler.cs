@@ -2,7 +2,6 @@
 
 using Microsoft.Extensions.Logging;
 
-using NexusMods.Monitor.Bot.Discord.Application.Queries;
 using NexusMods.Monitor.Bot.Discord.Application.Queries.Subscriptions;
 using NexusMods.Monitor.Shared.Application.IntegrationEvents.Issues;
 
@@ -28,7 +27,7 @@ namespace NexusMods.Monitor.Bot.Discord.Application.IntegrationEventHandlers.Iss
 
         protected override async Task Handle(IssueChangedStatusIntegrationEvent command)
         {
-            var embed = EmbedHelper.StatusChanged(command.Issue, command.OldIssueStatus);
+            var embed = EmbedHelper.StatusChanged(command.Issue, command.PreviousStatus);
 
             await foreach (var (channelId, nexusModsGameId, nexusModsModId, _, _) in _subscriptionQueries.GetAllAsync())
             {

@@ -3,7 +3,7 @@
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 
-using NexusMods.Monitor.Scraper.Application.Extensions;
+using NexusMods.Monitor.Shared.Application.Extensions;
 
 namespace NexusMods.Monitor.Shared.Host.Extensions
 {

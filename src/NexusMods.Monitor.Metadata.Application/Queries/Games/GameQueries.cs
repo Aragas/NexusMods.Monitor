@@ -1,7 +1,6 @@
 ﻿using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Logging;
 
-using NexusMods.Monitor.Shared.Application;
 using NexusMods.Monitor.Shared.Common;
 
 using System;

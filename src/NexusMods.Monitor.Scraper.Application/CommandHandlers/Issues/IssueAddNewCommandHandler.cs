@@ -8,7 +8,6 @@ using Microsoft.Extensions.Logging;
 
 using NexusMods.Monitor.Scraper.Application.Commands.Issues;
 using NexusMods.Monitor.Scraper.Domain.AggregatesModel.IssueAggregate;
-using NexusMods.Monitor.Shared.Application;
 using NexusMods.Monitor.Shared.Application.IntegrationEvents.Issues;
 using NexusMods.Monitor.Shared.Application.Models;
 
@@ -61,7 +60,7 @@ namespace NexusMods.Monitor.Scraper.Application.CommandHandlers.Issues
                 await _issueRepository.GetPriorityAsync(message.Priority.Id),
                 message.IsPrivate,
                 message.IsClosed,
-                message.IsDeleted,
+                false,
                 message.TimeOfLastPost);
 
             if (message.Content is not null)

@@ -60,7 +60,7 @@ namespace NexusMods.Monitor.Scraper.Application.CommandHandlers.Issues
                     message.Content.AuthorUrl,
                     message.Content.AvatarUrl,
                     message.Content.Content,
-                    message.Content.IsDeleted,
+                    false,
                     message.Content.TimeOfPost);
             }
 
@@ -72,7 +72,7 @@ namespace NexusMods.Monitor.Scraper.Application.CommandHandlers.Issues
                     issueReply.AuthorUrl,
                     issueReply.AvatarUrl,
                     issueReply.Content,
-                    issueReply.IsDeleted,
+                    false,
                     issueReply.TimeOfPost);
             }
 

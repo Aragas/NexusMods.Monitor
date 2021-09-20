@@ -14,9 +14,6 @@ namespace NexusMods.Monitor.Metadata.Application.Queries.Comments
             return x.Id == y.Id;
         }
 
-        public int GetHashCode(CommentViewModel obj)
-        {
-            return HashCode.Combine(obj.Id);
-        }
+        public int GetHashCode(CommentViewModel obj) => HashCode.Combine(obj.Id);
     }
 }

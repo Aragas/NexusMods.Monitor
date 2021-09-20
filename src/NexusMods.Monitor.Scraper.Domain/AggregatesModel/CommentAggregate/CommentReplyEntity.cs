@@ -34,13 +34,19 @@ namespace NexusMods.Monitor.Scraper.Domain.AggregatesModel.CommentAggregate
 
         public void Remove()
         {
-            IsDeleted = true;
-            AddDomainEvent(new CommentRemovedReplyEvent(OwnerId, Id));
+            if (IsDeleted != true)
+            {
+                AddDomainEvent(new CommentRemovedReplyEvent(OwnerId, Id));
+                IsDeleted = true;
+            }
         }
         public void Return()
         {
-            IsDeleted = false;
-            AddDomainEvent(new CommentAddedReplyEvent(OwnerId, Id));
+            if (IsDeleted != false)
+            {
+                AddDomainEvent(new CommentAddedReplyEvent(OwnerId, Id));
+                IsDeleted = false;
+            }
         }
     }
 }

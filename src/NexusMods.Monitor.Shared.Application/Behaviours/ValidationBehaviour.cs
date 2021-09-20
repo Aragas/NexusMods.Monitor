@@ -3,6 +3,7 @@
 using MediatR;
 
 using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -25,9 +26,9 @@ namespace NexusMods.Monitor.Shared.Application.Behaviours
                 var context = new ValidationContext<TRequest>(request);
 
                 var validationResults = await Task.WhenAll(_validators.Select(v => v.ValidateAsync(context, ct)));
-                var failures = validationResults.SelectMany(r => r.Errors).Where(f => f != null).ToList();
+                var failures = validationResults.SelectMany(r => r.Errors).Where(f => f != null).ToImmutableArray();
 
-                if (failures.Count != 0)
+                if (failures.Any())
                     throw new ValidationException(failures);
             }
             return await next();

@@ -14,9 +14,6 @@ namespace NexusMods.Monitor.Metadata.Application.Queries.Issues
             return x.Id == y.Id;
         }
 
-        public int GetHashCode(IssueViewModel obj)
-        {
-            return HashCode.Combine(obj.Id);
-        }
+        public int GetHashCode(IssueViewModel obj) => HashCode.Combine(obj.Id);
     }
 }

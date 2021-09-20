@@ -2,5 +2,5 @@
 
 namespace NexusMods.Monitor.Shared.Application.IntegrationEvents.Issues
 {
-    public sealed record IssueAddedReplyIntegrationEvent(IssueDTO Issue, uint ReplyId) : EventRecord;
+    public sealed record IssueAddedReplyIntegrationEvent(IssueDTO Issue, IssueReplyDTO Reply) : EventRecord;
 }

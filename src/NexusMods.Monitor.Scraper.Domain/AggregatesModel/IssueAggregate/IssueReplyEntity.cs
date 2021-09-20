@@ -1,23 +1,23 @@
-﻿using NexusMods.Monitor.Shared.Domain.SeedWork;
+﻿using NexusMods.Monitor.Scraper.Domain.Events.Issues;
+using NexusMods.Monitor.Shared.Domain.SeedWork;
 
 using NodaTime;
 
 namespace NexusMods.Monitor.Scraper.Domain.AggregatesModel.IssueAggregate
 {
-    public sealed record IssueReplyEntity : Entity
+    public sealed record IssueReplyEntity(uint Id) : Entity(Id)
     {
-        public uint OwnerId { get; private set; }
-        public string Author { get; private set; }
-        public string AuthorUrl { get; private set; }
-        public string AvatarUrl { get; private set; }
-        public string Content { get; private set; }
-        public bool IsDeleted { get; private set; }
-        public Instant TimeOfPost { get; private set; }
+        public uint OwnerId { get; private set; } = default!;
+        public string Author { get; private set; } = default!;
+        public string AuthorUrl { get; private set; } = default!;
+        public string AvatarUrl { get; private set; } = default!;
+        public string Content { get; private set; } = default!;
+        public bool IsDeleted { get; private set; } = default!;
+        public Instant TimeOfPost { get; private set; } = default!;
 
         private IssueReplyEntity() : this(default, default, default!, default!, default!, default!, default, default) { }
-        public IssueReplyEntity(uint id, uint ownerId, string author, string authorUrl, string avatarUrl, string content, bool isDeleted, Instant timeOfPost) : base(id)
+        public IssueReplyEntity(uint id, uint ownerId, string author, string authorUrl, string avatarUrl, string content, bool isDeleted, Instant timeOfPost) : this(id)
         {
-            Id = id;
             OwnerId = ownerId;
             Author = author;
             AuthorUrl = authorUrl;
@@ -25,11 +25,24 @@ namespace NexusMods.Monitor.Scraper.Domain.AggregatesModel.IssueAggregate
             Content = content;
             IsDeleted = isDeleted;
             TimeOfPost = timeOfPost;
+            AddDomainEvent(new IssueReplyAddedEvent(OwnerId, Id));
         }
 
         public void Remove()
         {
-            IsDeleted = true;
+            if (IsDeleted != true)
+            {
+                AddDomainEvent(new IssueReplyRemovedEvent(OwnerId, Id));
+                IsDeleted = true;
+            }
+        }
+        public void Return()
+        {
+            if (IsDeleted != false)
+            {
+                AddDomainEvent(new IssueReplyAddedEvent(OwnerId, Id));
+                IsDeleted = false;
+            }
         }
     }
 }

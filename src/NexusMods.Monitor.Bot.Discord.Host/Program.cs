@@ -6,7 +6,6 @@ using Discord.WebSocket;
 
 using MediatR;
 
-using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 
@@ -17,7 +16,6 @@ using NexusMods.Monitor.Bot.Discord.Application.Queries.RateLimits;
 using NexusMods.Monitor.Bot.Discord.Application.Queries.Subscriptions;
 using NexusMods.Monitor.Bot.Discord.Host.BackgroundServices;
 using NexusMods.Monitor.Bot.Discord.Host.Options;
-using NexusMods.Monitor.Scraper.Application.Extensions;
 using NexusMods.Monitor.Shared.Application.Extensions;
 using NexusMods.Monitor.Shared.Host;
 using NexusMods.Monitor.Shared.Host.Extensions;

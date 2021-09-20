@@ -1,5 +1,4 @@
 ﻿using Microsoft.AspNetCore.Hosting;
-using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Options;
@@ -7,7 +6,6 @@ using Microsoft.Extensions.Options;
 using NexusMods.Monitor.Metadata.API.Options;
 using NexusMods.Monitor.Metadata.API.RateLimits;
 using NexusMods.Monitor.Metadata.API.Services;
-using NexusMods.Monitor.Scraper.Application.Extensions;
 using NexusMods.Monitor.Shared.Application.Extensions;
 using NexusMods.Monitor.Shared.Host;
 using NexusMods.Monitor.Shared.Host.Extensions;

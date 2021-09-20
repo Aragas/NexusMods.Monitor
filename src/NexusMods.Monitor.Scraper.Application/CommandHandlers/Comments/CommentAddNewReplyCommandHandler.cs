@@ -8,7 +8,6 @@ using Microsoft.Extensions.Logging;
 
 using NexusMods.Monitor.Scraper.Application.Commands.Comments;
 using NexusMods.Monitor.Scraper.Domain.AggregatesModel.CommentAggregate;
-using NexusMods.Monitor.Shared.Application;
 using NexusMods.Monitor.Shared.Application.IntegrationEvents.Comments;
 using NexusMods.Monitor.Shared.Application.Models;
 
@@ -49,7 +48,7 @@ namespace NexusMods.Monitor.Scraper.Application.CommandHandlers.Comments
                 return false;
             }
 
-            commentEntity.AddReplyEntity(
+            var commentReplyEntity = commentEntity.AddReplyEntity(
                 message.ReplyId,
                 message.Url,
                 message.Author,
@@ -62,10 +61,11 @@ namespace NexusMods.Monitor.Scraper.Application.CommandHandlers.Comments
             _commentRepository.Update(commentEntity);
 
             var commentDTO = _mapper.Map<CommentEntity, CommentDTO>(commentEntity);
+            var commentReplyDTO = _mapper.Map<CommentReplyEntity, CommentReplyDTO>(commentReplyEntity);
 
             if (await _commentRepository.UnitOfWork.SaveEntitiesAsync(ct))
             {
-                await _eventPublisher.Publish(new CommentAddedReplyIntegrationEvent(commentDTO, message.ReplyId), "comment_events", ct);
+                await _eventPublisher.Publish(new CommentAddedReplyIntegrationEvent(commentDTO, commentReplyDTO), "comment_events", ct);
                 return true;
             }
             else

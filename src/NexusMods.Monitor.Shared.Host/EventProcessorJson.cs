@@ -1,6 +1,5 @@
 ﻿using Enbiso.NLib.EventBus;
 
-using NexusMods.Monitor.Shared.Application;
 using NexusMods.Monitor.Shared.Common;
 
 using System;

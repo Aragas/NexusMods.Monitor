@@ -8,30 +8,29 @@ using System.Linq;
 
 namespace NexusMods.Monitor.Scraper.Domain.AggregatesModel.IssueAggregate
 {
-    public sealed record IssueEntity : Entity, IAggregateRoot
+    public sealed record IssueEntity(uint Id) : Entity(Id), IAggregateRoot
     {
-        public uint NexusModsModId { get; private set; }
-        public uint NexusModsGameId { get; private set; }
-        public string GameName { get; private set; }
-        public string ModName { get; private set; }
-        public string Title { get; private set; }
-        public string Url { get; private set; }
-        public string ModVersion { get; private set; }
-        public IssueStatusEnumeration Status { get; private set; }
-        public IssuePriorityEnumeration Priority { get; private set; }
-        public bool IsPrivate { get; private set; }
-        public bool IsClosed { get; private set; }
-        public bool IsDeleted { get; private set; }
-        public Instant TimeOfLastPost { get; private set; }
-        public IssueContentEntity? Content { get; private set; }
+        public uint NexusModsModId { get; private init; } = default!;
+        public uint NexusModsGameId { get; private init; } = default!;
+        public string GameName { get; private init; } = default!;
+        public string ModName { get; private init; } = default!;
+        public string Title { get; private init; } = default!;
+        public string Url { get; private init; } = default!;
+        public string ModVersion { get; private init; } = default!;
+        public IssueStatusEnumeration Status { get; private set; } = default!;
+        public IssuePriorityEnumeration Priority { get; private set; } = default!;
+        public bool IsPrivate { get; private set; } = default!;
+        public bool IsClosed { get; private set; } = default!;
+        public bool IsDeleted { get; private set; } = default!;
+        public Instant TimeOfLastPost { get; private init; } = default!;
+        public IssueContentEntity? Content { get; private set; } = default!;
 
         private readonly List<IssueReplyEntity> _replies = default!;
         public IEnumerable<IssueReplyEntity> Replies => _replies;
 
         private IssueEntity() : this(default, default, default, default!, default!, default!, default!, default!, default!, default!, default, default, default, default) { }
-        public IssueEntity(uint id, uint nexusModsGameId, uint nexusModsModId, string gameName, string modName, string title, string url, string modVersion, IssueStatusEnumeration status, IssuePriorityEnumeration priority, bool isPrivate, bool isClosed, bool isDeleted, Instant timeOfLastPost) : base(id)
+        public IssueEntity(uint id, uint nexusModsGameId, uint nexusModsModId, string gameName, string modName, string title, string url, string modVersion, IssueStatusEnumeration status, IssuePriorityEnumeration priority, bool isPrivate, bool isClosed, bool isDeleted, Instant timeOfLastPost) : this(id)
         {
-            Id = id;
             NexusModsGameId = nexusModsGameId;
             NexusModsModId = nexusModsModId;
             GameName = gameName;
@@ -52,15 +51,29 @@ namespace NexusMods.Monitor.Scraper.Domain.AggregatesModel.IssueAggregate
 
         public void Remove()
         {
-            IsDeleted = true;
-            Content?.Remove();
-            AddDomainEvent(new IssueRemovedEvent(Id));
+            if (IsDeleted != true)
+            {
+                AddDomainEvent(new IssueRemovedEvent(Id));
+                IsDeleted = true;
+                foreach (var reply in Replies)
+                {
+                    reply.Remove();
+                }
+                Content?.Remove();
+            }
         }
         public void Return()
         {
-            IsDeleted = false;
-            Content?.Return();
-            AddDomainEvent(new IssueAddedEvent(Id));
+            if (IsDeleted != false)
+            {
+                AddDomainEvent(new IssueAddedEvent(Id));
+                IsDeleted = false;
+                foreach (var reply in Replies)
+                {
+                    reply.Return();
+                }
+                Content?.Return();
+            }
         }
 
         public void SetContent(string author, string authorUrl, string avatarUrl, string content, bool isDeleted, Instant timeOfPost)
@@ -110,7 +123,6 @@ namespace NexusMods.Monitor.Scraper.Domain.AggregatesModel.IssueAggregate
             if (issueReplyEntity is not null)
             {
                 issueReplyEntity.Remove();
-                AddDomainEvent(new IssueRemovedReplyEvent(Id, id));
             }
         }
 
@@ -121,12 +133,11 @@ namespace NexusMods.Monitor.Scraper.Domain.AggregatesModel.IssueAggregate
             {
                 var issueReplyEntity = new IssueReplyEntity(id, Id, author, authorUrl, avatarUrl, content, isDeleted, timeOfPost);
                 _replies.Add(issueReplyEntity);
-                AddDomainEvent(new IssueAddedReplyEvent(Id, id));
                 return issueReplyEntity;
             }
             else
             {
-                AddDomainEvent(new IssueAddedReplyEvent(Id, id));
+                existingCommentReplyEntity.Return();
                 return existingCommentReplyEntity;
             }
         }

@@ -2,7 +2,6 @@
 using Microsoft.Extensions.Logging;
 
 using NexusMods.Monitor.Metadata.Application.Queries.Games;
-using NexusMods.Monitor.Shared.Application;
 using NexusMods.Monitor.Shared.Common;
 
 using System;

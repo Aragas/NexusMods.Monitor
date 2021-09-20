@@ -88,7 +88,7 @@ namespace NexusMods.Monitor.Scraper.Host.BackgroundServices
                 foreach (var commentRoot in newComments)
                 {
                     if (now - commentRoot.NexusModsComment.Post < Duration.FromDays(1))
-                        await mediator.Send(new CommentAddNewCommand(commentRoot), ct);
+                        await mediator.Send(CommentAddNewCommand.FromViewModel(commentRoot), ct);
                     else
                         await mediator.Send(CommentAddCommand.FromViewModel(commentRoot), ct);
                 }
@@ -112,9 +112,9 @@ namespace NexusMods.Monitor.Scraper.Host.BackgroundServices
                     foreach (var commentReply in newReplies)
                     {
                         if (now - commentReply.Post < Duration.FromMinutes(2))
-                            await mediator.Send(new CommentAddNewReplyCommand(nexusModsCommentRoot, commentReply), ct);
+                            await mediator.Send(CommentAddNewReplyCommand.FromViewModel(nexusModsCommentRoot, commentReply), ct);
                         else
-                            await mediator.Send(new CommentAddReplyCommand(nexusModsCommentRoot, commentReply), ct);
+                            await mediator.Send(CommentAddNewReplyCommand.FromViewModel(nexusModsCommentRoot, commentReply), ct);
                     }
 
                     foreach (var (id, ownerId) in deletedReplies)

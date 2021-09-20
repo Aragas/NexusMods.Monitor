@@ -8,7 +8,6 @@ using Microsoft.Extensions.Logging;
 
 using NexusMods.Monitor.Scraper.Application.Commands.Comments;
 using NexusMods.Monitor.Scraper.Domain.AggregatesModel.CommentAggregate;
-using NexusMods.Monitor.Shared.Application;
 using NexusMods.Monitor.Shared.Application.IntegrationEvents.Comments;
 using NexusMods.Monitor.Shared.Application.Models;
 
@@ -61,7 +60,7 @@ namespace NexusMods.Monitor.Scraper.Application.CommandHandlers.Comments
                 message.Content,
                 message.IsSticky,
                 message.IsLocked,
-                message.IsDeleted,
+                false,
                 message.TimeOfPost);
 
             foreach (var commentReply in message.CommentReplies)
