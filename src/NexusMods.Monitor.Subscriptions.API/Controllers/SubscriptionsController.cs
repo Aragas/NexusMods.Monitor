@@ -9,6 +9,7 @@ using NexusMods.Monitor.Subscriptions.Application.Queries.Subscriptions;
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Net;
 using System.Threading.Tasks;
 
@@ -18,6 +19,7 @@ namespace NexusMods.Monitor.Subscriptions.API.Controllers
     [ApiController]
     public sealed class SubscriptionsController : ControllerBase
     {
+        [SuppressMessage("CodeQuality", "IDE0052", Justification = "Reserved for future use")]
         private readonly ILogger _logger;
         private readonly IMediator _mediator;
         private readonly ISubscriptionQueries _subscriptionQueries;

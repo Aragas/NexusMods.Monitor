@@ -1,6 +1,4 @@
-﻿using AutoMapper;
-
-using Enbiso.NLib.EventBus;
+﻿using Enbiso.NLib.EventBus;
 
 using MediatR;
 
@@ -21,14 +19,12 @@ namespace NexusMods.Monitor.Scraper.Application.CommandHandlers.Issues
     {
         private readonly ILogger _logger;
         private readonly IIssueRepository _issueRepository;
-        private readonly IMapper _mapper;
         private readonly IEventPublisher _eventPublisher;
 
-        public IssueAddNewCommandHandler(ILogger<IssueAddNewCommandHandler> logger, IIssueRepository issueRepository, IMapper mapper, IEventPublisher eventPublisher)
+        public IssueAddNewCommandHandler(ILogger<IssueAddNewCommandHandler> logger, IIssueRepository issueRepository, IEventPublisher eventPublisher)
         {
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
             _issueRepository = issueRepository ?? throw new ArgumentNullException(nameof(issueRepository));
-            _mapper = mapper ?? throw new ArgumentNullException(nameof(mapper));
             _eventPublisher = eventPublisher ?? throw new ArgumentNullException(nameof(eventPublisher));
         }
 
@@ -47,48 +43,11 @@ namespace NexusMods.Monitor.Scraper.Application.CommandHandlers.Issues
                 return false;
             }
 
-            var issueEntity = new IssueEntity(
-                message.Id,
-                message.NexusModsGameId,
-                message.NexusModsModId,
-                message.GameName,
-                message.ModName,
-                message.Title,
-                message.Url,
-                message.ModVersion,
-                await _issueRepository.GetStatusAsync(message.Status.Id),
-                await _issueRepository.GetPriorityAsync(message.Priority.Id),
-                message.IsPrivate,
-                message.IsClosed,
-                false,
-                message.TimeOfLastPost);
-
-            if (message.Content is not null)
-            {
-                issueEntity.SetContent(
-                    message.Content.Author,
-                    message.Content.AuthorUrl,
-                    message.Content.AvatarUrl,
-                    message.Content.Content,
-                    false,
-                    message.Content.TimeOfPost);
-            }
-
-            foreach (var issueReply in message.Replies)
-            {
-                issueEntity.AddReplyEntity(
-                    issueReply.Id,
-                    issueReply.Author,
-                    issueReply.AuthorUrl,
-                    issueReply.AvatarUrl,
-                    issueReply.Content,
-                    false,
-                    issueReply.TimeOfPost);
-            }
+            var issueEntity = Mapper.Map(message, await _issueRepository.GetStatusAsync(message.Status.Id), await _issueRepository.GetPriorityAsync(message.Priority.Id));
 
             _issueRepository.Add(issueEntity);
 
-            var issueDTO = _mapper.Map<IssueEntity, IssueDTO>(issueEntity);
+            var issueDTO = Mapper.Map(issueEntity);
 
             if (await _issueRepository.UnitOfWork.SaveEntitiesAsync(ct))
             {

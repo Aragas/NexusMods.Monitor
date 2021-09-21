@@ -1,5 +1,4 @@
 ﻿using Microsoft.AspNetCore.Hosting;
-using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
@@ -18,7 +17,12 @@ namespace NexusMods.Monitor.Subscriptions.API
 {
     public class Program
     {
-        public static async Task Main(string[] args) => await new HostManager(CreateHostBuilder).StartAsync(args);
+        public static async Task Main(string[] args) => await new HostManager(CreateHostBuilder)
+            .ExecuteBeforeRun(async host =>
+            {
+                await EnsureDatabasesCreated(host);
+            })
+            .StartAsync(args);
 
         private static async Task EnsureDatabasesCreated(IHost host)
         {

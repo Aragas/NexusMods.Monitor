@@ -1,6 +1,4 @@
-﻿using AutoMapper;
-
-using Enbiso.NLib.EventBus;
+﻿using Enbiso.NLib.EventBus;
 
 using MediatR;
 
@@ -22,14 +20,12 @@ namespace NexusMods.Monitor.Scraper.Application.CommandHandlers.Issues
     {
         private readonly ILogger _logger;
         private readonly IIssueRepository _issueRepository;
-        private readonly IMapper _mapper;
         private readonly IEventPublisher _eventPublisher;
 
-        public IssueRemoveReplyCommandHandler(ILogger<IssueRemoveReplyCommandHandler> logger, IIssueRepository issueRepository, IMapper mapper, IEventPublisher eventPublisher)
+        public IssueRemoveReplyCommandHandler(ILogger<IssueRemoveReplyCommandHandler> logger, IIssueRepository issueRepository, IEventPublisher eventPublisher)
         {
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
             _issueRepository = issueRepository ?? throw new ArgumentNullException(nameof(issueRepository));
-            _mapper = mapper ?? throw new ArgumentNullException(nameof(mapper));
             _eventPublisher = eventPublisher ?? throw new ArgumentNullException(nameof(eventPublisher));
         }
 
@@ -48,12 +44,12 @@ namespace NexusMods.Monitor.Scraper.Application.CommandHandlers.Issues
                 return false;
             }
 
-            var issueReplyDTO = _mapper.Map<IssueReplyEntity, IssueReplyDTO>(issueEntity.Replies.First(x => x.Id == message.ReplyId));
+            var issueReplyDTO = Mapper.Map(issueEntity.Replies.First(x => x.Id == message.ReplyId));
 
             issueEntity.RemoveReply(message.ReplyId);
             _issueRepository.Update(issueEntity);
 
-            var issueDTO = _mapper.Map<IssueEntity, IssueDTO>(issueEntity);
+            var issueDTO = Mapper.Map(issueEntity);
 
             if (await _issueRepository.UnitOfWork.SaveEntitiesAsync(ct))
             {

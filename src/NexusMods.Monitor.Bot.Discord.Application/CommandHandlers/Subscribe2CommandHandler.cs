@@ -3,10 +3,10 @@
 using Microsoft.Extensions.Logging;
 
 using NexusMods.Monitor.Bot.Discord.Application.Commands;
-using NexusMods.Monitor.Shared.Application;
 using NexusMods.Monitor.Shared.Common;
 
 using System;
+using System.Diagnostics.CodeAnalysis;
 using System.Net.Http;
 using System.Text;
 using System.Threading;
@@ -16,6 +16,7 @@ namespace NexusMods.Monitor.Bot.Discord.Application.CommandHandlers
 {
     public sealed class Subscribe2CommandHandler : IRequestHandler<Subscribe2Command, bool>
     {
+        [SuppressMessage("CodeQuality", "IDE0052", Justification = "Reserved for future use")]
         private readonly ILogger _logger;
         private readonly IHttpClientFactory _httpClientFactory;
         private readonly DefaultJsonSerializer _jsonSerializer;

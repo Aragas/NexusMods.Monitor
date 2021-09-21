@@ -21,20 +21,26 @@ using NexusMods.Monitor.Scraper.Host.BackgroundServices;
 using NexusMods.Monitor.Scraper.Infrastructure.Contexts;
 using NexusMods.Monitor.Scraper.Infrastructure.Repositories;
 using NexusMods.Monitor.Shared.Application.Extensions;
-using NexusMods.Monitor.Shared.Application.Models;
 using NexusMods.Monitor.Shared.Host;
 using NexusMods.Monitor.Shared.Host.Extensions;
 
 using NodaTime;
 
-using System;
 using System.Threading.Tasks;
 
 namespace NexusMods.Monitor.Scraper.Host
 {
+
+
+
     public class Program
     {
-        public static async Task Main(string[] args) => await new HostManager(CreateHostBuilder).StartAsync(args);
+        public static async Task Main(string[] args) => await new HostManager(CreateHostBuilder)
+            .ExecuteBeforeRun(async host =>
+            {
+                await EnsureDatabasesCreated(host);
+            })
+            .StartAsync(args);
 
         private static async Task EnsureDatabasesCreated(IHost host)
         {
@@ -49,20 +55,6 @@ namespace NexusMods.Monitor.Scraper.Host
             .ConfigureServices((context, services) =>
             {
                 services.AddApplication();
-
-                services.AddAutoMapper(cfg =>
-                {
-                    cfg.CreateMap<Instant, DateTimeOffset>().ConvertUsing(i => i.ToDateTimeOffset());
-
-                    cfg.CreateMap<CommentEntity, CommentDTO>();
-                    cfg.CreateMap<CommentReplyEntity, CommentReplyDTO>();
-
-                    cfg.CreateMap<IssueEntity, IssueDTO>();
-                    cfg.CreateMap<IssueStatusEnumeration, IssueStatusDTO>();
-                    cfg.CreateMap<IssuePriorityEnumeration, IssuePriorityDTO>();
-                    cfg.CreateMap<IssueContentEntity, IssueContentDTO>();
-                    cfg.CreateMap<IssueReplyEntity, IssueReplyDTO>();
-                });
 
                 services.AddMediatR(typeof(CommentAddCommandHandler).Assembly);
 

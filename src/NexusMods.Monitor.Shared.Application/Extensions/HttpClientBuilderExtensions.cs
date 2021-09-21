@@ -15,13 +15,13 @@ namespace NexusMods.Monitor.Shared.Application.Extensions
             {
                 var correlationIdOptions = sp.GetRequiredService<IOptions<CorrelationIdOptions>>().Value;
                 client.DefaultRequestHeaders.Add(correlationIdOptions.RequestHeader, Guid.NewGuid().ToString());
-            })
-            ;
+            });
 
         public static IHttpClientBuilder AddCorrelationIdOverrideForwarding(this IHttpClientBuilder builder)
         {
             if (builder == null)
                 throw new ArgumentNullException(nameof(builder));
+
             builder.Services.TryAddTransient<CorrelationIdOverrideHandler>();
             builder.AddHttpMessageHandler<CorrelationIdOverrideHandler>();
             return builder;

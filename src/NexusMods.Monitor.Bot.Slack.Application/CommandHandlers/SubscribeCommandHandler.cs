@@ -6,6 +6,7 @@ using NexusMods.Monitor.Bot.Slack.Application.Commands;
 using NexusMods.Monitor.Shared.Common;
 
 using System;
+using System.Diagnostics.CodeAnalysis;
 using System.Net.Http;
 using System.Text;
 using System.Threading;
@@ -15,6 +16,7 @@ namespace NexusMods.Monitor.Bot.Slack.Application.CommandHandlers
 {
     public sealed class SubscribeCommandHandler : IRequestHandler<SubscribeCommand, bool>
     {
+        [SuppressMessage("CodeQuality", "IDE0052", Justification = "Reserved for future use")]
         private readonly ILogger _logger;
         private readonly IHttpClientFactory _httpClientFactory;
         private readonly DefaultJsonSerializer _jsonSerializer;

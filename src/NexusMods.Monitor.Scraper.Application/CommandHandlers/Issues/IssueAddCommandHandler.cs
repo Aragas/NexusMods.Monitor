@@ -37,44 +37,7 @@ namespace NexusMods.Monitor.Scraper.Application.CommandHandlers.Issues
                 return false;
             }
 
-            var issueEntity = new IssueEntity(
-                message.Id,
-                message.NexusModsGameId,
-                message.NexusModsModId,
-                message.GameName,
-                message.ModName,
-                message.Title,
-                message.Url,
-                message.ModVersion,
-                await _issueRepository.GetStatusAsync(message.Status.Id),
-                await _issueRepository.GetPriorityAsync(message.Priority.Id),
-                message.IsPrivate,
-                message.IsClosed,
-                message.IsDeleted,
-                message.TimeOfLastPost);
-
-            if (message.Content is { })
-            {
-                issueEntity.SetContent(
-                    message.Content.Author,
-                    message.Content.AuthorUrl,
-                    message.Content.AvatarUrl,
-                    message.Content.Content,
-                    false,
-                    message.Content.TimeOfPost);
-            }
-
-            foreach (var issueReply in message.Replies)
-            {
-                issueEntity.AddReplyEntity(
-                    issueReply.Id,
-                    issueReply.Author,
-                    issueReply.AuthorUrl,
-                    issueReply.AvatarUrl,
-                    issueReply.Content,
-                    false,
-                    issueReply.TimeOfPost);
-            }
+            var issueEntity = Mapper.Map(message, await _issueRepository.GetStatusAsync(message.Status.Id), await _issueRepository.GetPriorityAsync(message.Priority.Id));
 
             _issueRepository.Add(issueEntity);
 

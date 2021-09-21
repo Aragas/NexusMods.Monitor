@@ -12,7 +12,7 @@ using System.Linq;
 
 namespace NexusMods.Monitor.Scraper.Application.Commands.Issues
 {
-    public sealed record IssueAddNewCommand(uint Id, uint NexusModsGameId, uint NexusModsModId, string GameName, string ModName, string Title, string Url, string ModVersion, IssueStatusEnumeration Status, IssuePriorityEnumeration Priority, bool IsPrivate, bool IsClosed, Instant TimeOfLastPost, IssueAddNewCommand.IssueContentDTO? Content, IReadOnlyList<IssueAddNewCommand.IssueReplyDTO> Replies) : IRequest<bool>
+    public sealed record IssueAddNewCommand(uint Id, uint NexusModsGameId, uint NexusModsModId, string GameName, string ModName, string Title, string Url, string ModVersion, IssueStatusEnumeration Status, IssuePriorityEnumeration Priority, bool IsPrivate, bool IsClosed, Instant TimeOfLastPost, IssueAddNewCommand.IssueContentDTO? Content, ImmutableArray<IssueAddNewCommand.IssueReplyDTO> Replies) : IRequest<bool>
     {
         public static IssueAddNewCommand FromViewModel(NexusModsIssueRootViewModel nexusModsIssueRoot, IssueStatusEnumeration issueStatus, IssuePriorityEnumeration issuePriority)
         {

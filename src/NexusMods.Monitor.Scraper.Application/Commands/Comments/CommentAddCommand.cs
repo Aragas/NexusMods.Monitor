@@ -11,7 +11,7 @@ using System.Linq;
 
 namespace NexusMods.Monitor.Scraper.Application.Commands.Comments
 {
-    public sealed record CommentAddCommand(uint Id, uint NexusModsGameId, uint NexusModsModId, string GameName, string ModName, string Url, string Author, string AuthorUrl, string AvatarUrl, string Content, bool IsSticky, bool IsLocked, Instant TimeOfPost, IReadOnlyList<CommentAddCommand.CommentReplyDTO> CommentReplies) : IRequest<bool>
+    public sealed record CommentAddCommand(uint Id, uint NexusModsGameId, uint NexusModsModId, string GameName, string ModName, string Url, string Author, string AuthorUrl, string AvatarUrl, string Content, bool IsSticky, bool IsLocked, bool IsDeleted, Instant TimeOfPost, IReadOnlyList<CommentAddCommand.CommentReplyDTO> Replies) : IRequest<bool>
     {
         public sealed record CommentReplyDTO(uint Id, string Url, string Author, string AuthorUrl, string AvatarUrl, string Content, Instant TimeOfPost);
 
@@ -32,7 +32,7 @@ namespace NexusMods.Monitor.Scraper.Application.Commands.Comments
                 IsSticky = viewModel.NexusModsComment.IsSticky,
                 IsLocked = viewModel.NexusModsComment.IsLocked,
                 TimeOfPost = viewModel.NexusModsComment.Post,
-                CommentReplies = viewModel.NexusModsComment.Replies.Select(x => new CommentReplyDTO(
+                Replies = viewModel.NexusModsComment.Replies.Select(x => new CommentReplyDTO(
                     x.Id,
                     $"https://www.nexusmods.com/{viewModel.GameDomain}/mods/{viewModel.ModId}/?tab=posts&jump_to_comment={x.Id}",
                     x.Author,

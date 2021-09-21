@@ -1,6 +1,4 @@
-﻿using AutoMapper;
-
-using Enbiso.NLib.EventBus;
+﻿using Enbiso.NLib.EventBus;
 
 using MediatR;
 
@@ -9,7 +7,6 @@ using Microsoft.Extensions.Logging;
 using NexusMods.Monitor.Scraper.Application.Commands.Comments;
 using NexusMods.Monitor.Scraper.Domain.AggregatesModel.CommentAggregate;
 using NexusMods.Monitor.Shared.Application.IntegrationEvents.Comments;
-using NexusMods.Monitor.Shared.Application.Models;
 
 using System;
 using System.Threading;
@@ -21,14 +18,12 @@ namespace NexusMods.Monitor.Scraper.Application.CommandHandlers.Comments
     {
         private readonly ILogger _logger;
         private readonly ICommentRepository _commentRepository;
-        private readonly IMapper _mapper;
         private readonly IEventPublisher _eventPublisher;
 
-        public CommentAddNewCommandHandler(ILogger<CommentAddNewCommandHandler> logger, ICommentRepository commentRepository, IMapper mapper, IEventPublisher eventPublisher)
+        public CommentAddNewCommandHandler(ILogger<CommentAddNewCommandHandler> logger, ICommentRepository commentRepository, IEventPublisher eventPublisher)
         {
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
             _commentRepository = commentRepository ?? throw new ArgumentNullException(nameof(commentRepository));
-            _mapper = mapper ?? throw new ArgumentNullException(nameof(mapper));
             _eventPublisher = eventPublisher ?? throw new ArgumentNullException(nameof(eventPublisher));
         }
 
@@ -47,38 +42,11 @@ namespace NexusMods.Monitor.Scraper.Application.CommandHandlers.Comments
                 return false;
             }
 
-            var commentEntity = new CommentEntity(
-                message.Id,
-                message.NexusModsGameId,
-                message.NexusModsModId,
-                message.GameName,
-                message.ModName,
-                message.Url,
-                message.Author,
-                message.AuthorUrl,
-                message.AvatarUrl,
-                message.Content,
-                message.IsSticky,
-                message.IsLocked,
-                false,
-                message.TimeOfPost);
-
-            foreach (var commentReply in message.CommentReplies)
-            {
-                commentEntity.AddReplyEntity(
-                    commentReply.Id,
-                    commentReply.Url,
-                    commentReply.Author,
-                    commentReply.AuthorUrl,
-                    commentReply.AvatarUrl,
-                    commentReply.Content,
-                    false,
-                    commentReply.TimeOfPost);
-            }
+            var commentEntity = Mapper.Map(message);
 
             _commentRepository.Add(commentEntity);
 
-            var commentDTO = _mapper.Map<CommentEntity, CommentDTO>(commentEntity);
+            var commentDTO = Mapper.Map(commentEntity);
 
             if (await _commentRepository.UnitOfWork.SaveEntitiesAsync(ct))
             {

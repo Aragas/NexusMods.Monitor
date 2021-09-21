@@ -21,12 +21,19 @@ namespace NexusMods.Monitor.Shared.Host
     {
         private readonly ILogger _logger;
         private readonly Func<string[], IHostBuilder> _factory;
+        private readonly List<Func<IHost, Task>> _beforeRun = new();
 
         public HostManager(Func<string[], IHostBuilder> factory)
         {
             var configuration = SetBaseConfiguration(new ConfigurationBuilder()).Build();
             _logger = configuration.BuildSerilogLogger().CreateGlobalLogger();
             _factory = factory;
+        }
+
+        public HostManager ExecuteBeforeRun(Func<IHost, Task> action)
+        {
+            _beforeRun.Add(action);
+            return this;
         }
 
         public async ValueTask StartAsync(string[] args)
@@ -43,6 +50,11 @@ namespace NexusMods.Monitor.Shared.Host
                 var host = hostBuilder.Build();
 
                 ValidateOptions(host);
+
+                foreach (var func in _beforeRun)
+                {
+                    await func(host);
+                }
 
                 await host.RunAsync();
             }

@@ -5,6 +5,7 @@ using NexusMods.Monitor.Metadata.Application.Queries.Games;
 using NexusMods.Monitor.Shared.Common;
 
 using System;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Net;
 using System.Net.Http;
@@ -16,6 +17,7 @@ namespace NexusMods.Monitor.Metadata.Application.Queries.Mods
 {
     public sealed class ModQueries : IModQueries
     {
+        [SuppressMessage("CodeQuality", "IDE0052", Justification = "Reserved for future use")]
         private readonly ILogger _logger;
         private readonly IGameQueries _nexusModsGameQueries;
         private readonly IMemoryCache _cache;

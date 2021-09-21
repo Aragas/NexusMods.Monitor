@@ -14,6 +14,7 @@ using NexusMods.Monitor.Shared.Common;
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Net.Http;
 using System.Net.WebSockets;
 using System.Text;
@@ -37,6 +38,7 @@ namespace NexusMods.Monitor.Metadata.API.Controllers
 
         public record AuthorizationStatusResponse(bool IsAuthorized);
 
+        [SuppressMessage("CodeQuality", "IDE0052", Justification = "Reserved for future use")]
         private readonly ILogger<MetadataController> _logger;
 
         public MetadataController(ILogger<MetadataController> logger)

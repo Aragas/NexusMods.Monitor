@@ -6,12 +6,14 @@ using NexusMods.Monitor.Shared.Application.IntegrationEvents.Issues;
 using SlackNet.Bot;
 
 using System;
+using System.Diagnostics.CodeAnalysis;
 using System.Threading.Tasks;
 
 namespace NexusMods.Monitor.Bot.Slack.Application.IntegrationEventHandlers.Issues
 {
     public sealed class IssueRemovedReplyIntegrationEventHandler : Enbiso.NLib.EventBus.EventHandler<IssueRemovedReplyIntegrationEvent>
     {
+        [SuppressMessage("CodeQuality", "IDE0052", Justification = "Reserved for future use")]
         private readonly ILogger _logger;
         private readonly ISubscriptionQueries _subscriptionQueries;
         private readonly ISlackBot _slackBot;

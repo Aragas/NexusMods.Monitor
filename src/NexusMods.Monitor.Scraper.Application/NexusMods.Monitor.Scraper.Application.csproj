@@ -1,10 +1,6 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <ItemGroup>
-    <PackageReference Include="AutoMapper" Version="10.1.1" />
-  </ItemGroup>
-
-  <ItemGroup>
     <ProjectReference Include="..\NexusMods.Monitor.Scraper.Infrastructure\NexusMods.Monitor.Scraper.Infrastructure.csproj" />
     <ProjectReference Include="..\NexusMods.Monitor.Shared.Application\NexusMods.Monitor.Shared.Application.csproj" />
     <ProjectReference Include="..\NexusMods.Monitor.Shared.Host\NexusMods.Monitor.Shared.Host.csproj" />

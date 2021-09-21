@@ -1,6 +1,4 @@
-﻿using AutoMapper;
-
-using Enbiso.NLib.EventBus;
+﻿using Enbiso.NLib.EventBus;
 
 using MediatR;
 
@@ -22,14 +20,12 @@ namespace NexusMods.Monitor.Scraper.Application.CommandHandlers.Comments
     {
         private readonly ILogger _logger;
         private readonly ICommentRepository _commentRepository;
-        private readonly IMapper _mapper;
         private readonly IEventPublisher _eventPublisher;
 
-        public CommentAddNewReplyCommandHandler(ILogger<CommentAddNewReplyCommandHandler> logger, ICommentRepository commentRepository, IMapper mapper, IEventPublisher eventPublisher)
+        public CommentAddNewReplyCommandHandler(ILogger<CommentAddNewReplyCommandHandler> logger, ICommentRepository commentRepository, IEventPublisher eventPublisher)
         {
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
             _commentRepository = commentRepository ?? throw new ArgumentNullException(nameof(commentRepository));
-            _mapper = mapper ?? throw new ArgumentNullException(nameof(mapper));
             _eventPublisher = eventPublisher ?? throw new ArgumentNullException(nameof(eventPublisher));
         }
 
@@ -60,8 +56,8 @@ namespace NexusMods.Monitor.Scraper.Application.CommandHandlers.Comments
 
             _commentRepository.Update(commentEntity);
 
-            var commentDTO = _mapper.Map<CommentEntity, CommentDTO>(commentEntity);
-            var commentReplyDTO = _mapper.Map<CommentReplyEntity, CommentReplyDTO>(commentReplyEntity);
+            var commentDTO = Mapper.Map(commentEntity);
+            var commentReplyDTO = Mapper.Map(commentReplyEntity);
 
             if (await _commentRepository.UnitOfWork.SaveEntitiesAsync(ct))
             {

@@ -25,8 +25,8 @@ namespace NexusMods.Monitor.Scraper.Domain.AggregatesModel.IssueAggregate
         public Instant TimeOfLastPost { get; private init; } = default!;
         public IssueContentEntity? Content { get; private set; } = default!;
 
-        private readonly List<IssueReplyEntity> _replies = default!;
-        public IEnumerable<IssueReplyEntity> Replies => _replies;
+        private readonly List<IssueReplyEntity> _replies = new();
+        public IReadOnlyList<IssueReplyEntity> Replies => _replies.AsReadOnly();
 
         private IssueEntity() : this(default, default, default, default!, default!, default!, default!, default!, default!, default!, default, default, default, default) { }
         public IssueEntity(uint id, uint nexusModsGameId, uint nexusModsModId, string gameName, string modName, string title, string url, string modVersion, IssueStatusEnumeration status, IssuePriorityEnumeration priority, bool isPrivate, bool isClosed, bool isDeleted, Instant timeOfLastPost) : this(id)
@@ -44,7 +44,6 @@ namespace NexusMods.Monitor.Scraper.Domain.AggregatesModel.IssueAggregate
             IsClosed = isClosed;
             IsDeleted = isDeleted;
             TimeOfLastPost = timeOfLastPost;
-            _replies = new List<IssueReplyEntity>();
 
             AddDomainEvent(new IssueAddedEvent(Id));
         }

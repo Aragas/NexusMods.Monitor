@@ -37,34 +37,7 @@ namespace NexusMods.Monitor.Scraper.Application.CommandHandlers.Comments
                 return false;
             }
 
-            var commentEntity = new CommentEntity(
-                message.Id,
-                message.NexusModsGameId,
-                message.NexusModsModId,
-                message.GameName,
-                message.ModName,
-                message.Url,
-                message.Author,
-                message.AuthorUrl,
-                message.AvatarUrl,
-                message.Content,
-                message.IsSticky,
-                message.IsLocked,
-                false,
-                message.TimeOfPost);
-
-            foreach (var commentReply in message.CommentReplies)
-            {
-                commentEntity.AddReplyEntity(
-                    commentReply.Id,
-                    commentReply.Url,
-                    commentReply.Author,
-                    commentReply.AuthorUrl,
-                    commentReply.AvatarUrl,
-                    commentReply.Content,
-                    false,
-                    commentReply.TimeOfPost);
-            }
+            var commentEntity = Mapper.Map(message);
 
             _commentRepository.Add(commentEntity);
 

@@ -58,7 +58,7 @@ namespace NexusMods.Monitor.Scraper.Infrastructure.Contexts
 
             // After executing this line all the changes (from the Command Handler and Domain Event Handlers)
             // performed through the DbContext will be committed
-            var result = await base.SaveChangesAsync(ct);
+            _ = await base.SaveChangesAsync(ct);
 
             return true;
         }

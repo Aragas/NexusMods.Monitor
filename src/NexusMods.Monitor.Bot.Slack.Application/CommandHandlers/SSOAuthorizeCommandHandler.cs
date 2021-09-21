@@ -6,6 +6,7 @@ using NexusMods.Monitor.Bot.Slack.Application.Commands;
 using NexusMods.Monitor.Shared.Application.SSE;
 
 using System;
+using System.Diagnostics.CodeAnalysis;
 using System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
@@ -14,6 +15,7 @@ namespace NexusMods.Monitor.Bot.Slack.Application.CommandHandlers
 {
     public sealed class SSOAuthorizeCommandHandler : IRequestHandler<SSOAuthorizeCommand, ISSOAuthorizationHandler>
     {
+        [SuppressMessage("CodeQuality", "IDE0052", Justification = "Reserved for future use")]
         private readonly ILogger _logger;
         private readonly IHttpClientFactory _httpClientFactory;
 

@@ -1,6 +1,4 @@
-﻿using AutoMapper;
-
-using Enbiso.NLib.EventBus;
+﻿using Enbiso.NLib.EventBus;
 
 using MediatR;
 
@@ -21,14 +19,12 @@ namespace NexusMods.Monitor.Scraper.Application.CommandHandlers.Comments
     {
         private readonly ILogger _logger;
         private readonly ICommentRepository _commentRepository;
-        private readonly IMapper _mapper;
         private readonly IEventPublisher _eventPublisher;
 
-        public CommentChangeIsStickyCommandHandler(ILogger<CommentChangeIsStickyCommandHandler> logger, ICommentRepository commentRepository, IMapper mapper, IEventPublisher eventPublisher)
+        public CommentChangeIsStickyCommandHandler(ILogger<CommentChangeIsStickyCommandHandler> logger, ICommentRepository commentRepository, IEventPublisher eventPublisher)
         {
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
             _commentRepository = commentRepository ?? throw new ArgumentNullException(nameof(commentRepository));
-            _mapper = mapper ?? throw new ArgumentNullException(nameof(mapper));
             _eventPublisher = eventPublisher ?? throw new ArgumentNullException(nameof(eventPublisher));
         }
 
@@ -51,7 +47,7 @@ namespace NexusMods.Monitor.Scraper.Application.CommandHandlers.Comments
             commentEntity.SetIsSticky(message.IsSticky);
             _commentRepository.Update(commentEntity);
 
-            var commentDTO = _mapper.Map<CommentEntity, CommentDTO>(commentEntity);
+            var commentDTO = Mapper.Map(commentEntity);
 
             if (await _commentRepository.UnitOfWork.SaveEntitiesAsync(ct))
             {
