@@ -28,13 +28,12 @@ namespace NexusMods.Monitor.Shared.Host.Extensions
                 throw new ArgumentNullException(nameof(optionsBuilder));
             }
 
-            optionsBuilder.Services.AddOptions<ValidatorOptions>()
-                .Configure<IOptionsMonitor<TOptions>>((vo, options) =>
-                {
-                    // This adds an action that resolves the options value to force evaluation
-                    // We don't care about the result as duplicates are not important
-                    vo.Validators[typeof(TOptions)] = () => options.Get(optionsBuilder.Name);
-                });
+            optionsBuilder.Services.AddOptions<ValidatorOptions>().Configure<IOptionsMonitor<TOptions>>((vo, options) =>
+            {
+                // This adds an action that resolves the options value to force evaluation
+                // We don't care about the result as duplicates are not important
+                vo.Validators[typeof(TOptions)] = () => options.Get(optionsBuilder.Name);
+            });
 
             return optionsBuilder;
         }

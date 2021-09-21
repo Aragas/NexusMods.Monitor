@@ -4,9 +4,10 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Options;
 
+using NexusMods.Monitor.Shared.Application.FluentValidation;
+
 using System;
 using System.Collections.Generic;
-using System.Linq;
 
 namespace NexusMods.Monitor.Shared.Application.Extensions
 {
@@ -21,8 +22,9 @@ namespace NexusMods.Monitor.Shared.Application.Extensions
                 throw new ArgumentNullException(nameof(optionsBuilder));
             }
 
+            optionsBuilder.Services.AddHttpClient("FluentClient");
             optionsBuilder.Services.TryAddEnumerable(ServiceDescriptor.Transient<IValidator<TOptions>, TOptionsValidator>());
-            optionsBuilder.Validate<IEnumerable<IValidator<TOptions>>>((options, validators) => validators.All(v => v.Validate(options).IsValid));
+            optionsBuilder.Services.AddTransient<IValidateOptions<TOptions>>(sp => new FluentValidateOptions<TOptions>(sp.GetRequiredService<IEnumerable<IValidator<TOptions>>>()));
 
             return optionsBuilder;
         }

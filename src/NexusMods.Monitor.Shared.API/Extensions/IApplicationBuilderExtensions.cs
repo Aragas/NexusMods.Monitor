@@ -2,6 +2,7 @@
 
 using Microsoft.AspNetCore.Builder;
 
+using System;
 using System.Reflection;
 
 namespace NexusMods.Monitor.Shared.API.Extensions
@@ -10,12 +11,17 @@ namespace NexusMods.Monitor.Shared.API.Extensions
     {
         public static IApplicationBuilder UseAPI(this IApplicationBuilder app)
         {
-            var appName = Assembly.GetEntryAssembly()!.GetName().Name;
+            if (app == null)
+            {
+                throw new ArgumentNullException(nameof(app));
+            }
 
-            app.UseCorrelationId();
+            var appName = Assembly.GetEntryAssembly()!.GetName().Name;
 
             app.UseSwagger();
             app.UseSwaggerUI(options => options.SwaggerEndpoint("/swagger/v1/swagger.json", appName));
+
+            app.UseCorrelationId();
 
             app.UseRouting();
 

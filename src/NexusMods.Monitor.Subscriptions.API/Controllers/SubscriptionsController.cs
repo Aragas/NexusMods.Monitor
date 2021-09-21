@@ -35,29 +35,34 @@ namespace NexusMods.Monitor.Subscriptions.API.Controllers
         [Produces("application/json")]
         [ProducesResponseType(typeof(void), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(void), StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(typeof(void), StatusCodes.Status500InternalServerError)]
         public async Task<IActionResult> SubscribeAsync([FromBody] SubscriptionAddCommand command) => await _mediator.Send(command) ? Ok() : StatusCode((int) HttpStatusCode.BadRequest);
 
         [HttpPut("subscribe2")]
         [Produces("application/json")]
         [ProducesResponseType(typeof(void), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(void), StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(typeof(void), StatusCodes.Status500InternalServerError)]
         public async Task<IActionResult> Subscribe2Async([FromBody] SubscriptionAdd2Command command) => await _mediator.Send(command) ? Ok() : StatusCode((int) HttpStatusCode.BadRequest);
 
         [HttpPut("unsubscribe")]
         [Produces("application/json")]
         [ProducesResponseType(typeof(void), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(void), StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status500InternalServerError)]
         public async Task<IActionResult> UnsubscribeAsync([FromBody] SubscriptionRemoveCommand command) => await _mediator.Send(command) ? Ok() : StatusCode((int) HttpStatusCode.BadRequest);
 
         [HttpPut("unsubscribe2")]
         [Produces("application/json")]
         [ProducesResponseType(typeof(void), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(void), StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(typeof(void), StatusCodes.Status500InternalServerError)]
         public async Task<IActionResult> Unsubscribe2Async([FromBody] SubscriptionRemove2Command command) => await _mediator.Send(command) ? Ok() : StatusCode((int) HttpStatusCode.BadRequest);
 
         [HttpGet("all")]
         [Produces("application/json")]
         [ProducesResponseType(typeof(void), StatusCodes.Status200OK, Type = typeof(IAsyncEnumerable<SubscriptionViewModel>))]
+        [ProducesResponseType(typeof(void), StatusCodes.Status500InternalServerError)]
         public IActionResult GetAllAsync() => Ok(_subscriptionQueries.GetSubscriptionsAsync());
     }
 }

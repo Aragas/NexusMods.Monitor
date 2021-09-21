@@ -30,9 +30,6 @@ using System.Threading.Tasks;
 
 namespace NexusMods.Monitor.Scraper.Host
 {
-
-
-
     public class Program
     {
         public static async Task Main(string[] args) => await new HostManager(CreateHostBuilder)
@@ -80,6 +77,8 @@ namespace NexusMods.Monitor.Scraper.Host
             })
             .AddEventBusNatsAndEventHandlers()
             .AddMetadataHttpClient()
-            .AddSubscriptionsHttpClient();
+            .AddSubscriptionsHttpClient()
+            //.AddNpgsqlConnection<NexusModsDb>("NexusMods")
+        ;
     }
 }

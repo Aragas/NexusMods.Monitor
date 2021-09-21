@@ -1,12 +1,16 @@
 ﻿using FluentValidation;
 
+using NexusMods.Monitor.Shared.Application.Extensions;
+
+using System.Net.Http;
+
 namespace NexusMods.Monitor.Shared.Host.Options
 {
     public sealed class MetadataAPIOptionsValidator : AbstractValidator<MetadataAPIOptions>
     {
-        public MetadataAPIOptionsValidator()
+        public MetadataAPIOptionsValidator(IHttpClientFactory httpClientFactory)
         {
-            RuleFor(options => options.APIEndpointV1).NotEmpty();
+            RuleFor(options => options.APIEndpointV1).IsUri().IsUriAvailable(httpClientFactory);
         }
     }
 

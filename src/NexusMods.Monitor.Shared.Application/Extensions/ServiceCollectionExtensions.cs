@@ -1,4 +1,5 @@
-﻿using CorrelationId.DependencyInjection;
+﻿using CorrelationId;
+using CorrelationId.DependencyInjection;
 
 using FluentValidation;
 
@@ -9,6 +10,7 @@ using Microsoft.Extensions.DependencyInjection;
 using NexusMods.Monitor.Shared.Application.Behaviours;
 using NexusMods.Monitor.Shared.Common;
 
+using System;
 using System.Reflection;
 
 namespace NexusMods.Monitor.Shared.Application.Extensions
@@ -17,14 +19,19 @@ namespace NexusMods.Monitor.Shared.Application.Extensions
     {
         public static IServiceCollection AddApplication(this IServiceCollection services)
         {
+            if (services == null)
+            {
+                throw new ArgumentNullException(nameof(services));
+            }
+
             services.AddDefaultCorrelationId(options =>
             {
                 options.AddToLoggingScope = true;
                 options.EnforceHeader = true;
                 options.IgnoreRequestHeader = false;
                 options.IncludeInResponse = true;
-                options.RequestHeader = "X-Correlation-Id";
-                options.ResponseHeader = "X-Correlation-Id";
+                options.RequestHeader = CorrelationIdOptions.DefaultHeader;
+                options.ResponseHeader = CorrelationIdOptions.DefaultHeader;
                 options.UpdateTraceIdentifier = false;
             });
 

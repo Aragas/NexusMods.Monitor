@@ -69,6 +69,14 @@ namespace NexusMods.Monitor.Shared.Host.Extensions
             services.AddValidatedOptions<MetadataAPIOptions, MetadataAPIOptionsValidator>(context.Configuration.GetSection("MetadataAPI"));
         });
 
+        /*
+        public static IHostBuilder AddNpgsqlConnection<TDbContext>(this IHostBuilder builder, string configurationSection) where TDbContext : DbContext => builder.ConfigureServices((context, services) =>
+        {
+            services.AddDbContext<TDbContext>(opt => opt.UseNpgsql(context.Configuration.GetConnectionString(configurationSection), o => o.UseNodaTime()));
+            // TODO: Validate connection at startup
+        });
+        */
+
         public static IHostBuilder AddEventBusNatsAndEventHandlers(this IHostBuilder builder, Assembly? assembly = null) => builder.ConfigureServices((context, services) =>
         {
             services.AddValidatedOptions<NatsOptions, NatsOptionsValidator>(context.Configuration.GetSection("EventBus"));

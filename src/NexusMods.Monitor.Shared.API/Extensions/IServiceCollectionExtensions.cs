@@ -3,6 +3,8 @@
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.OpenApi.Models;
 
+using NexusMods.Monitor.Shared.API.Swagger;
+
 using NodaTime;
 using NodaTime.Serialization.SystemTextJson;
 
@@ -18,6 +20,11 @@ namespace NexusMods.Monitor.Shared.API.Extensions
     {
         public static IServiceCollection AddAPI(this IServiceCollection services)
         {
+            if (services == null)
+            {
+                throw new ArgumentNullException(nameof(services));
+            }
+
             var appName = Assembly.GetEntryAssembly()?.GetName().Name ?? "ERROR";
 
             services.AddControllers().AddJsonOptions(options =>
@@ -36,6 +43,8 @@ namespace NexusMods.Monitor.Shared.API.Extensions
                 options.SwaggerDoc("v1", new OpenApiInfo { Title = appName, Version = "v1" });
                 options.SupportNonNullableReferenceTypes();
                 options.ConfigureForNodaTimeWithSystemTextJson();
+
+                options.OperationFilter<CorrelationIdHeaderSwaggerAttribute>();
 
                 var xmlFile = $"{appName}.xml";
                 var xmlPath = Path.Combine(AppContext.BaseDirectory, xmlFile);
