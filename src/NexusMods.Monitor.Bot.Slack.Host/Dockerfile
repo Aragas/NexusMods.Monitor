@@ -31,7 +31,7 @@ RUN dotnet restore "src/NexusMods.Monitor.Bot.Slack.Host/NexusMods.Monitor.Bot.S
 COPY ["src/NexusMods.Monitor.Bot.Slack.Host/", "src/NexusMods.Monitor.Bot.Slack.Host/"]
 COPY ["src/NexusMods.Monitor.Bot.Slack.Application/", "src/NexusMods.Monitor.Bot.Slack.Application/"]
 
-RUN /bin/ash -c 'set -ex && \
+RUN /bin/bash -c 'set -ex && \
     ARCH=`uname -m` && \
     if [[ "$ARCH" == "amd64" || "$ARCH" == "x86_64" ]]; then \
        echo "x86_64" && \

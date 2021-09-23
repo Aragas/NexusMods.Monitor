@@ -32,7 +32,7 @@ RUN dotnet restore "src/NexusMods.Monitor.Metadata.API/NexusMods.Monitor.Metadat
 COPY ["src/NexusMods.Monitor.Metadata.API/", "src/NexusMods.Monitor.Metadata.API/"]
 COPY ["src/NexusMods.Monitor.Metadata.Application/", "src/NexusMods.Monitor.Metadata.Application/"]
 
-RUN /bin/ash -c 'set -ex && \
+RUN /bin/bash -c 'set -ex && \
     ARCH=`uname -m` && \
     if [[ "$ARCH" == "amd64" || "$ARCH" == "x86_64" ]]; then \
        echo "x86_64" && \

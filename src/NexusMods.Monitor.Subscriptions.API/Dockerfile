@@ -36,7 +36,7 @@ COPY ["src/NexusMods.Monitor.Subscriptions.Application/", "src/NexusMods.Monitor
 COPY ["src/NexusMods.Monitor.Subscriptions.Infrastructure/", "src/NexusMods.Monitor.Subscriptions.Infrastructure/"]
 COPY ["src/NexusMods.Monitor.Subscriptions.Domain/", "src/NexusMods.Monitor.Subscriptions.Domain/"]
 
-RUN /bin/ash -c 'set -ex && \
+RUN /bin/bash -c 'set -ex && \
     ARCH=`uname -m` && \
     if [[ "$ARCH" == "amd64" || "$ARCH" == "x86_64" ]]; then \
        echo "x86_64" && \

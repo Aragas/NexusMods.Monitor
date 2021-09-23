@@ -35,7 +35,7 @@ COPY ["src/NexusMods.Monitor.Scraper.Application/", "src/NexusMods.Monitor.Scrap
 COPY ["src/NexusMods.Monitor.Scraper.Infrastructure/", "src/NexusMods.Monitor.Scraper.Infrastructure/"]
 COPY ["src/NexusMods.Monitor.Scraper.Domain/", "src/NexusMods.Monitor.Scraper.Domain/"]
 
-RUN /bin/ash -c 'set -ex && \
+RUN /bin/bash -c 'set -ex && \
     ARCH=`uname -m` && \
     if [[ "$ARCH" == "amd64" || "$ARCH" == "x86_64" ]]; then \
        echo "x86_64" && \
