@@ -83,7 +83,12 @@ namespace NexusMods.Monitor.Bot.Slack.Host.BackgroundServices
             await _bot.Connect(stoppingToken);
             await _retryPolicy.ExecuteAsync(async token => await _eventSubscriber.Subscribe(token), stoppingToken);
             _logger.LogWarning("Started Slack Bot.");
+
+#if NET5_0
+            stoppingToken.Register(_ => OnCancellation(null, stoppingToken), null);
+#else
             stoppingToken.Register(OnCancellation, null);
+#endif
         }
 
 

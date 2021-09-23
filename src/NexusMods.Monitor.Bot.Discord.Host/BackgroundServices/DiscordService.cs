@@ -92,7 +92,11 @@ namespace NexusMods.Monitor.Bot.Discord.Host.BackgroundServices
 
             _logger.LogWarning("Started Discord Bot.");
 
+#if NET5_0
+            stoppingToken.Register(_ => OnCancellation(null, stoppingToken), null);
+#else
             stoppingToken.Register(OnCancellation, null);
+#endif
         }
 
         [System.Diagnostics.CodeAnalysis.SuppressMessage("Usage", "CA2254:Template should be a static expression")]
