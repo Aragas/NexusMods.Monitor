@@ -16,7 +16,7 @@ namespace NexusMods.Monitor.Scraper.Application.Extensions
     {
         public static IHost MigrateDbContext<TContext>(this IHost host, Action<TContext, IServiceProvider> seeder) where TContext : DbContext
         {
-            var underK8s = host.IsInKubernetes();
+            var inContainer = Environment.GetEnvironmentVariable("DOTNET_RUNNING_IN_CONTAINER")?.Equals("true", StringComparison.InvariantCultureIgnoreCase) == true;
 
             using (var scope = host.Services.CreateScope())
             {
@@ -30,7 +30,7 @@ namespace NexusMods.Monitor.Scraper.Application.Extensions
                 {
                     logger.LogInformation("Migrating database associated with context {DbContextName}", typeof(TContext).Name);
 
-                    if (underK8s)
+                    if (inContainer)
                     {
                         InvokeSeeder(seeder, context, services);
                     }
@@ -56,7 +56,7 @@ namespace NexusMods.Monitor.Scraper.Application.Extensions
                 catch (Exception ex)
                 {
                     logger.LogError(ex, "An error occurred while migrating the database used on context {DbContextName}", typeof(TContext).Name);
-                    if (underK8s)
+                    if (inContainer)
                     {
                         throw; // Rethrow under k8s because we rely on k8s to re-run the pod
                     }
