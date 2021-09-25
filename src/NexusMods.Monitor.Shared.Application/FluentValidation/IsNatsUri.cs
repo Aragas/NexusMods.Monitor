@@ -30,9 +30,6 @@ namespace NexusMods.Monitor.Shared.Application.FluentValidation
             if (!string.Equals(uri.Scheme, "nats", StringComparison.InvariantCultureIgnoreCase))
                 return false;
 
-            if (uri.Port != -1 && uri.Port != 4222)
-                return false;
-
             return true;
         }
     }
