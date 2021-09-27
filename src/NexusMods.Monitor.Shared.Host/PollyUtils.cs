@@ -27,9 +27,9 @@ namespace NexusMods.Monitor.Shared.Host
             var logger = sp.GetRequiredService<ILogger<PollyUtils>>();
 
             return Policy
-                .HandleResult<HttpResponseMessage>(r => !r.IsSuccessStatusCode && r.StatusCode != HttpStatusCode.Unauthorized)
-                .OrTransientHttpError()
-                .Or<SocketException>()
+                .Handle<Exception>()
+                .Or<HttpRequestException>(e => e.StatusCode != HttpStatusCode.Unauthorized)
+                .OrTransientHttpStatusCode()
                 .WaitAndRetryAsync(
                     retryCount: 5,
                     sleepDurationProvider: (i, result, context) =>
