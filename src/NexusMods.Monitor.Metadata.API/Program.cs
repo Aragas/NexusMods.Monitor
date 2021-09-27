@@ -37,6 +37,7 @@ namespace NexusMods.Monitor.Metadata.API
                     var backendOptions = sp.GetRequiredService<IOptions<NexusModsOptions>>().Value;
                     client.BaseAddress = new Uri(backendOptions.Endpoint);
                     client.DefaultRequestHeaders.Add("User-Agent", userAgent);
+                    client.Timeout = Timeout.InfiniteTimeSpan;
                 })
                 .ConfigurePrimaryHttpMessageHandler(sp => sp.GetRequiredService<SiteRateLimitHttpMessageHandler>())
                 .GenerateCorrelationId()
@@ -51,7 +52,7 @@ namespace NexusMods.Monitor.Metadata.API
                     client.BaseAddress = new Uri(backendOptions.APIEndpoint);
                     client.DefaultRequestHeaders.Add("User-Agent", userAgent);
                     client.DefaultRequestHeaders.Add("apikey", apiKeyProvider.Get());
-                    client.Timeout = TimeSpan.FromHours(1);
+                    client.Timeout = Timeout.InfiniteTimeSpan;
                 })
                 .ConfigurePrimaryHttpMessageHandler(sp => sp.GetRequiredService<APIRateLimitHttpMessageHandler>())
                 .GenerateCorrelationId()
