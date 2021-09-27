@@ -40,7 +40,7 @@ namespace NexusMods.Monitor.Shared.Application.FluentValidation
             {
                 var client = _httpClientFactory.CreateClient("FluentClient");
                 var request = new HttpRequestMessage(HttpMethod.Options, value);
-                var cts = new CancellationTokenSource(2000);
+                using var cts = new CancellationTokenSource(2000);
                 var response = client.Send(request, HttpCompletionOption.ResponseHeadersRead, cts.Token);
             });
 

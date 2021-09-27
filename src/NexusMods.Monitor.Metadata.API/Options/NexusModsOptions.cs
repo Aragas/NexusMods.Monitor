@@ -27,7 +27,7 @@ namespace NexusMods.Monitor.Metadata.API.Options
                 var client = _httpClientFactory.CreateClient("FluentClient");
                 var request = new HttpRequestMessage(HttpMethod.Get, new Uri(new Uri(context.InstanceToValidate.APIEndpoint), "v1/users/validate.json"));
                 request.Headers.Add("apikey", value);
-                var cts = new CancellationTokenSource(2000);
+                using var cts = new CancellationTokenSource(2000);
                 var response = client.Send(request, HttpCompletionOption.ResponseHeadersRead, cts.Token);
                 if (!response.IsSuccessStatusCode)
                 {

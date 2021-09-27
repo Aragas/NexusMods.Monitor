@@ -148,7 +148,9 @@ namespace NexusMods.Monitor.Metadata.API.Controllers
             async IAsyncEnumerable<SSEMessage> SSEEvents()
             {
                 var client = new ClientWebSocket();
-                var timeoutToken = CancellationTokenSource.CreateLinkedTokenSource(new CancellationTokenSource(60000).Token, ct).Token;
+                using var cts = new CancellationTokenSource(60000);
+                using var linkedCts = CancellationTokenSource.CreateLinkedTokenSource(cts.Token, ct);
+                var timeoutToken = linkedCts.Token;
                 var connectionToken = null as string;
 
                 yield return new SSEMessage(Event: "connecting");

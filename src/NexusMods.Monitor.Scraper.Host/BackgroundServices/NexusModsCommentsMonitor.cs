@@ -43,6 +43,8 @@ namespace NexusMods.Monitor.Scraper.Host.BackgroundServices
 
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)
         {
+            var scope = _logger.BeginScope("Service: {service}", nameof(NexusModsCommentsMonitor));
+
             stoppingToken.Register(() => _logger.LogInformation("Comments processing is stopping"));
 
             var policy = Policy.Handle<Exception>(ex => ex.GetType() != typeof(TaskCanceledException))
@@ -59,6 +61,8 @@ namespace NexusMods.Monitor.Scraper.Host.BackgroundServices
                     await _timeLimiter.Enqueue(async () => await ProcessComments(token), token);
                 }, stoppingToken);
             }
+
+            scope.Dispose();
         }
 
         private async Task ProcessComments(CancellationToken ct)
