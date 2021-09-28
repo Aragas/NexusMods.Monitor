@@ -20,6 +20,7 @@ using Serilog.Exceptions.EntityFrameworkCore.Destructurers;
 using System;
 using System.Linq;
 using System.Reflection;
+using System.Threading;
 
 namespace NexusMods.Monitor.Shared.Host.Extensions
 {
@@ -46,6 +47,7 @@ namespace NexusMods.Monitor.Shared.Host.Extensions
                 {
                     var backendOptions = sp.GetRequiredService<IOptions<SubscriptionsAPIOptions>>().Value;
                     client.BaseAddress = new Uri(backendOptions.APIEndpointV1);
+                    client.Timeout = Timeout.InfiniteTimeSpan;
                 })
                 .GenerateCorrelationId()
                 .AddPolly()
@@ -61,6 +63,7 @@ namespace NexusMods.Monitor.Shared.Host.Extensions
                 {
                     var backendOptions = sp.GetRequiredService<IOptions<MetadataAPIOptions>>().Value;
                     client.BaseAddress = new Uri(backendOptions.APIEndpointV1);
+                    client.Timeout = Timeout.InfiniteTimeSpan;
                 })
                 .GenerateCorrelationId()
                 .AddPolly()
