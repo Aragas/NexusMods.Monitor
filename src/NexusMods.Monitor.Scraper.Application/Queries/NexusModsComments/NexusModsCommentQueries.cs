@@ -1,5 +1,4 @@
-﻿using NexusMods.Monitor.Shared.Application;
-using NexusMods.Monitor.Shared.Common;
+﻿using NexusMods.Monitor.Shared.Common;
 
 using NodaTime;
 
@@ -9,6 +8,7 @@ using System.Net;
 using System.Net.Http;
 using System.Runtime.CompilerServices;
 using System.Threading;
+using System.Threading.Tasks;
 
 namespace NexusMods.Monitor.Scraper.Application.Queries.NexusModsComments
 {
@@ -25,7 +25,17 @@ namespace NexusMods.Monitor.Scraper.Application.Queries.NexusModsComments
 
         public async IAsyncEnumerable<NexusModsCommentRootViewModel> GetAllAsync(uint gameIdRequest, uint modIdRequest, [EnumeratorCancellation] CancellationToken ct = default)
         {
-            using var response = await _httpClientFactory.CreateClient("Metadata.API").GetAsync($"comments/id?gameId={gameIdRequest}&modId={modIdRequest}", ct);
+            HttpResponseMessage response;
+
+            try
+            {
+                response = await _httpClientFactory.CreateClient("Metadata.API").GetAsync($"comments/id?gameId={gameIdRequest}&modId={modIdRequest}", ct);
+            }
+            catch (Exception e) when (e is TaskCanceledException)
+            {
+                yield break;
+            }
+
             if (response.IsSuccessStatusCode && response.StatusCode != HttpStatusCode.NoContent)
             {
                 var content = await response.Content.ReadAsStringAsync(ct);
@@ -34,6 +44,8 @@ namespace NexusMods.Monitor.Scraper.Application.Queries.NexusModsComments
                     yield return new NexusModsCommentRootViewModel(gameDomain, gameId, modId, gameName, modName, new NexusModsCommentViewModel(id, author, authorUrl, avatarUrl, s, isSticky, isLocked, instant, nexusModsCommentReplyViewModels));
                 }
             }
+
+            response.Dispose();
         }
 
         private record CommentsDTO(

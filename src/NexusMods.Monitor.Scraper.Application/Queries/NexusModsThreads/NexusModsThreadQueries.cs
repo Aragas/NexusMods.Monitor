@@ -1,5 +1,4 @@
-﻿using NexusMods.Monitor.Shared.Application;
-using NexusMods.Monitor.Shared.Common;
+﻿using NexusMods.Monitor.Shared.Common;
 
 using System;
 using System.Net;
@@ -22,17 +21,34 @@ namespace NexusMods.Monitor.Scraper.Application.Queries.NexusModsThreads
 
         public async Task<NexusModsThreadViewModel?> GetAsync(uint gameIdRequest, uint modIdRequest, CancellationToken ct = default)
         {
-            using var response = await _httpClientFactory.CreateClient("Metadata.API").GetAsync($"thread/id?gameId={gameIdRequest}&modId={modIdRequest}", ct);
-            if (response.IsSuccessStatusCode && response.StatusCode != HttpStatusCode.NoContent)
+            HttpResponseMessage response;
+
+            try
             {
-                var content = await response.Content.ReadAsStringAsync(ct);
-                if (_jsonSerializer.Deserialize<ThreadDTO?>(content) is { } tuple)
-                {
-                    var (gameId, modId, threadId) = tuple;
-                    return new NexusModsThreadViewModel(gameId, modId, threadId);
-                }
+                response = await _httpClientFactory.CreateClient("Metadata.API").GetAsync($"thread/id?gameId={gameIdRequest}&modId={modIdRequest}", ct);
             }
-            return null;
+            catch (Exception e) when (e is TaskCanceledException)
+            {
+                return null;
+            }
+
+            try
+            {
+                if (response.IsSuccessStatusCode && response.StatusCode != HttpStatusCode.NoContent)
+                {
+                    var content = await response.Content.ReadAsStringAsync(ct);
+                    if (_jsonSerializer.Deserialize<ThreadDTO?>(content) is { } tuple)
+                    {
+                        var (gameId, modId, threadId) = tuple;
+                        return new NexusModsThreadViewModel(gameId, modId, threadId);
+                    }
+                }
+                return null;
+            }
+            finally
+            {
+                response.Dispose();
+            }
         }
 
         private sealed record ThreadDTO(uint GameId, uint ModId, uint ThreadId);

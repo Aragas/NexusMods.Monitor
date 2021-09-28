@@ -1,5 +1,4 @@
-﻿using NexusMods.Monitor.Shared.Application;
-using NexusMods.Monitor.Shared.Common;
+﻿using NexusMods.Monitor.Shared.Common;
 
 using System;
 using System.Collections.Generic;
@@ -7,6 +6,7 @@ using System.Net;
 using System.Net.Http;
 using System.Runtime.CompilerServices;
 using System.Threading;
+using System.Threading.Tasks;
 
 namespace NexusMods.Monitor.Scraper.Application.Queries.Subscriptions
 {
@@ -23,7 +23,17 @@ namespace NexusMods.Monitor.Scraper.Application.Queries.Subscriptions
 
         public async IAsyncEnumerable<SubscriptionViewModel> GetAllAsync([EnumeratorCancellation] CancellationToken ct = default)
         {
-            using var response = await _httpClientFactory.CreateClient("Subscriptions.API").GetAsync("all", ct);
+            HttpResponseMessage response;
+
+            try
+            {
+                response = await _httpClientFactory.CreateClient("Subscriptions.API").GetAsync("all", ct);
+            }
+            catch (Exception e) when (e is TaskCanceledException)
+            {
+                yield break;
+            }
+
             if (response.IsSuccessStatusCode && response.StatusCode != HttpStatusCode.NoContent)
             {
                 var content = await response.Content.ReadAsStringAsync(ct);
@@ -33,6 +43,8 @@ namespace NexusMods.Monitor.Scraper.Application.Queries.Subscriptions
                     yield return new SubscriptionViewModel(nexusModsGameId, nexusModsModId);
                 }
             }
+
+            response.Dispose();
         }
 
         private sealed record SubscriptionDTO(uint NexusModsGameId, uint NexusModsModId);

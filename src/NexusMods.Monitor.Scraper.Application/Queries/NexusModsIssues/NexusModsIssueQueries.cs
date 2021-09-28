@@ -1,5 +1,4 @@
-﻿using NexusMods.Monitor.Shared.Application;
-using NexusMods.Monitor.Shared.Common;
+﻿using NexusMods.Monitor.Shared.Common;
 
 using NodaTime;
 
@@ -26,7 +25,17 @@ namespace NexusMods.Monitor.Scraper.Application.Queries.NexusModsIssues
 
         public async IAsyncEnumerable<NexusModsIssueRootViewModel> GetAllAsync(uint gameIdRequest, uint modIdRequest, [EnumeratorCancellation] CancellationToken ct)
         {
-            using var response = await _httpClientFactory.CreateClient("Metadata.API").GetAsync($"issues/id?gameId={gameIdRequest}&modId={modIdRequest}", ct);
+            HttpResponseMessage response;
+
+            try
+            {
+                response = await _httpClientFactory.CreateClient("Metadata.API").GetAsync($"issues/id?gameId={gameIdRequest}&modId={modIdRequest}", ct);
+            }
+            catch (Exception e) when (e is TaskCanceledException)
+            {
+                yield break;
+            }
+
             if (response.IsSuccessStatusCode && response.StatusCode != HttpStatusCode.NoContent)
             {
                 var content = await response.Content.ReadAsStringAsync(ct);
@@ -42,26 +51,55 @@ namespace NexusMods.Monitor.Scraper.Application.Queries.NexusModsIssues
                             lastPost));
                 }
             }
+
+            response.Dispose();
         }
 
         public async Task<NexusModsIssueContentViewModel?> GetContentAsync(uint issueId, CancellationToken ct = default)
         {
-            using var response = await _httpClientFactory.CreateClient("Metadata.API").GetAsync($"issues/content?issueId={issueId}", ct);
-            if (response.IsSuccessStatusCode && response.StatusCode != HttpStatusCode.NoContent)
+            HttpResponseMessage response;
+
+            try
             {
-                var content = await response.Content.ReadAsStringAsync(ct);
-                if (_jsonSerializer.Deserialize<IssueContentDTO?>(content) is { } tuple)
-                {
-                    var (id, author, authorUrl, avatarUrl, content_, instant) = tuple;
-                    return new NexusModsIssueContentViewModel(id, author, authorUrl, avatarUrl, content_, instant);
-                }
+                response = await _httpClientFactory.CreateClient("Metadata.API").GetAsync($"issues/content?issueId={issueId}", ct);
             }
-            return null;
+            catch (Exception e) when (e is TaskCanceledException)
+            {
+                return null;
+            }
+
+            try
+            {
+                if (response.IsSuccessStatusCode && response.StatusCode != HttpStatusCode.NoContent)
+                {
+                    var content = await response.Content.ReadAsStringAsync(ct);
+                    if (_jsonSerializer.Deserialize<IssueContentDTO?>(content) is { } tuple)
+                    {
+                        var (id, author, authorUrl, avatarUrl, content_, instant) = tuple;
+                        return new NexusModsIssueContentViewModel(id, author, authorUrl, avatarUrl, content_, instant);
+                    }
+                }
+                return null;
+            }
+            finally
+            {
+                response.Dispose();
+            }
         }
 
         public async IAsyncEnumerable<NexusModsIssueReplyViewModel> GetRepliesAsync(uint issueId, [EnumeratorCancellation] CancellationToken ct = default)
         {
-            using var response = await _httpClientFactory.CreateClient("Metadata.API").GetAsync($"issues/replies?issueId={issueId}", ct);
+            HttpResponseMessage response;
+
+            try
+            {
+                response = await _httpClientFactory.CreateClient("Metadata.API").GetAsync($"issues/replies?issueId={issueId}", ct);
+            }
+            catch (Exception e) when (e is TaskCanceledException)
+            {
+                yield break;
+            }
+
             if (response.IsSuccessStatusCode && response.StatusCode != HttpStatusCode.NoContent)
             {
                 var content = await response.Content.ReadAsStringAsync(ct);
@@ -71,9 +109,11 @@ namespace NexusMods.Monitor.Scraper.Application.Queries.NexusModsIssues
                     yield return new NexusModsIssueReplyViewModel(id, author, authorUrl, avatarUrl, content_, instant);
                 }
             }
+
+            response.Dispose();
         }
 
-        public sealed record IssueDTO(string GameDomain,
+        private sealed record IssueDTO(string GameDomain,
             uint GameId,
             uint ModId,
             string GameName,
