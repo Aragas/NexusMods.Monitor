@@ -10,7 +10,7 @@ Discord and Slack bots that monitor any changes in the NexusMods Posts/Bugs sect
 
 Bugs | Posts
 :-:|:-:
-<img src="https://media.discordapp.net/attachments/751093375943573511/754076219838038046/unknown.png" alt="drawing" width="450"/> | <img src="https://media.discordapp.net/attachments/751093375943573511/754077086649548830/unknown.png" alt="drawing" width="300"/>
+<img src="https://media.discordapp.net/attachments/422092475163869201/893153465285640252/unknown.png" alt="drawing" width="450"/> | <img src="https://media.discordapp.net/attachments/422092475163869201/893154286941405194/unknown.png" alt="drawing" width="300"/>
 
 
 ### How to deploy
