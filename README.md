@@ -16,7 +16,7 @@ Bugs | Posts
 ### How to deploy
 Experience with ``docker`` and ``docker-compose`` is required.  
 Go to ``src\docker-compose`` and edit the ``docker-compose.yml`` file.  
-You need to add real API Keys to ``Discord__BotToken`` (for Discord to work), ``Slack__BotToken`` (for Slack to work), ``NexusMods__APIKey`` (for the site scraper to work).  
+You need to add real API Keys to ``Discord__BotToken`` (for **Bot.Discord** to work), ``Slack__BotToken`` (for **Bot.Slack** to work), ``NexusMods__APIKey`` (for **Metadata** to work).  
 If you don't need either Discord or Slack bot, just comment the service out.  
 Run ``docker-compose up -d`` as usual.  
 You can check http://localhost:30080 for logs.  
@@ -25,14 +25,19 @@ You can check http://localhost:30080 for logs.
 Once the bots are deployed, you have the following commands:
 * ``!nmm subscribe [Game Id] [Mod Id]`` will start to monitor the desired mod and will report any changes in the current channel.
 * ``!nmm unsubscribe [Game Id] [Mod Id]`` will stop monitoring in the current channel.
+* ``!nmm subscribe [Mod Url]
+* ``!nmm unsubscribe [Mod Url]
 * ``!nmm subscriptions`` displays current subscriptions in the current channel.
+* ``!nmm ratelimits
+* ``!nmm authorize
 * ``!nmm about``
 * ``!nmm help``
 
 ### About
-The repository consists of four services:
+The repository consists of five services:
+* **Metadata** - Web API based service that handles parsing of NexusMods.com accessing it's API.
 * **Subscriptions** - Web API based service that handles mod subscription.
-* **Scraper** - parses NexusMods and raises events if changes are detected.
+* **Scraper** - processes NexusMods data from **Metadata** and raises events if changes are detected.
 * **Bot.Discord** - listens for events and posts them as messages in Discord channels based on current subscriptions.
 * **Bot.Slack** - listens for events and posts them as messages in Slack channels based on current subscriptions.
 
@@ -40,4 +45,4 @@ Based on Microsoft's DDD guidelines.
 **NATS** is used for the inter-process Event Bus, via abstraction provided by [Enbiso.NLib.EventBus](https://github.com/enbiso/Enbiso.NLib/tree/master/Enbiso.NLib.EventBus).  
 **Mediatr** for the in-process command/event bus, directly.  
 **PostgreSQL** for data storage.  
-**Seq** for log storage.  
+**Seq**/**Graylog** for log storage.  
