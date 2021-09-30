@@ -10,7 +10,7 @@ networks:
 
 services:
   nexusmods_monitor_bot_discord:
-    image: ${DOCKER_REGISTRY-}nexusmods_monitor_bot_discord
+    image: ${DOCKER_REGISTRY-}nexusmods_monitor_bot_discord:${TAG-latest}
     environment:
       Discord__BotToken: PLACEHOLDER
       MetadataAPI__APIEndpointV1: http://nexusmods_monitor_metadata/api/v1/metadata/
@@ -28,7 +28,7 @@ services:
       - eventbus
 
   nexusmods_monitor_bot_slack:
-    image: ${DOCKER_REGISTRY-}nexusmods_monitor_bot_slack
+    image: ${DOCKER_REGISTRY-}nexusmods_monitor_bot_slack:${TAG-latest}
     environment:
       Slack__BotToken: PLACEHOLDER
       MetadataAPI__APIEndpointV1: http://nexusmods_monitor_metadata/api/v1/metadata/
@@ -46,7 +46,7 @@ services:
       - eventbus
 
   nexusmods_monitor_scraper:
-    image: ${DOCKER_REGISTRY-}nexusmods_monitor_scraper
+    image: ${DOCKER_REGISTRY-}nexusmods_monitor_scraper:${TAG-latest}
     environment:
       MetadataAPI__APIEndpointV1: http://nexusmods_monitor_metadata/api/v1/metadata/
       SubscriptionsAPI__APIEndpointV1: http://nexusmods_monitor_subscriptions/api/v1/subscriptions/
@@ -65,7 +65,7 @@ services:
       - database
 
   nexusmods_monitor_metadata:
-    image: ${DOCKER_REGISTRY-}nexusmods_monitor_metadata
+    image: ${DOCKER_REGISTRY-}nexusmods_monitor_metadata:${TAG-latest}
     environment:
       NexusMods__APIKey: PLACEHOLDER
       NexusMods__APIEndpoint: https://api.nexusmods.com/
@@ -78,7 +78,7 @@ services:
       - internal
 
   nexusmods_monitor_subscriptions:
-    image: ${DOCKER_REGISTRY-}nexusmods_monitor_subscriptions
+    image: ${DOCKER_REGISTRY-}nexusmods_monitor_subscriptions:${TAG-latest}
     environment:
       MetadataAPI__APIEndpointV1: http://nexusmods_monitor_metadata/api/v1/metadata/
       ConnectionStrings__Subscriptions: Host=postgres;Port=5432;Database=subscriptions;Username=nexusmodsmonitor;Password=nexusmodsmonitor;Include Error Detail=true;
