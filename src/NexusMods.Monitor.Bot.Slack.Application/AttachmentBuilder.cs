@@ -1,7 +1,6 @@
 ﻿using SlackNet;
 
 using System;
-using System.Diagnostics.CodeAnalysis;
 using System.Drawing;
 
 namespace NexusMods.Monitor.Bot.Slack.Application
@@ -49,14 +48,15 @@ namespace NexusMods.Monitor.Bot.Slack.Application
             return this;
         }
 
-        [SuppressMessage("Style", "IDE0060", Justification = "Part of public API")]
         public AttachmentBuilder WithTimestamp(DateTimeOffset timestamp)
         {
+            _attachment.Ts = (int) ((double) timestamp.ToUnixTimeMilliseconds() / 1000d);
             return this;
         }
 
         public AttachmentBuilder WithCurrentTimestamp()
         {
+            _attachment.Ts = (int) ((double) DateTimeOffset.UtcNow.ToUnixTimeMilliseconds() / 1000d);
             return this;
         }
 
