@@ -1,4 +1,5 @@
 ﻿using AngleSharp.Dom;
+using AngleSharp.Html.Dom;
 
 using NexusMods.Monitor.Metadata.Application.Extensions;
 using NexusMods.Monitor.Shared.Common;
@@ -17,6 +18,12 @@ namespace NexusMods.Monitor.Metadata.Application.Queries.Issues
     {
         public static IssueViewModel FromElement(string gameDomain, uint gameId, uint modId, string gameName, string modName, IElement element)
         {
+            var id = uint.TryParse(element.GetAttribute("data-issue-id"), out var issueId) ? issueId : uint.MaxValue;
+
+            var bugTitle = element.GetElementsByClassName("table-bug-title").FirstOrDefault();
+            var @private = bugTitle?.Children.FirstOrDefault(e => e.Id == $"issuePrivateLabel_{id}") as IHtmlDivElement;
+            var closed = bugTitle?.Children.FirstOrDefault(e => e.Id == $"issueLockedLabel_{id}") as IHtmlDivElement;
+
             var flags = (element.GetElementsByClassName("table-bug-title").FirstOrDefault()?.GetElementsByClassName("forum-sticky") ?? Enumerable.Empty<IElement>()).ToImmutableArray();
             var lastPost = element.GetElementsByClassName("table-bug-post").FirstOrDefault()?.ToText() ?? "01 Jan 2000 0:01AM";
 
@@ -27,10 +34,10 @@ namespace NexusMods.Monitor.Metadata.Application.Queries.Issues
                 ModId = modId,
                 GameName = gameName,
                 ModName = modName,
-                Id = uint.TryParse(element.GetAttribute("data-issue-id"), out var id) ? id : uint.MaxValue,
-                Title = element.GetElementsByClassName("table-bug-title").FirstOrDefault()?.GetElementsByClassName("issue-title").FirstOrDefault()?.ToText() ?? "ERROR",
-                IsPrivate = flags.Any(f => f.ToText() == "Private" && (f.GetAttribute("style") is null)),
-                IsClosed = flags.Any(f => f.ToText() == "Closed" && (f.GetAttribute("style") is null)),
+                Id = id,
+                Title = bugTitle?.GetElementsByClassName("issue-title").FirstOrDefault()?.ToText() ?? "ERROR",
+                IsPrivate = @private is not null && @private.IsHidden(),
+                IsClosed = closed is not null && closed.IsHidden(),
                 Status = element.GetElementsByClassName("table-bug-status").FirstOrDefault()?.ToText() switch
                 {
                     "New issue" => IssueStatusViewModel.NewIssue,
