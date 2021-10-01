@@ -7,7 +7,6 @@ using Microsoft.Extensions.Logging;
 using NexusMods.Monitor.Scraper.Application.Commands.Comments;
 using NexusMods.Monitor.Scraper.Domain.AggregatesModel.CommentAggregate;
 using NexusMods.Monitor.Shared.Application.IntegrationEvents.Comments;
-using NexusMods.Monitor.Shared.Application.Models;
 
 using System;
 using System.Linq;
@@ -44,15 +43,7 @@ namespace NexusMods.Monitor.Scraper.Application.CommandHandlers.Comments
                 return false;
             }
 
-            var commentReplyEntity = commentEntity.AddReplyEntity(
-                message.ReplyId,
-                message.Url,
-                message.Author,
-                message.AuthorUrl,
-                message.AvatarUrl,
-                message.Content,
-                false,
-                message.TimeOfPost);
+            var commentReplyEntity = commentEntity.AddReplyEntity(message.ReplyId, message.Url, message.Author, message.AuthorUrl, message.AvatarUrl, message.Content, false, message.TimeOfPost);
 
             _commentRepository.Update(commentEntity);
 

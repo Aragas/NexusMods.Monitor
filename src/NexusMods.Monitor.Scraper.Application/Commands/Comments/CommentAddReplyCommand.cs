@@ -7,7 +7,7 @@ using NodaTime;
 
 namespace NexusMods.Monitor.Scraper.Application.Commands.Comments
 {
-    public sealed record CommentAddReplyCommand(uint Id, uint ReplyId, string Url, string Author, string AuthorUrl, string AvatarUrl, string Content, bool IsDeleted, Instant TimeOfPost) : IRequest<bool>
+    public sealed record CommentAddReplyCommand(uint Id, uint ReplyId, string Url, string Author, string AuthorUrl, string AvatarUrl, string Content, Instant TimeOfPost) : IRequest<bool>
     {
         public static CommentAddReplyCommand FromViewModel(NexusModsCommentRootViewModel nexusModsCommentRoot, NexusModsCommentReplyViewModel nexusModsCommentReply)
         {
@@ -20,7 +20,6 @@ namespace NexusMods.Monitor.Scraper.Application.Commands.Comments
                 AuthorUrl = nexusModsCommentReply.AuthorUrl,
                 AvatarUrl = nexusModsCommentReply.AvatarUrl,
                 Content = nexusModsCommentReply.Content,
-                IsDeleted = false,
                 TimeOfPost = nexusModsCommentReply.Post,
             };
         }

@@ -16,6 +16,7 @@ namespace NexusMods.Monitor.Scraper.Infrastructure.Contexts.Config
             builder.Property(p => p.AuthorUrl).HasColumnName("author_url").IsRequired();
             builder.Property(p => p.AvatarUrl).HasColumnName("avatar_url").IsRequired();
             builder.Property(p => p.Content).HasColumnName("content").IsRequired();
+            builder.Property(p => p.IsDeleted).HasColumnName("is_deleted").IsRequired();
             builder.Property(p => p.TimeOfPost).HasColumnName("time_of_post").IsRequired();
             builder.Ignore(b => b.DomainEvents);
             builder.HasQueryFilter(x => !x.IsDeleted);

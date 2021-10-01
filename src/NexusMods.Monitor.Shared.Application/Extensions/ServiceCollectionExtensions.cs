@@ -4,6 +4,7 @@ using CorrelationId.DependencyInjection;
 using FluentValidation;
 
 using MediatR;
+using MediatR.Pipeline;
 
 using Microsoft.Extensions.DependencyInjection;
 
@@ -36,6 +37,7 @@ namespace NexusMods.Monitor.Shared.Application.Extensions
             });
 
             services.AddValidatorsFromAssembly(Assembly.GetExecutingAssembly());
+            services.AddTransient(typeof(IRequestPreProcessor<>), typeof(LoggingBehaviour<>));
             services.AddTransient(typeof(IPipelineBehavior<,>), typeof(UnhandledExceptionBehaviour<,>));
             services.AddTransient(typeof(IPipelineBehavior<,>), typeof(ValidationBehaviour<,>));
             services.AddTransient(typeof(IPipelineBehavior<,>), typeof(PerformanceBehaviour<,>));

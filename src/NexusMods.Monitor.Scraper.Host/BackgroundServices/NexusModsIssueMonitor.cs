@@ -132,9 +132,9 @@ namespace NexusMods.Monitor.Scraper.Host.BackgroundServices
                         foreach (var issueReply in newReplies)
                         {
                             if (now - issueReply.Time < Duration.FromMinutes(2))
-                                await mediator.Send(new IssueAddNewReplyCommand(nexusModsIssueRoot, issueReply), ct);
+                                await mediator.Send(IssueAddNewReplyCommand.FromViewModel(nexusModsIssueRoot, issueReply), ct);
                             else
-                                await mediator.Send(new IssueAddReplyCommand(nexusModsIssueRoot, issueReply), ct);
+                                await mediator.Send(IssueAddReplyCommand.FromViewModel(nexusModsIssueRoot, issueReply), ct);
                         }
 
                         foreach (var (id, ownerId) in deletedReplies)

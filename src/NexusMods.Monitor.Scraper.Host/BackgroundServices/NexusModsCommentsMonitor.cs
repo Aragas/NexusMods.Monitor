@@ -118,7 +118,7 @@ namespace NexusMods.Monitor.Scraper.Host.BackgroundServices
                         if (now - commentReply.Post < Duration.FromMinutes(2))
                             await mediator.Send(CommentAddNewReplyCommand.FromViewModel(nexusModsCommentRoot, commentReply), ct);
                         else
-                            await mediator.Send(CommentAddNewReplyCommand.FromViewModel(nexusModsCommentRoot, commentReply), ct);
+                            await mediator.Send(CommentAddReplyCommand.FromViewModel(nexusModsCommentRoot, commentReply), ct);
                     }
 
                     foreach (var (id, ownerId) in deletedReplies)

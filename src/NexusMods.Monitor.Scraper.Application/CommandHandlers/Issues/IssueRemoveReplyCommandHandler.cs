@@ -7,7 +7,6 @@ using Microsoft.Extensions.Logging;
 using NexusMods.Monitor.Scraper.Application.Commands.Issues;
 using NexusMods.Monitor.Scraper.Domain.AggregatesModel.IssueAggregate;
 using NexusMods.Monitor.Shared.Application.IntegrationEvents.Issues;
-using NexusMods.Monitor.Shared.Application.Models;
 
 using System;
 using System.Linq;

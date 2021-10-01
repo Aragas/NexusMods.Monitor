@@ -40,15 +40,7 @@ namespace NexusMods.Monitor.Scraper.Application.CommandHandlers.Comments
                 return false;
             }
 
-            commentEntity.AddReplyEntity(
-                message.ReplyId,
-                message.Url,
-                message.Author,
-                message.AuthorUrl,
-                message.AvatarUrl,
-                message.Content,
-                message.IsDeleted,
-                message.TimeOfPost);
+            commentEntity.AddReplyEntity(message.ReplyId, message.Url, message.Author, message.AuthorUrl, message.AvatarUrl, message.Content, false, message.TimeOfPost);
 
             foreach (var @event in commentEntity.DomainEvents.OfType<CommentAddedReplyEvent>().ToImmutableArray())
                 commentEntity.RemoveDomainEvent(@event);

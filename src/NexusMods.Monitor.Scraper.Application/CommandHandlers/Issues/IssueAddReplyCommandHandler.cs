@@ -38,14 +38,7 @@ namespace NexusMods.Monitor.Scraper.Application.CommandHandlers.Issues
                 return false;
             }
 
-            issueEntity.AddReplyEntity(
-                message.Id,
-                message.Author,
-                message.AuthorUrl,
-                message.AvatarUrl,
-                message.Content,
-                message.IsDeleted,
-                message.TimeOfPost);
+            issueEntity.AddReplyEntity(message.Id, message.Author, message.AuthorUrl, message.AvatarUrl, message.Content, false, message.TimeOfPost);
 
             _issueRepository.Update(issueEntity);
 

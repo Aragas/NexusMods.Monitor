@@ -12,7 +12,7 @@ using System.Linq;
 
 namespace NexusMods.Monitor.Scraper.Application.Commands.Issues
 {
-    public sealed record IssueAddCommand(uint Id, uint NexusModsGameId, uint NexusModsModId, string GameName, string ModName, string Title, string Url, string ModVersion, IssueStatusEnumeration Status, IssuePriorityEnumeration Priority, bool IsPrivate, bool IsClosed, bool IsDeleted, Instant TimeOfLastPost, IssueAddCommand.IssueContentDTO? Content, IReadOnlyList<IssueAddCommand.IssueReplyDTO> Replies) : IRequest<bool>
+    public sealed record IssueAddCommand(uint Id, uint NexusModsGameId, uint NexusModsModId, string GameName, string ModName, string Title, string Url, string ModVersion, IssueStatusEnumeration Status, IssuePriorityEnumeration Priority, bool IsPrivate, bool IsClosed, Instant TimeOfLastPost, IssueAddCommand.IssueContentDTO? Content, IReadOnlyList<IssueAddCommand.IssueReplyDTO> Replies) : IRequest<bool>
     {
         public sealed record IssueContentDTO(uint Id, string Author, string AuthorUrl, string AvatarUrl, string Content, Instant TimeOfPost);
 
@@ -34,7 +34,6 @@ namespace NexusMods.Monitor.Scraper.Application.Commands.Issues
                 Priority = issuePriority,
                 IsPrivate = nexusModsIssueRoot.NexusModsIssue.IsPrivate,
                 IsClosed = nexusModsIssueRoot.NexusModsIssue.IsClosed,
-                IsDeleted = false,
                 TimeOfLastPost = nexusModsIssueRoot.NexusModsIssue.LastPost,
                 Content = nexusModsIssueRoot.NexusModsIssueContent is null
                     ? null

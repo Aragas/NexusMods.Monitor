@@ -7,7 +7,6 @@ using Microsoft.Extensions.Logging;
 using NexusMods.Monitor.Scraper.Application.Commands.Issues;
 using NexusMods.Monitor.Scraper.Domain.AggregatesModel.IssueAggregate;
 using NexusMods.Monitor.Shared.Application.IntegrationEvents.Issues;
-using NexusMods.Monitor.Shared.Application.Models;
 
 using System;
 using System.Linq;
@@ -44,14 +43,7 @@ namespace NexusMods.Monitor.Scraper.Application.CommandHandlers.Issues
                 return false;
             }
 
-            var issueReplyEntity = issueEntity.AddReplyEntity(
-                message.Id,
-                message.Author,
-                message.AuthorUrl,
-                message.AvatarUrl,
-                message.Content,
-                message.IsDeleted,
-                message.TimeOfPost);
+            var issueReplyEntity = issueEntity.AddReplyEntity(message.Id, message.Author, message.AuthorUrl, message.AvatarUrl, message.Content, false, message.TimeOfPost);
 
             _issueRepository.Update(issueEntity);
 
