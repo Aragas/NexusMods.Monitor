@@ -26,7 +26,7 @@ namespace NexusMods.Monitor.Metadata.Application.Queries.Issues
         private readonly IGameQueries _nexusModsGameQueries;
         private readonly IModQueries _nexusModsModQueries;
 
-        public IssueQueries(ILogger logger, IHttpClientFactory httpClientFactory, IMemoryCache cache, IGameQueries nexusModsGameQueries, IModQueries nexusModsModQueries)
+        public IssueQueries(ILogger<IssueQueries> logger, IHttpClientFactory httpClientFactory, IMemoryCache cache, IGameQueries nexusModsGameQueries, IModQueries nexusModsModQueries)
         {
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
             _httpClientFactory = httpClientFactory ?? throw new ArgumentNullException(nameof(httpClientFactory));
