@@ -83,9 +83,9 @@ namespace NexusMods.Monitor.Scraper.Host.BackgroundServices
                 var nexusModsCommentsKeys = nexusModsComments.Keys.ToImmutableHashSet();
                 var databaseCommentsKeys = databaseComments.Keys.ToImmutableHashSet();
 
-                var newComments = nexusModsCommentsKeys.Except(databaseCommentsKeys).Select(key => nexusModsComments[key]).ToImmutableArray();
-                var deletedComments = databaseCommentsKeys.Except(nexusModsCommentsKeys).Select(key => databaseComments[key]).ToImmutableArray();
-                var existingComments = nexusModsCommentsKeys.Intersect(databaseCommentsKeys).Select(key => (databaseComments[key], nexusModsComments[key])).ToImmutableArray();
+                var newComments = nexusModsCommentsKeys.Except(databaseCommentsKeys).Select(key => nexusModsComments[key]);
+                var deletedComments = databaseCommentsKeys.Except(nexusModsCommentsKeys).Select(key => databaseComments[key]);
+                var existingComments = nexusModsCommentsKeys.Intersect(databaseCommentsKeys).Select(key => (databaseComments[key], nexusModsComments[key]));
 
                 var now = _clock.GetCurrentInstant();
 

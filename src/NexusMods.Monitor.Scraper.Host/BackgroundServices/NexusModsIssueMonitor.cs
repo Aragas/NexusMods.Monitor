@@ -83,9 +83,9 @@ namespace NexusMods.Monitor.Scraper.Host.BackgroundServices
                 var nexusModsIssuesKeys = nexusModsIssues.Keys.ToImmutableHashSet();
                 var databaseIssuesKeys = databaseIssues.Keys.ToImmutableHashSet();
 
-                var newIssues = nexusModsIssuesKeys.Except(databaseIssuesKeys).Select(key => nexusModsIssues[key]).ToImmutableArray();
-                var deletedIssues = databaseIssuesKeys.Except(nexusModsIssuesKeys).Select(key => databaseIssues[key]).ToImmutableArray();
-                var existingIssues = nexusModsIssuesKeys.Intersect(databaseIssuesKeys).Select(key => (databaseIssues[key], nexusModsIssues[key])).ToImmutableArray();
+                var newIssues = nexusModsIssuesKeys.Except(databaseIssuesKeys).Select(key => nexusModsIssues[key]);
+                var deletedIssues = databaseIssuesKeys.Except(nexusModsIssuesKeys).Select(key => databaseIssues[key]);
+                var existingIssues = nexusModsIssuesKeys.Intersect(databaseIssuesKeys).Select(key => (databaseIssues[key], nexusModsIssues[key]));
 
                 var now = _clock.GetCurrentInstant();
 
