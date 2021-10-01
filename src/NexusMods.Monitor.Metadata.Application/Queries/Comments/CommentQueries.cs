@@ -73,6 +73,8 @@ namespace NexusMods.Monitor.Metadata.Application.Queries.Comments
                     foreach (var commentElement in commentContainer?.GetElementsByTagName("ol").FirstOrDefault()?.Children ?? Enumerable.Empty<IElement>())
                     {
                         var comment = CommentViewModel.FromElement(gameDomain, gameId, modId, gameName, modName, commentElement);
+                        if (comment.IsSticky && page != 1) continue;
+
                         if (commentRoots.TryGetValue(comment.Id, out var existingComment))
                         {
                             _logger.LogInformation("Comment was already added! Existing: {@ExistingComment}, new: {@NewComment}", existingComment, comment);
