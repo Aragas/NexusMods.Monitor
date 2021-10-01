@@ -38,8 +38,9 @@ namespace NexusMods.Monitor.Scraper.Application.Queries.NexusModsIssues
 
             if (response.IsSuccessStatusCode && response.StatusCode != HttpStatusCode.NoContent)
             {
-                var content = await response.Content.ReadAsStringAsync(ct);
-                foreach (var tuple in _jsonSerializer.Deserialize<IssueDTO[]?>(content) ?? Array.Empty<IssueDTO>())
+                var contentStream = await response.Content.ReadAsStreamAsync(ct);
+                var data = await _jsonSerializer.DeserializeAsync<IssueDTO[]?>(contentStream, ct) ?? Array.Empty<IssueDTO>();
+                foreach (var tuple in data)
                 {
                     var (gameDomain, gameId, modId, gameName, modName, id, title, isPrivate, isClosed, (statusId, statusName), replyCount, modVersion, (priorityId, priorityName), lastPost) = tuple;
                     yield return new NexusModsIssueRootViewModel(
@@ -102,8 +103,9 @@ namespace NexusMods.Monitor.Scraper.Application.Queries.NexusModsIssues
 
             if (response.IsSuccessStatusCode && response.StatusCode != HttpStatusCode.NoContent)
             {
-                var content = await response.Content.ReadAsStringAsync(ct);
-                foreach (var tuple in _jsonSerializer.Deserialize<IssueReplyDTO[]?>(content) ?? Array.Empty<IssueReplyDTO>())
+                var contentStream = await response.Content.ReadAsStreamAsync(ct);
+                var data = await _jsonSerializer.DeserializeAsync<IssueReplyDTO[]?>(contentStream, ct) ?? Array.Empty<IssueReplyDTO>();
+                foreach (var tuple in data)
                 {
                     var (id, author, authorUrl, avatarUrl, content_, instant) = tuple;
                     yield return new NexusModsIssueReplyViewModel(id, author, authorUrl, avatarUrl, content_, instant);
