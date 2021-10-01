@@ -2,6 +2,7 @@
 using AngleSharp.Dom;
 
 using Microsoft.Extensions.Caching.Memory;
+using Microsoft.Extensions.Logging;
 
 using NexusMods.Monitor.Metadata.Application.Extensions;
 using NexusMods.Monitor.Metadata.Application.Queries.Games;
@@ -19,13 +20,15 @@ namespace NexusMods.Monitor.Metadata.Application.Queries.Issues
 {
     public sealed class IssueQueries : IIssueQueries
     {
+        private readonly ILogger _logger;
         private readonly IHttpClientFactory _httpClientFactory;
         private readonly IMemoryCache _cache;
         private readonly IGameQueries _nexusModsGameQueries;
         private readonly IModQueries _nexusModsModQueries;
 
-        public IssueQueries(IHttpClientFactory httpClientFactory, IMemoryCache cache, IGameQueries nexusModsGameQueries, IModQueries nexusModsModQueries)
+        public IssueQueries(ILogger<IssueQueries> logger, IHttpClientFactory httpClientFactory, IMemoryCache cache, IGameQueries nexusModsGameQueries, IModQueries nexusModsModQueries)
         {
+            _logger = logger ?? throw new ArgumentNullException(nameof(logger));
             _httpClientFactory = httpClientFactory ?? throw new ArgumentNullException(nameof(httpClientFactory));
             _cache = cache ?? throw new ArgumentNullException(nameof(cache));
             _nexusModsGameQueries = nexusModsGameQueries ?? throw new ArgumentNullException(nameof(nexusModsGameQueries));
@@ -44,7 +47,7 @@ namespace NexusMods.Monitor.Metadata.Application.Queries.Issues
             var key = $"issues_{gameId},{modId}";
             if (!_cache.TryGetValue(key, out IssueViewModel[]? cacheEntry))
             {
-                var issueRoots = new List<IssueViewModel>();
+                var issueRoots = new Dictionary<uint, IssueViewModel>();
                 for (var page = 1; ; page++)
                 {
                     using var response = await _httpClientFactory.CreateClient("NexusMods").GetAsync(
@@ -59,8 +62,14 @@ namespace NexusMods.Monitor.Metadata.Application.Queries.Issues
                     foreach (var issueElement in forumBugs?.GetElementsByTagName("tbody").FirstOrDefault()?.Children ?? Enumerable.Empty<IElement>())
                     {
                         var issue = IssueViewModel.FromElement(gameDomain, gameId, modId, gameName, modName, issueElement);
-                        issueRoots.Add(issue);
-                        yield return issue;
+                        if (issueRoots.TryGetValue(issue.Id, out var existingIssue))
+                        {
+                            _logger.LogInformation("Issue was already added! Existing: {@ExistingIssue}, new: {@NewIssue}", existingIssue, issue);
+                        }
+                        else
+                        {
+                            issueRoots.Add(issue.Id, issue);
+                        }
                     }
 
                     var pageElement = forumBugs?.GetElementsByClassName("page-selected mfp-prevent-close");
@@ -68,11 +77,9 @@ namespace NexusMods.Monitor.Metadata.Application.Queries.Issues
                         break;
                 }
 
-                cacheEntry = issueRoots.Distinct(new IssueViewModelComparer()).ToArray();
+                cacheEntry = issueRoots.Values.ToArray();
                 var cacheEntryOptions = new MemoryCacheEntryOptions().SetSize(1).SetAbsoluteExpiration(TimeSpan.FromSeconds(60));
                 _cache.Set(key, cacheEntry, cacheEntryOptions);
-
-                yield break;
             }
 
             foreach (var nexusModsCommentRoot in cacheEntry ?? Array.Empty<IssueViewModel>())

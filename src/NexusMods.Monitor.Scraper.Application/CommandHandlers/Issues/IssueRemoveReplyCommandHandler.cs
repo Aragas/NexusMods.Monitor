@@ -7,7 +7,6 @@ using Microsoft.Extensions.Logging;
 using NexusMods.Monitor.Scraper.Application.Commands.Issues;
 using NexusMods.Monitor.Scraper.Domain.AggregatesModel.IssueAggregate;
 using NexusMods.Monitor.Shared.Application.IntegrationEvents.Issues;
-using NexusMods.Monitor.Shared.Application.Models;
 
 using System;
 using System.Linq;
@@ -38,18 +37,18 @@ namespace NexusMods.Monitor.Scraper.Application.CommandHandlers.Issues
                 return false;
             }
 
-            if (issueEntity.Replies.All(r => r.Id != message.Id))
+            if (issueEntity.Replies.All(r => r.Id != message.ReplyId))
             {
                 _logger.LogError("Issue with Id {Id} doesn't have the reply! IssueReply Id {ReplyId}", message.Id, message.ReplyId);
                 return false;
             }
 
-            var issueReplyDTO = Mapper.Map(issueEntity.Replies.First(x => x.Id == message.ReplyId));
+            var issueReply = issueEntity.RemoveReplyEntity(message.ReplyId)!;
 
-            issueEntity.RemoveReply(message.ReplyId);
             _issueRepository.Update(issueEntity);
 
             var issueDTO = Mapper.Map(issueEntity);
+            var issueReplyDTO = Mapper.Map(issueReply);
 
             if (await _issueRepository.UnitOfWork.SaveEntitiesAsync(ct))
             {

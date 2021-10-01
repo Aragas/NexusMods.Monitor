@@ -34,21 +34,13 @@ namespace NexusMods.Monitor.Scraper.Application.CommandHandlers.Comments
                 return false;
             }
 
-            if (commentEntity.Replies.Any(r => r.Id == message.Id))
+            if (commentEntity.Replies.Any(r => r.Id == message.ReplyId))
             {
                 _logger.LogError("Comment with Id {Id} has already the reply! CommentReply Id {ReplyId}", message.Id, message.ReplyId);
                 return false;
             }
 
-            commentEntity.AddReplyEntity(
-                message.ReplyId,
-                message.Url,
-                message.Author,
-                message.AuthorUrl,
-                message.AvatarUrl,
-                message.Content,
-                message.IsDeleted,
-                message.TimeOfPost);
+            commentEntity.AddReplyEntity(message.ReplyId, message.Url, message.Author, message.AuthorUrl, message.AvatarUrl, message.Content, false, message.TimeOfPost);
 
             foreach (var @event in commentEntity.DomainEvents.OfType<CommentAddedReplyEvent>().ToImmutableArray())
                 commentEntity.RemoveDomainEvent(@event);

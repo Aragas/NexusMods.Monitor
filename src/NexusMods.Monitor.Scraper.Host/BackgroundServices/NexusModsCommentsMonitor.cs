@@ -2,6 +2,7 @@
 
 using MediatR;
 
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 
@@ -9,8 +10,6 @@ using NexusMods.Monitor.Scraper.Application.Commands.Comments;
 using NexusMods.Monitor.Scraper.Application.Queries.Comments;
 using NexusMods.Monitor.Scraper.Application.Queries.NexusModsComments;
 using NexusMods.Monitor.Scraper.Application.Queries.Subscriptions;
-using NexusMods.Monitor.Shared.Application;
-using NexusMods.Monitor.Shared.Common.Extensions;
 
 using NodaTime;
 
@@ -75,17 +74,18 @@ namespace NexusMods.Monitor.Scraper.Host.BackgroundServices
 
             await foreach (var (nexusModsGameId, nexusModsModId) in subscriptionQueries.GetAllAsync(ct).Distinct(new SubscriptionViewModelComparer()).WithCancellation(ct))
             {
-                var nexusModsComments = await nexusModsCommentQueries.GetAllAsync(nexusModsGameId, nexusModsModId, ct).ToImmutableArrayAsync(ct);
-                if (nexusModsComments.Length == 0)
+                var nexusModsComments = await nexusModsCommentQueries.GetAllAsync(nexusModsGameId, nexusModsModId, ct).ToDictionaryAsync(x => x.NexusModsComment.Id, x => x, ct);
+                if (nexusModsComments.Count == 0)
                     continue;
 
-                var databaseComments = await commentQueries.GetAllAsync(ct).Where(x => x.NexusModsGameId == nexusModsGameId && x.NexusModsModId == nexusModsModId).ToImmutableArrayAsync(ct);
+                var databaseComments = await commentQueries.GetAllAsync(nexusModsGameId, nexusModsModId, ct).ToDictionaryAsync(x => x.Id, x => x, ct);
 
-                var newComments = nexusModsComments.Where(x => databaseComments.All(y => y.Id != x.NexusModsComment.Id));
-                var deletedComments = databaseComments.Where(x => nexusModsComments.All(y => y.NexusModsComment.Id != x.Id)).ToImmutableArray();
-                var existingComments = nexusModsComments.Select(nmce => databaseComments.FirstOrDefault(y => y.Id == nmce.NexusModsComment.Id) is { } dce
-                    ? (DatabaseCommentEntity: dce, NexusModsCommentEntity: nmce)
-                    : default).Where(tuple => tuple != default).ToImmutableArray();
+                var nexusModsCommentsKeys = nexusModsComments.Keys.ToImmutableHashSet();
+                var databaseCommentsKeys = databaseComments.Keys.ToImmutableHashSet();
+
+                var newComments = nexusModsCommentsKeys.Except(databaseCommentsKeys).Select(key => nexusModsComments[key]);
+                var deletedComments = databaseCommentsKeys.Except(nexusModsCommentsKeys).Select(key => databaseComments[key]);
+                var existingComments = nexusModsCommentsKeys.Intersect(databaseCommentsKeys).Select(key => (databaseComments[key], nexusModsComments[key]));
 
                 var now = _clock.GetCurrentInstant();
 
@@ -118,7 +118,7 @@ namespace NexusMods.Monitor.Scraper.Host.BackgroundServices
                         if (now - commentReply.Post < Duration.FromMinutes(2))
                             await mediator.Send(CommentAddNewReplyCommand.FromViewModel(nexusModsCommentRoot, commentReply), ct);
                         else
-                            await mediator.Send(CommentAddNewReplyCommand.FromViewModel(nexusModsCommentRoot, commentReply), ct);
+                            await mediator.Send(CommentAddReplyCommand.FromViewModel(nexusModsCommentRoot, commentReply), ct);
                     }
 
                     foreach (var (id, ownerId) in deletedReplies)

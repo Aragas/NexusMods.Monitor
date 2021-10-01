@@ -1,45 +1,26 @@
 ﻿using MediatR;
 
 using NexusMods.Monitor.Scraper.Application.Queries.NexusModsIssues;
+using NexusMods.Monitor.Shared.Common;
 
 using NodaTime;
 
-using System.Runtime.Serialization;
-
 namespace NexusMods.Monitor.Scraper.Application.Commands.Issues
 {
-    // TODO:
-    [DataContract]
-    public sealed record IssueAddReplyCommand : IRequest<bool>
+    public sealed record IssueAddReplyCommand(uint Id, uint ReplyId, string Author, string AuthorUrl, string AvatarUrl, string Content, Instant TimeOfPost) : IRequest<bool>
     {
-        [DataMember]
-        public uint Id { get; private set; } = default!;
-        [DataMember]
-        public uint OwnerId { get; private set; } = default!;
-        [DataMember]
-        public string Author { get; private set; } = default!;
-        [DataMember]
-        public string AuthorUrl { get; private set; } = default!;
-        [DataMember]
-        public string AvatarUrl { get; private set; } = default!;
-        [DataMember]
-        public string Content { get; private set; } = default!;
-        [DataMember]
-        public bool IsDeleted { get; private set; } = default!;
-        [DataMember]
-        public Instant TimeOfPost { get; private set; } = default!;
-
-        private IssueAddReplyCommand() { }
-        public IssueAddReplyCommand(NexusModsIssueRootViewModel nexusModsIssueRoot, NexusModsIssueReplyViewModel nexusModsIssueReply) : this()
+        public static IssueAddReplyCommand FromViewModel(NexusModsIssueRootViewModel nexusModsIssueRoot, NexusModsIssueReplyViewModel nexusModsIssueReply)
         {
-            Id = nexusModsIssueReply.Id;
-            OwnerId = nexusModsIssueRoot.NexusModsIssue.Id;
-            Author = nexusModsIssueReply.Author;
-            AuthorUrl = nexusModsIssueReply.AuthorUrl;
-            AvatarUrl = nexusModsIssueReply.AvatarUrl;
-            Content = nexusModsIssueReply.Content;
-            IsDeleted = false;
-            TimeOfPost = nexusModsIssueReply.Time;
+            return new IssueAddReplyCommand(RecordUtils.Default<IssueAddReplyCommand>())
+            {
+                Id = nexusModsIssueRoot.NexusModsIssue.Id,
+                ReplyId = nexusModsIssueReply.Id,
+                Author = nexusModsIssueReply.Author,
+                AuthorUrl = nexusModsIssueReply.AuthorUrl,
+                AvatarUrl = nexusModsIssueReply.AvatarUrl,
+                Content = nexusModsIssueReply.Content,
+                TimeOfPost = nexusModsIssueReply.Time,
+            };
         }
     }
 }

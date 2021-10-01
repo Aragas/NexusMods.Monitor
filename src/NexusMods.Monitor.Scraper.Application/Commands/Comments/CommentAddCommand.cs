@@ -11,7 +11,7 @@ using System.Linq;
 
 namespace NexusMods.Monitor.Scraper.Application.Commands.Comments
 {
-    public sealed record CommentAddCommand(uint Id, uint NexusModsGameId, uint NexusModsModId, string GameName, string ModName, string Url, string Author, string AuthorUrl, string AvatarUrl, string Content, bool IsSticky, bool IsLocked, bool IsDeleted, Instant TimeOfPost, IReadOnlyList<CommentAddCommand.CommentReplyDTO> Replies) : IRequest<bool>
+    public sealed record CommentAddCommand(uint Id, uint NexusModsGameId, uint NexusModsModId, string GameName, string ModName, string Url, string Author, string AuthorUrl, string AvatarUrl, string Content, bool IsSticky, bool IsLocked, Instant TimeOfPost, IReadOnlyList<CommentAddCommand.CommentReplyDTO> Replies) : IRequest<bool>
     {
         public sealed record CommentReplyDTO(uint Id, string Url, string Author, string AuthorUrl, string AvatarUrl, string Content, Instant TimeOfPost);
 

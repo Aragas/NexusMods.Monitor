@@ -25,8 +25,9 @@ namespace NexusMods.Monitor.Bot.Discord.Application.Queries.Subscriptions
             using var response = await _httpClientFactory.CreateClient("Subscriptions.API").GetAsync("all", ct);
             if (response.IsSuccessStatusCode && response.StatusCode != HttpStatusCode.NoContent)
             {
-                var content = await response.Content.ReadAsStringAsync(ct);
-                foreach (var (subscriberId, nexusModsGameId, nexusModsModId, nexusModsGameName, nexusModsModName) in _jsonSerializer.Deserialize<SubscriptionDTO[]?>(content) ?? Array.Empty<SubscriptionDTO>())
+                var contentStream = await response.Content.ReadAsStreamAsync(ct);
+                var data = await _jsonSerializer.DeserializeAsync<SubscriptionDTO[]?>(contentStream, ct) ?? Array.Empty<SubscriptionDTO>();
+                foreach (var (subscriberId, nexusModsGameId, nexusModsModId, nexusModsGameName, nexusModsModName) in data)
                 {
                     if (!subscriberId.StartsWith("Discord:"))
                         continue;

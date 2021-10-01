@@ -50,7 +50,7 @@ namespace NexusMods.Monitor.Scraper.Application
                 x.Content,
                 x.IsSticky,
                 x.IsLocked,
-                x.IsDeleted,
+                false,
                 x.TimeOfPost);
 
             foreach (var commentReply in x.Replies)
@@ -119,7 +119,7 @@ namespace NexusMods.Monitor.Scraper.Application
                 p,
                 x.IsPrivate,
                 x.IsClosed,
-                x.IsDeleted,
+                false,
                 x.TimeOfLastPost);
 
             if (x.Content is { })

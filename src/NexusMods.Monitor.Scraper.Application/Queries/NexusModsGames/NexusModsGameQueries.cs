@@ -100,8 +100,9 @@ namespace NexusMods.Monitor.Scraper.Application.Queries.NexusModsGames
 
             if (response.IsSuccessStatusCode && response.StatusCode != HttpStatusCode.NoContent)
             {
-                var content = await response.Content.ReadAsStringAsync(ct);
-                foreach (var tuple in _jsonSerializer.Deserialize<GameDTO[]?>(content) ?? Array.Empty<GameDTO>())
+                var contentStream = await response.Content.ReadAsStreamAsync(ct);
+                var data = await _jsonSerializer.DeserializeAsync<GameDTO[]?>(contentStream, ct) ?? Array.Empty<GameDTO>();
+                foreach (var tuple in data)
                 {
                     var (id, name, forumUrl, url, domainName) = tuple;
                     yield return new NexusModsGameViewModel(id, name, forumUrl, url, domainName);

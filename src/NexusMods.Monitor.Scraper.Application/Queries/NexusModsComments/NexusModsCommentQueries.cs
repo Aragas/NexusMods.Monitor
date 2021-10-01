@@ -38,8 +38,9 @@ namespace NexusMods.Monitor.Scraper.Application.Queries.NexusModsComments
 
             if (response.IsSuccessStatusCode && response.StatusCode != HttpStatusCode.NoContent)
             {
-                var content = await response.Content.ReadAsStringAsync(ct);
-                foreach (var (gameDomain, gameId, modId, gameName, modName, id, author, authorUrl, avatarUrl, s, isSticky, isLocked, instant, nexusModsCommentReplyViewModels) in _jsonSerializer.Deserialize<CommentsDTO[]?>(content) ?? Array.Empty<CommentsDTO>())
+                var contentStream = await response.Content.ReadAsStreamAsync(ct);
+                var data = await _jsonSerializer.DeserializeAsync<CommentsDTO[]?>(contentStream, ct) ?? Array.Empty<CommentsDTO>();
+                foreach (var (gameDomain, gameId, modId, gameName, modName, id, author, authorUrl, avatarUrl, s, isSticky, isLocked, instant, nexusModsCommentReplyViewModels) in data)
                 {
                     yield return new NexusModsCommentRootViewModel(gameDomain, gameId, modId, gameName, modName, new NexusModsCommentViewModel(id, author, authorUrl, avatarUrl, s, isSticky, isLocked, instant, nexusModsCommentReplyViewModels));
                 }

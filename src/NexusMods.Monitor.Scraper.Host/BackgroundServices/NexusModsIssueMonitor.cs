@@ -2,6 +2,7 @@
 
 using MediatR;
 
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 
@@ -9,7 +10,6 @@ using NexusMods.Monitor.Scraper.Application.Commands.Issues;
 using NexusMods.Monitor.Scraper.Application.Queries.Issues;
 using NexusMods.Monitor.Scraper.Application.Queries.NexusModsIssues;
 using NexusMods.Monitor.Scraper.Application.Queries.Subscriptions;
-using NexusMods.Monitor.Shared.Common.Extensions;
 
 using NodaTime;
 
@@ -74,17 +74,18 @@ namespace NexusMods.Monitor.Scraper.Host.BackgroundServices
 
             await foreach (var (nexusModsGameId, nexusModsModId) in subscriptionQueries.GetAllAsync(ct).Distinct(new SubscriptionViewModelComparer()).WithCancellation(ct))
             {
-                var nexusModsIssues = await nexusModsIssueQueries.GetAllAsync(nexusModsGameId, nexusModsModId, ct).ToImmutableArrayAsync(ct);//.ToDictionaryAsync(x => x.NexusModsIssue.Id, x => x, ct);
-                if (nexusModsIssues.Length == 0)
+                var nexusModsIssues = await nexusModsIssueQueries.GetAllAsync(nexusModsGameId, nexusModsModId, ct).ToDictionaryAsync(x => x.NexusModsIssue.Id, x => x, ct);
+                if (nexusModsIssues.Count == 0)
                     continue;
 
-                var databaseIssues = await issueQueries.GetAllAsync(ct).Where(x => x.NexusModsGameId == nexusModsGameId && x.NexusModsModId == nexusModsModId).ToImmutableArrayAsync(ct);
+                var databaseIssues = await issueQueries.GetAllAsync(nexusModsGameId, nexusModsModId, ct).ToDictionaryAsync(x => x.Id, x => x, ct);
 
-                var newIssues = nexusModsIssues.Where(x => databaseIssues.All(y => y.Id != x.NexusModsIssue.Id));
-                var deletedIssues = databaseIssues.Where(x => nexusModsIssues.All(y => y.NexusModsIssue.Id != x.Id)).ToImmutableArray();
-                var existingIssues = nexusModsIssues.Select(nmie => databaseIssues.FirstOrDefault(y => y.Id == nmie.NexusModsIssue.Id) is { } die
-                    ? (DatabaseIssueEntity: die, NexusModsIssueEntity: nmie)
-                    : default).Where(tuple => tuple != default).ToImmutableArray();
+                var nexusModsIssuesKeys = nexusModsIssues.Keys.ToImmutableHashSet();
+                var databaseIssuesKeys = databaseIssues.Keys.ToImmutableHashSet();
+
+                var newIssues = nexusModsIssuesKeys.Except(databaseIssuesKeys).Select(key => nexusModsIssues[key]);
+                var deletedIssues = databaseIssuesKeys.Except(nexusModsIssuesKeys).Select(key => databaseIssues[key]);
+                var existingIssues = nexusModsIssuesKeys.Intersect(databaseIssuesKeys).Select(key => (databaseIssues[key], nexusModsIssues[key]));
 
                 var now = _clock.GetCurrentInstant();
 
@@ -127,14 +128,14 @@ namespace NexusMods.Monitor.Scraper.Host.BackgroundServices
                     if (databaseIssue.TimeOfLastPost < nexusModsIssueRoot.NexusModsIssue.LastPost)
                     {
                         var newReplies = nexusModsIssueRoot.NexusModsIssueReplies.Where(x => databaseIssue.Replies.All(y => y.Id != x.Id));
-                        var deletedReplies = databaseIssue.Replies.Where(x => nexusModsIssueRoot.NexusModsIssueReplies!.All(y => y.Id != x.Id)).ToImmutableArray();
+                        var deletedReplies = databaseIssue.Replies.Where(x => nexusModsIssueRoot.NexusModsIssueReplies.All(y => y.Id != x.Id)).ToImmutableArray();
 
                         foreach (var issueReply in newReplies)
                         {
                             if (now - issueReply.Time < Duration.FromMinutes(2))
-                                await mediator.Send(new IssueAddNewReplyCommand(nexusModsIssueRoot, issueReply), ct);
+                                await mediator.Send(IssueAddNewReplyCommand.FromViewModel(nexusModsIssueRoot, issueReply), ct);
                             else
-                                await mediator.Send(new IssueAddReplyCommand(nexusModsIssueRoot, issueReply), ct);
+                                await mediator.Send(IssueAddReplyCommand.FromViewModel(nexusModsIssueRoot, issueReply), ct);
                         }
 
                         foreach (var (id, ownerId) in deletedReplies)

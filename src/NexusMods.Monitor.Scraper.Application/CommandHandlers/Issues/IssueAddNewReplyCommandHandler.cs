@@ -7,7 +7,6 @@ using Microsoft.Extensions.Logging;
 using NexusMods.Monitor.Scraper.Application.Commands.Issues;
 using NexusMods.Monitor.Scraper.Domain.AggregatesModel.IssueAggregate;
 using NexusMods.Monitor.Shared.Application.IntegrationEvents.Issues;
-using NexusMods.Monitor.Shared.Application.Models;
 
 using System;
 using System.Linq;
@@ -31,27 +30,20 @@ namespace NexusMods.Monitor.Scraper.Application.CommandHandlers.Issues
 
         public async Task<bool> Handle(IssueAddNewReplyCommand message, CancellationToken ct)
         {
-            var issueEntity = await _issueRepository.GetAsync(message.OwnerId);
+            var issueEntity = await _issueRepository.GetAsync(message.Id);
             if (issueEntity is null)
             {
-                _logger.LogError("Issue with Id {Id} was not found! IssueReply Id {ReplyId}", message.OwnerId, message.Id);
+                _logger.LogError("Issue with Id {Id} was not found! IssueReply Id {ReplyId}", message.Id, message.ReplyIdId);
                 return false;
             }
 
-            if (issueEntity.Replies.Any(r => r.Id == message.Id))
+            if (issueEntity.Replies.Any(r => r.Id == message.ReplyIdId))
             {
-                _logger.LogError("Issue with Id {Id} has already the reply! IssueReply Id {ReplyId}", message.OwnerId, message.Id);
+                _logger.LogError("Issue with Id {Id} has already the reply! IssueReply Id {ReplyId}", message.Id, message.ReplyIdId);
                 return false;
             }
 
-            var issueReplyEntity = issueEntity.AddReplyEntity(
-                message.Id,
-                message.Author,
-                message.AuthorUrl,
-                message.AvatarUrl,
-                message.Content,
-                message.IsDeleted,
-                message.TimeOfPost);
+            var issueReplyEntity = issueEntity.AddReplyEntity(message.ReplyIdId, message.Author, message.AuthorUrl, message.AvatarUrl, message.Content, false, message.TimeOfPost);
 
             _issueRepository.Update(issueEntity);
 
