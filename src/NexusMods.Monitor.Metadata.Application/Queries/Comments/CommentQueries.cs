@@ -2,6 +2,7 @@
 using AngleSharp.Dom;
 
 using Microsoft.Extensions.Caching.Memory;
+using Microsoft.Extensions.Logging;
 
 using NexusMods.Monitor.Metadata.Application.Extensions;
 using NexusMods.Monitor.Metadata.Application.Queries.Games;
@@ -19,14 +20,16 @@ namespace NexusMods.Monitor.Metadata.Application.Queries.Comments
 {
     public sealed class CommentQueries : ICommentQueries
     {
+        private readonly ILogger _logger;
         private readonly IHttpClientFactory _httpClientFactory;
         private readonly IMemoryCache _cache;
         private readonly IGameQueries _nexusModsGameQueries;
         private readonly IModQueries _nexusModsModQueries;
         private readonly IThreadQueries _nexusModsThreadQueries;
 
-        public CommentQueries(IHttpClientFactory httpClientFactory, IMemoryCache cache, IGameQueries nexusModsGameQueries, IModQueries nexusModsModQueries, IThreadQueries nexusModsThreadQueries)
+        public CommentQueries(ILogger<CommentQueries> logger, IHttpClientFactory httpClientFactory, IMemoryCache cache, IGameQueries nexusModsGameQueries, IModQueries nexusModsModQueries, IThreadQueries nexusModsThreadQueries)
         {
+            _logger = logger ?? throw new ArgumentNullException(nameof(logger));
             _httpClientFactory = httpClientFactory ?? throw new ArgumentNullException(nameof(httpClientFactory));
             _cache = cache ?? throw new ArgumentNullException(nameof(cache));
             _nexusModsGameQueries = nexusModsGameQueries ?? throw new ArgumentNullException(nameof(nexusModsGameQueries));
@@ -55,7 +58,7 @@ namespace NexusMods.Monitor.Metadata.Application.Queries.Comments
             var key = $"comments_{gameId},{modId},{threadId}";
             if (!_cache.TryGetValue(key, out CommentViewModel[]? cacheEntry))
             {
-                var commentRoots = new List<CommentViewModel>();
+                var commentRoots = new Dictionary<uint, CommentViewModel>();
                 for (var page = 1; ; page++)
                 {
                     using var response = await _httpClientFactory.CreateClient("NexusMods").GetAsync(
@@ -67,11 +70,17 @@ namespace NexusMods.Monitor.Metadata.Application.Queries.Comments
                     var document = await context.OpenAsync(request => request.Content(content), ct);
 
                     var commentContainer = document.GetElementById("comment-container");
-                    foreach (var commentElement in commentContainer?.GetElementsByTagName("ol")?.FirstOrDefault()?.Children ?? Enumerable.Empty<IElement>())
+                    foreach (var commentElement in commentContainer?.GetElementsByTagName("ol").FirstOrDefault()?.Children ?? Enumerable.Empty<IElement>())
                     {
                         var comment = CommentViewModel.FromElement(gameDomain, gameId, modId, gameName, modName, commentElement);
-                        commentRoots.Add(comment);
-                        yield return comment;
+                        if (commentRoots.TryGetValue(comment.Id, out var existingComment))
+                        {
+                            _logger.LogInformation("Comment was already added! Existing: {@ExistingComment}, new: {@NewComment}", existingComment, comment);
+                        }
+                        else
+                        {
+                            commentRoots.Add(comment.Id, comment);
+                        }
                     }
 
                     var pageElement = commentContainer?.GetElementsByClassName("page-selected mfp-prevent-close");
@@ -79,11 +88,9 @@ namespace NexusMods.Monitor.Metadata.Application.Queries.Comments
                         break;
                 }
 
-                cacheEntry = commentRoots.Distinct(new CommentViewModelComparer()).ToArray();
+                cacheEntry = commentRoots.Values.ToArray();
                 var cacheEntryOptions = new MemoryCacheEntryOptions().SetSize(1).SetAbsoluteExpiration(TimeSpan.FromSeconds(60));
                 _cache.Set(key, cacheEntry, cacheEntryOptions);
-
-                yield break;
             }
 
             foreach (var nexusModsCommentRoot in cacheEntry ?? Array.Empty<CommentViewModel>())
