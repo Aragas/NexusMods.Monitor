@@ -7,14 +7,14 @@ using NodaTime;
 
 namespace NexusMods.Monitor.Scraper.Application.Commands.Issues
 {
-    public sealed record IssueAddNewReplyCommand(uint Id, uint OwnerId, string Author, string AuthorUrl, string AvatarUrl, string Content, Instant TimeOfPost) : IRequest<bool>
+    public sealed record IssueAddNewReplyCommand(uint Id, uint ReplyIdId, string Author, string AuthorUrl, string AvatarUrl, string Content, Instant TimeOfPost) : IRequest<bool>
     {
         public static IssueAddNewReplyCommand FromViewModel(NexusModsIssueRootViewModel nexusModsIssueRoot, NexusModsIssueReplyViewModel nexusModsIssueReply)
         {
             return new IssueAddNewReplyCommand(RecordUtils.Default<IssueAddNewReplyCommand>())
             {
-                Id = nexusModsIssueReply.Id,
-                OwnerId = nexusModsIssueRoot.NexusModsIssue.Id,
+                Id = nexusModsIssueRoot.NexusModsIssue.Id,
+                ReplyIdId = nexusModsIssueReply.Id,
                 Author = nexusModsIssueReply.Author,
                 AuthorUrl = nexusModsIssueReply.AuthorUrl,
                 AvatarUrl = nexusModsIssueReply.AvatarUrl,

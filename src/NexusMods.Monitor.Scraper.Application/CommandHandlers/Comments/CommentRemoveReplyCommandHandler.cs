@@ -37,18 +37,18 @@ namespace NexusMods.Monitor.Scraper.Application.CommandHandlers.Comments
                 return false;
             }
 
-            if (commentEntity.Replies.All(r => r.Id != message.Id))
+            if (commentEntity.Replies.All(r => r.Id != message.ReplyId))
             {
                 _logger.LogError("Comment with Id {Id} doesn't have the reply! CommentReply Id {ReplyId}", message.Id, message.ReplyId);
                 return false;
             }
 
-            var commentReplyDTO = Mapper.Map(commentEntity.Replies.First(x => x.Id == message.ReplyId));
+            var commentReplyEntity = commentEntity.RemoveReplyEntity(message.ReplyId)!;
 
-            commentEntity.RemoveReply(message.ReplyId);
             _commentRepository.Update(commentEntity);
 
             var commentDTO = Mapper.Map(commentEntity);
+            var commentReplyDTO = Mapper.Map(commentReplyEntity);
 
             if (await _commentRepository.UnitOfWork.SaveEntitiesAsync(ct))
             {

@@ -116,15 +116,6 @@ namespace NexusMods.Monitor.Scraper.Domain.AggregatesModel.IssueAggregate
             }
         }
 
-        public void RemoveReply(uint id)
-        {
-            var issueReplyEntity = Replies.SingleOrDefault(o => o.Id == id);
-            if (issueReplyEntity is not null)
-            {
-                issueReplyEntity.Remove();
-            }
-        }
-
         public IssueReplyEntity AddReplyEntity(uint id, string author, string authorUrl, string avatarUrl, string content, bool isDeleted, Instant timeOfPost)
         {
             var existingCommentReplyEntity = Replies.SingleOrDefault(o => o.Id == id);
@@ -139,6 +130,18 @@ namespace NexusMods.Monitor.Scraper.Domain.AggregatesModel.IssueAggregate
                 existingCommentReplyEntity.Return();
                 return existingCommentReplyEntity;
             }
+        }
+
+        public IssueReplyEntity? RemoveReplyEntity(uint id)
+        {
+            var issueReplyEntity = Replies.SingleOrDefault(o => o.Id == id);
+            if (issueReplyEntity is not null)
+            {
+                issueReplyEntity.Remove();
+                return issueReplyEntity;
+            }
+
+            return null;
         }
     }
 }

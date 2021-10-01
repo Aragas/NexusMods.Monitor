@@ -34,7 +34,7 @@ namespace NexusMods.Monitor.Scraper.Application.CommandHandlers.Comments
                 return false;
             }
 
-            if (commentEntity.Replies.Any(r => r.Id == message.Id))
+            if (commentEntity.Replies.Any(r => r.Id == message.ReplyId))
             {
                 _logger.LogError("Comment with Id {Id} has already the reply! CommentReply Id {ReplyId}", message.Id, message.ReplyId);
                 return false;
