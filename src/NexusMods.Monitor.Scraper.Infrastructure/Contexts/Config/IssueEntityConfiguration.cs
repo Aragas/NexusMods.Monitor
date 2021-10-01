@@ -29,7 +29,7 @@ namespace NexusMods.Monitor.Scraper.Infrastructure.Contexts.Config
             builder.HasOne(p => p.Content).WithOne().HasForeignKey<IssueContentEntity>(p => p.Id).OnDelete(DeleteBehavior.Cascade);
             builder.HasMany(p => p.Replies).WithOne().HasForeignKey(p => p.OwnerId).OnDelete(DeleteBehavior.Cascade);
             builder.Ignore(b => b.DomainEvents);
-            builder.Metadata.FindNavigation(nameof(IssueEntity.Replies))!.SetPropertyAccessMode(PropertyAccessMode.Field);
+            builder.Metadata.FindNavigation(nameof(IssueEntity.Replies)).SetPropertyAccessMode(PropertyAccessMode.Field);
             builder.HasQueryFilter(x => !x.IsDeleted);
         }
     }

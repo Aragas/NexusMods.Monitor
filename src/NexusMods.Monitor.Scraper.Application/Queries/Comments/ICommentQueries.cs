@@ -1,10 +1,9 @@
-﻿using System.Collections.Generic;
-using System.Threading;
+﻿using System.Linq;
 
 namespace NexusMods.Monitor.Scraper.Application.Queries.Comments
 {
     public interface ICommentQueries
     {
-        IAsyncEnumerable<CommentViewModel> GetAllAsync(CancellationToken ct = default);
+        IQueryable<CommentViewModel> GetAll();
     }
 }

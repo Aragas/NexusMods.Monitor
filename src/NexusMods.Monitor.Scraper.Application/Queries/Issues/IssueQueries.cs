@@ -1,7 +1,6 @@
 ﻿using NexusMods.Monitor.Scraper.Domain.AggregatesModel.IssueAggregate;
 
 using System;
-using System.Collections.Generic;
 using System.Collections.Immutable;
 using System.Linq;
 using System.Threading;
@@ -18,9 +17,8 @@ namespace NexusMods.Monitor.Scraper.Application.Queries.Issues
             _issueRepository = issueRepository ?? throw new ArgumentNullException(nameof(issueRepository));
         }
 
-        public IAsyncEnumerable<IssueViewModel> GetAllAsync(CancellationToken ct = default) => _issueRepository.GetAll()
-            .Select(x => new IssueViewModel(x.Id, x.NexusModsGameId, x.NexusModsModId, x.Status.Id, x.Priority.Id, x.IsClosed, x.IsPrivate, x.TimeOfLastPost, x.Replies.Select(y => new IssueReplyViewModel(y.Id, y.OwnerId)).ToImmutableArray()))
-            .ToAsyncEnumerable();
+        public IQueryable<IssueViewModel> GetAll() => _issueRepository.GetAll()
+            .Select(x => new IssueViewModel(x.Id, x.NexusModsGameId, x.NexusModsModId, x.Status.Id, x.Priority.Id, x.IsClosed, x.IsPrivate, x.TimeOfLastPost, x.Replies.Select(y => new IssueReplyViewModel(y.Id, y.OwnerId)).ToImmutableArray()));
 
         public async Task<IssueStatusEnumeration> GetStatusAsync(uint id, CancellationToken ct = default) => await _issueRepository.GetStatusAsync(id);
 
