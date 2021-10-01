@@ -47,7 +47,7 @@ namespace NexusMods.Monitor.Shared.Host
                     .ConfigureAppConfiguration(config => config.AddEnvironmentVariables())
                     .UseSerilog();
 
-                var host = hostBuilder.Build();
+                using var host = hostBuilder.Build();
 
                 ValidateOptions(host);
 
