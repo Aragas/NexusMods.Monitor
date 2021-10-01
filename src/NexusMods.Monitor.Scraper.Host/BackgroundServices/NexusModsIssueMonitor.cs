@@ -78,7 +78,7 @@ namespace NexusMods.Monitor.Scraper.Host.BackgroundServices
                 if (nexusModsIssues.Count == 0)
                     continue;
 
-                var databaseIssues = await issueQueries.GetAll().Where(x => x.NexusModsGameId == nexusModsGameId && x.NexusModsModId == nexusModsModId).AsAsyncEnumerable().ToDictionaryAsync(x => x.Id, x => x, ct);
+                var databaseIssues = await issueQueries.GetAllAsync(nexusModsGameId, nexusModsModId, ct).ToDictionaryAsync(x => x.Id, x => x, ct);
 
                 var nexusModsIssuesKeys = nexusModsIssues.Keys.ToImmutableHashSet();
                 var databaseIssuesKeys = databaseIssues.Keys.ToImmutableHashSet();

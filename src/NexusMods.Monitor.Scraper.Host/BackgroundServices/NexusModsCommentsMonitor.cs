@@ -78,7 +78,7 @@ namespace NexusMods.Monitor.Scraper.Host.BackgroundServices
                 if (nexusModsComments.Count == 0)
                     continue;
 
-                var databaseComments = await commentQueries.GetAll().Where(x => x.NexusModsGameId == nexusModsGameId && x.NexusModsModId == nexusModsModId).AsAsyncEnumerable().ToDictionaryAsync(x => x.Id, x => x, ct);
+                var databaseComments = await commentQueries.GetAllAsync(nexusModsGameId, nexusModsModId, ct).ToDictionaryAsync(x => x.Id, x => x, ct);
 
                 var nexusModsCommentsKeys = nexusModsComments.Keys.ToImmutableHashSet();
                 var databaseCommentsKeys = databaseComments.Keys.ToImmutableHashSet();
