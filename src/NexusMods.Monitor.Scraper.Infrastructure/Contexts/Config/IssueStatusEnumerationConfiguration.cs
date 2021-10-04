@@ -10,7 +10,7 @@ namespace NexusMods.Monitor.Scraper.Infrastructure.Contexts.Config
     {
         protected override void ConfigureModel(EntityTypeBuilder<IssueStatusEnumeration> builder)
         {
-            builder.ToTable("issue_status_enumeration").HasKey(p => p.Id);
+            builder.ToTable("issue_status_enumeration", "scraper").HasKey(p => p.Id);
             builder.Property(p => p.Id).HasDefaultValue(1).ValueGeneratedNever().HasColumnName("id").IsRequired();
             builder.Property(p => p.Name).HasColumnName("name").IsRequired();
 

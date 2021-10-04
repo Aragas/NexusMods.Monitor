@@ -12,6 +12,8 @@ using NATS.Client;
 using NexusMods.Monitor.Shared.Application.Extensions;
 using NexusMods.Monitor.Shared.Host.Options;
 
+using NodaTime;
+
 using Serilog;
 using Serilog.Exceptions;
 using Serilog.Exceptions.Core;
@@ -38,6 +40,7 @@ namespace NexusMods.Monitor.Shared.Host.Extensions
                 .WithDefaultDestructurers()
                 .WithDestructurers(new[] { new DbUpdateExceptionDestructurer() })
             )
+            .ConfigureForNodaTime(DateTimeZoneProviders.Tzdb)
             .ReadFrom.Configuration(configuration);
 
         public static IHostBuilder AddSubscriptionsHttpClient(this IHostBuilder builder) => builder.ConfigureServices((context, services) =>

@@ -1,6 +1,8 @@
-﻿using Microsoft.Extensions.Caching.Memory;
+﻿using Microsoft.Extensions.Caching.Distributed;
+using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Logging;
 
+using NexusMods.Monitor.Metadata.Application.Extensions;
 using NexusMods.Monitor.Shared.Common;
 
 using System;
@@ -20,11 +22,11 @@ namespace NexusMods.Monitor.Metadata.Application.Queries.Games
     {
         [SuppressMessage("CodeQuality", "IDE0052", Justification = "Reserved for future use")]
         private readonly ILogger _logger;
-        private readonly IMemoryCache _cache;
+        private readonly IDistributedCache _cache;
         private readonly IHttpClientFactory _httpClientFactory;
         private readonly DefaultJsonSerializer _jsonSerializer;
 
-        public GameQueries(ILogger<GameQueries> logger, IMemoryCache cache, IHttpClientFactory httpClientFactory, DefaultJsonSerializer jsonSerializer)
+        public GameQueries(ILogger<GameQueries> logger, IDistributedCache cache, IHttpClientFactory httpClientFactory, DefaultJsonSerializer jsonSerializer)
         {
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
             _cache = cache ?? throw new ArgumentNullException(nameof(cache));
@@ -37,7 +39,7 @@ namespace NexusMods.Monitor.Metadata.Application.Queries.Games
 
         public async IAsyncEnumerable<GameViewModel> GetAllAsync([EnumeratorCancellation] CancellationToken ct = default)
         {
-            if (!_cache.TryGetValue("games", out GameViewModel[]? cacheEntry))
+            if (!_cache.TryGetValue("games", _jsonSerializer, out GameViewModel[]? cacheEntry))
             {
                 var response = await _httpClientFactory.CreateClient("NexusMods.API").GetAsync("v1/games.json?include_unapproved=false", ct);
                 if (response.IsSuccessStatusCode && response.StatusCode != HttpStatusCode.NoContent)
@@ -46,8 +48,8 @@ namespace NexusMods.Monitor.Metadata.Application.Queries.Games
                     var games = _jsonSerializer.Deserialize<GameDTO[]?>(content) ?? Array.Empty<GameDTO>();
 
                     cacheEntry = games.Select(g => new GameViewModel(g.Id, g.Name, g.ForumUrl.ToString(), g.Url.ToString(), g.DomainName)).ToArray();
-                    var cacheEntryOptions = new MemoryCacheEntryOptions().SetSize(1).SetAbsoluteExpiration(TimeSpan.FromHours(8));
-                    _cache.Set("games", cacheEntry, cacheEntryOptions);
+                    var cacheEntryOptions = new DistributedCacheEntryOptions().SetSize(1).SetAbsoluteExpiration(TimeSpan.FromHours(8));
+                    await _cache.SetAsync("games", cacheEntry, cacheEntryOptions, _jsonSerializer, ct);
                 }
             }
 

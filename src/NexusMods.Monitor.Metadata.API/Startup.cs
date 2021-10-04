@@ -1,4 +1,6 @@
-﻿using Microsoft.AspNetCore.Builder;
+﻿using Community.Microsoft.Extensions.Caching.PostgreSql;
+
+using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -29,7 +31,12 @@ namespace NexusMods.Monitor.Metadata.API
             services.AddApplication();
             services.AddAPI();
 
-            services.AddMemoryCache();
+            services.AddDistributedPostgreSqlCache(o =>
+            {
+                o.ConnectionString = Configuration.GetConnectionString("Cache");
+                o.SchemaName = "cache";
+                o.TableName = "distributed_cache";
+            });
 
             services.AddTransient<IIssueQueries, IssueQueries>();
             services.AddTransient<ICommentQueries, CommentQueries>();

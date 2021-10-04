@@ -1,12 +1,14 @@
 ﻿using AngleSharp;
 using AngleSharp.Dom;
 
+using Microsoft.Extensions.Caching.Distributed;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Logging;
 
 using NexusMods.Monitor.Metadata.Application.Extensions;
 using NexusMods.Monitor.Metadata.Application.Queries.Games;
 using NexusMods.Monitor.Metadata.Application.Queries.Mods;
+using NexusMods.Monitor.Shared.Common;
 
 using System;
 using System.Collections.Generic;
@@ -22,17 +24,19 @@ namespace NexusMods.Monitor.Metadata.Application.Queries.Issues
     {
         private readonly ILogger _logger;
         private readonly IHttpClientFactory _httpClientFactory;
-        private readonly IMemoryCache _cache;
+        private readonly IDistributedCache _cache;
         private readonly IGameQueries _nexusModsGameQueries;
         private readonly IModQueries _nexusModsModQueries;
+        private readonly DefaultJsonSerializer _jsonSerializer;
 
-        public IssueQueries(ILogger<IssueQueries> logger, IHttpClientFactory httpClientFactory, IMemoryCache cache, IGameQueries nexusModsGameQueries, IModQueries nexusModsModQueries)
+        public IssueQueries(ILogger<IssueQueries> logger, IHttpClientFactory httpClientFactory, IDistributedCache cache, IGameQueries nexusModsGameQueries, IModQueries nexusModsModQueries, DefaultJsonSerializer jsonSerializer)
         {
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
             _httpClientFactory = httpClientFactory ?? throw new ArgumentNullException(nameof(httpClientFactory));
             _cache = cache ?? throw new ArgumentNullException(nameof(cache));
             _nexusModsGameQueries = nexusModsGameQueries ?? throw new ArgumentNullException(nameof(nexusModsGameQueries));
             _nexusModsModQueries = nexusModsModQueries ?? throw new ArgumentNullException(nameof(nexusModsModQueries));
+            _jsonSerializer = jsonSerializer ?? throw new ArgumentNullException(nameof(jsonSerializer));
         }
 
         public async IAsyncEnumerable<IssueViewModel> GetAllAsync(uint gameId, uint modId, [EnumeratorCancellation] CancellationToken ct = default)
@@ -45,7 +49,7 @@ namespace NexusMods.Monitor.Metadata.Application.Queries.Issues
             var modName = mod?.Name ?? "ERROR";
 
             var key = $"issues_{gameId},{modId}";
-            if (!_cache.TryGetValue(key, out IssueViewModel[]? cacheEntry))
+            if (!_cache.TryGetValue(key, _jsonSerializer, out IssueViewModel[]? cacheEntry))
             {
                 var issueRoots = new Dictionary<uint, IssueViewModel>();
                 for (var page = 1; ; page++)
@@ -78,8 +82,8 @@ namespace NexusMods.Monitor.Metadata.Application.Queries.Issues
                 }
 
                 cacheEntry = issueRoots.Values.ToArray();
-                var cacheEntryOptions = new MemoryCacheEntryOptions().SetSize(1).SetAbsoluteExpiration(TimeSpan.FromSeconds(60));
-                _cache.Set(key, cacheEntry, cacheEntryOptions);
+                var cacheEntryOptions = new DistributedCacheEntryOptions().SetSize(1).SetAbsoluteExpiration(TimeSpan.FromSeconds(60));
+                await _cache.SetAsync(key, cacheEntry, cacheEntryOptions, _jsonSerializer, ct);
             }
 
             foreach (var nexusModsCommentRoot in cacheEntry ?? Array.Empty<IssueViewModel>())
@@ -104,22 +108,20 @@ namespace NexusMods.Monitor.Metadata.Application.Queries.Issues
 
         private async Task<IDocument?> GetModBugReplyListAsync(uint issueId, CancellationToken ct = default)
         {
-            if (!_cache.TryGetValue($"issue_replies_{issueId}", out IDocument? cacheEntry))
+            if (!_cache.TryGetValue($"issue_replies_{issueId}", _jsonSerializer, out string? cacheEntry))
             {
                 using var response = await _httpClientFactory.CreateClient("NexusMods").PostAsync(
                     "Core/Libs/Common/Widgets/ModBugReplyList",
                     new FormUrlEncodedContent(new[] { new KeyValuePair<string?, string?>("issue_id", issueId.ToString()) }), ct);
-                var content = await response.Content.ReadAsStringAsync(ct);
+                cacheEntry = await response.Content.ReadAsStringAsync(ct);
 
-                var config = Configuration.Default.WithDefaultLoader();
-                var context = BrowsingContext.New(config);
-                cacheEntry = await context.OpenAsync(request => request.Content(content), ct);
-
-                var cacheEntryOptions = new MemoryCacheEntryOptions().SetSize(1).SetAbsoluteExpiration(TimeSpan.FromSeconds(10));
-                _cache.Set(issueId.ToString(), cacheEntry, cacheEntryOptions);
+                var cacheEntryOptions = new DistributedCacheEntryOptions().SetSize(1).SetAbsoluteExpiration(TimeSpan.FromSeconds(10));
+                await _cache.SetAsync(issueId.ToString(), cacheEntry, cacheEntryOptions, _jsonSerializer, ct);
             }
 
-            return cacheEntry;
+            var config = Configuration.Default.WithDefaultLoader();
+            var context = BrowsingContext.New(config);
+            return await context.OpenAsync(request => request.Content(cacheEntry), ct);
         }
     }
 }

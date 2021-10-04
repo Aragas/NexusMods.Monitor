@@ -1,8 +1,11 @@
 ﻿using AngleSharp;
 
+using Microsoft.Extensions.Caching.Distributed;
 using Microsoft.Extensions.Caching.Memory;
 
+using NexusMods.Monitor.Metadata.Application.Extensions;
 using NexusMods.Monitor.Metadata.Application.Queries.Games;
+using NexusMods.Monitor.Shared.Common;
 
 using System;
 using System.Linq;
@@ -16,19 +19,21 @@ namespace NexusMods.Monitor.Metadata.Application.Queries.Threads
     {
         private readonly IHttpClientFactory _httpClientFactory;
         private readonly IGameQueries _nexusModsGameQueries;
-        private readonly IMemoryCache _cache;
+        private readonly IDistributedCache _cache;
+        private readonly DefaultJsonSerializer _jsonSerializer;
 
-        public ThreadQueries(IHttpClientFactory httpClientFactory, IGameQueries nexusModsGameQueries, IMemoryCache cache)
+        public ThreadQueries(IHttpClientFactory httpClientFactory, IGameQueries nexusModsGameQueries, IDistributedCache cache, DefaultJsonSerializer jsonSerializer)
         {
             _httpClientFactory = httpClientFactory ?? throw new ArgumentNullException(nameof(httpClientFactory));
             _nexusModsGameQueries = nexusModsGameQueries ?? throw new ArgumentNullException(nameof(nexusModsGameQueries));
             _cache = cache ?? throw new ArgumentNullException(nameof(cache));
+            _jsonSerializer = jsonSerializer ?? throw new ArgumentNullException(nameof(jsonSerializer));
         }
 
         public async Task<ThreadViewModel?> GetAsync(uint gameId, uint modId, CancellationToken ct = default)
         {
             var key = $"thread_id({gameId}, {modId})";
-            if (!_cache.TryGetValue(key, out ThreadViewModel? cacheEntry))
+            if (!_cache.TryGetValue(key, _jsonSerializer, out ThreadViewModel? cacheEntry))
             {
                 var games = _nexusModsGameQueries.GetAllAsync(ct);
                 var gameIdText = (await games.FirstOrDefaultAsync(x => x.Id == gameId, ct))?.DomainName ?? "ERROR";
@@ -50,8 +55,8 @@ namespace NexusMods.Monitor.Metadata.Application.Queries.Threads
                         cacheEntry = new ThreadViewModel(gameId, modId, threadId);
                 }
 
-                var cacheEntryOptions = new MemoryCacheEntryOptions().SetSize(1).SetAbsoluteExpiration(TimeSpan.FromHours(8));
-                _cache.Set(key, cacheEntry, cacheEntryOptions);
+                var cacheEntryOptions = new DistributedCacheEntryOptions().SetSize(1).SetAbsoluteExpiration(TimeSpan.FromHours(8));
+                await _cache.SetAsync(key, cacheEntry, cacheEntryOptions, _jsonSerializer, ct);
             }
 
             return cacheEntry;

@@ -6,6 +6,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Logging;
 
 using NexusMods.Monitor.Scraper.Application.CommandHandlers.Comments;
 using NexusMods.Monitor.Scraper.Application.Queries.Comments;
@@ -23,9 +24,14 @@ using NexusMods.Monitor.Scraper.Infrastructure.Repositories;
 using NexusMods.Monitor.Shared.Application.Extensions;
 using NexusMods.Monitor.Shared.Host;
 using NexusMods.Monitor.Shared.Host.Extensions;
+using NexusMods.Monitor.Shared.Infrastructure.Extensions;
 
 using NodaTime;
 
+using Polly;
+
+using System;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace NexusMods.Monitor.Scraper.Host
@@ -41,10 +47,21 @@ namespace NexusMods.Monitor.Scraper.Host
 
         private static async Task EnsureDatabasesCreated(IHost host)
         {
-            using var scope = host.Services.CreateScope();
-            using var nexusModsDb = scope.ServiceProvider.GetRequiredService<NexusModsDb>();
-            //await nexusModsDb.Database.EnsureDeletedAsync();
-            await nexusModsDb.Database.EnsureCreatedAsync();
+            var retryPolicy = Policy.Handle<Exception>(ex => ex.GetType() != typeof(TaskCanceledException))
+                .WaitAndRetryAsync(10, retryAttempt => TimeSpan.FromSeconds(2),
+                    (ex, time) =>
+                    {
+                        using var scope = host.Services.CreateScope();
+                        var logger = scope.ServiceProvider.GetRequiredService<ILogger<Program>>();
+                        logger.LogError(ex, "Exception during PostgreSQL connection. Waiting {time}...", time);
+                    });
+
+            await retryPolicy.ExecuteAsync(async token =>
+            {
+                using var scope = host.Services.CreateScope();
+                using var nexusModsDb = scope.ServiceProvider.GetRequiredService<NexusModsDb>();
+                await nexusModsDb.EnsureTablesCreatedAsync(token);
+            }, CancellationToken.None);
         }
 
         public static IHostBuilder CreateHostBuilder(string[] args) => Microsoft.Extensions.Hosting.Host

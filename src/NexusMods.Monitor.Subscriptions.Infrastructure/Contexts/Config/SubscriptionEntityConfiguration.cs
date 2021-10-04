@@ -9,7 +9,7 @@ namespace NexusMods.Monitor.Subscriptions.Infrastructure.Contexts.Config
     {
         public void Configure(EntityTypeBuilder<SubscriptionEntity> builder)
         {
-            builder.ToTable("subscription_entity").HasKey(p => new { p.SubscriberId, p.NexusModsGameId, p.NexusModsModId });
+            builder.ToTable("subscription_entity", "subscriptions").HasKey(p => new { p.SubscriberId, p.NexusModsGameId, p.NexusModsModId });
             builder.Property(p => p.SubscriberId).HasColumnName("subscriber_id").IsRequired();
             builder.Property(p => p.NexusModsGameId).HasColumnName("game_id").IsRequired();
             builder.Property(p => p.NexusModsModId).HasColumnName("mod_id").IsRequired();

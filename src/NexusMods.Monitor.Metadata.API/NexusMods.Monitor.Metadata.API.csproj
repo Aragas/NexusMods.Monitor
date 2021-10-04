@@ -14,6 +14,10 @@
   </ItemGroup>
 
   <ItemGroup>
+    <PackageReference Include="Community.Microsoft.Extensions.Caching.PostgreSql" Version="3.0.3.2" />
+  </ItemGroup>
+
+  <ItemGroup>
     <ProjectReference Include="..\NexusMods.Monitor.Metadata.Application\NexusMods.Monitor.Metadata.Application.csproj" />
     <ProjectReference Include="..\NexusMods.Monitor.Shared.API\NexusMods.Monitor.Shared.API.csproj" />
   </ItemGroup>

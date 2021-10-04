@@ -1,6 +1,7 @@
 ﻿using AngleSharp;
 using AngleSharp.Dom;
 
+using Microsoft.Extensions.Caching.Distributed;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Logging;
 
@@ -8,6 +9,7 @@ using NexusMods.Monitor.Metadata.Application.Extensions;
 using NexusMods.Monitor.Metadata.Application.Queries.Games;
 using NexusMods.Monitor.Metadata.Application.Queries.Mods;
 using NexusMods.Monitor.Metadata.Application.Queries.Threads;
+using NexusMods.Monitor.Shared.Common;
 
 using System;
 using System.Collections.Generic;
@@ -22,12 +24,13 @@ namespace NexusMods.Monitor.Metadata.Application.Queries.Comments
     {
         private readonly ILogger _logger;
         private readonly IHttpClientFactory _httpClientFactory;
-        private readonly IMemoryCache _cache;
+        private readonly IDistributedCache _cache;
         private readonly IGameQueries _nexusModsGameQueries;
         private readonly IModQueries _nexusModsModQueries;
         private readonly IThreadQueries _nexusModsThreadQueries;
+        private readonly DefaultJsonSerializer _jsonSerializer;
 
-        public CommentQueries(ILogger<CommentQueries> logger, IHttpClientFactory httpClientFactory, IMemoryCache cache, IGameQueries nexusModsGameQueries, IModQueries nexusModsModQueries, IThreadQueries nexusModsThreadQueries)
+        public CommentQueries(ILogger<CommentQueries> logger, IHttpClientFactory httpClientFactory, IDistributedCache cache, IGameQueries nexusModsGameQueries, IModQueries nexusModsModQueries, IThreadQueries nexusModsThreadQueries, DefaultJsonSerializer jsonSerializer)
         {
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
             _httpClientFactory = httpClientFactory ?? throw new ArgumentNullException(nameof(httpClientFactory));
@@ -35,6 +38,7 @@ namespace NexusMods.Monitor.Metadata.Application.Queries.Comments
             _nexusModsGameQueries = nexusModsGameQueries ?? throw new ArgumentNullException(nameof(nexusModsGameQueries));
             _nexusModsModQueries = nexusModsModQueries ?? throw new ArgumentNullException(nameof(nexusModsModQueries));
             _nexusModsThreadQueries = nexusModsThreadQueries ?? throw new ArgumentNullException(nameof(nexusModsThreadQueries));
+            _jsonSerializer = jsonSerializer ?? throw new ArgumentNullException(nameof(jsonSerializer));
         }
 
         public async IAsyncEnumerable<CommentViewModel> GetAllAsync(uint gameId, uint modId, [EnumeratorCancellation] CancellationToken ct = default)
@@ -56,7 +60,7 @@ namespace NexusMods.Monitor.Metadata.Application.Queries.Comments
             var threadId = threadViewModel.ThreadId;
 
             var key = $"comments_{gameId},{modId},{threadId}";
-            if (!_cache.TryGetValue(key, out CommentViewModel[]? cacheEntry))
+            if (!_cache.TryGetValue(key, _jsonSerializer, out CommentViewModel[]? cacheEntry))
             {
                 var commentRoots = new Dictionary<uint, CommentViewModel>();
                 for (var page = 1; ; page++)
@@ -91,8 +95,8 @@ namespace NexusMods.Monitor.Metadata.Application.Queries.Comments
                 }
 
                 cacheEntry = commentRoots.Values.ToArray();
-                var cacheEntryOptions = new MemoryCacheEntryOptions().SetSize(1).SetAbsoluteExpiration(TimeSpan.FromSeconds(60));
-                _cache.Set(key, cacheEntry, cacheEntryOptions);
+                var cacheEntryOptions = new DistributedCacheEntryOptions().SetSize(1).SetAbsoluteExpiration(TimeSpan.FromSeconds(60));
+                await _cache.SetAsync(key, cacheEntry, cacheEntryOptions, _jsonSerializer, ct);
             }
 
             foreach (var nexusModsCommentRoot in cacheEntry ?? Array.Empty<CommentViewModel>())

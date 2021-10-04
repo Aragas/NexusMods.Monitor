@@ -10,7 +10,7 @@ namespace NexusMods.Monitor.Scraper.Infrastructure.Contexts.Config
     {
         protected override void ConfigureModel(EntityTypeBuilder<CommentReplyEntity> builder)
         {
-            builder.ToTable("comment_reply_entity").HasKey(p => p.Id);
+            builder.ToTable("comment_reply_entity", "scraper").HasKey(p => p.Id);
             builder.Property(p => p.Id).HasColumnName("id").ValueGeneratedNever().IsRequired();
             builder.Property(p => p.OwnerId).HasColumnName("owner_id").IsRequired();
             builder.Property(p => p.Url).HasColumnName("url").IsRequired();
