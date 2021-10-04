@@ -75,8 +75,8 @@ namespace NexusMods.Monitor.Bot.Discord.Host.BackgroundServices
             if (_discordSocketClient.ConnectionState != ConnectionState.Disconnecting && _discordSocketClient.ConnectionState != ConnectionState.Disconnected)
                 return;
 
-            var token = _options.BotToken;
-            if (string.IsNullOrEmpty(token))
+            var botToken = _options.BotToken;
+            if (string.IsNullOrEmpty(botToken))
             {
                 _logger.LogError("Error while getting Discord.BotToken! Check your configuration file.");
                 return;
@@ -85,7 +85,7 @@ namespace NexusMods.Monitor.Bot.Discord.Host.BackgroundServices
             _discordSocketClient.MessageReceived += Bot_MessageReceived;
             _discordSocketClient.Log += Bot_Log;
 
-            await _discordSocketClient.LoginAsync(TokenType.Bot, token);
+            await _discordSocketClient.LoginAsync(TokenType.Bot, botToken);
             await _discordSocketClient.StartAsync();
 
             await _retryPolicy.ExecuteAsync(async token => await _eventSubscriber.Subscribe(token), stoppingToken);

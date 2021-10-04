@@ -80,7 +80,7 @@ namespace NexusMods.Monitor.Scraper.Application.Queries.NexusModsIssues
                 if (response.IsSuccessStatusCode && response.StatusCode != HttpStatusCode.NoContent)
                 {
                     var content = await response.Content.ReadAsStreamAsync(ct);
-                    if (await _jsonSerializer.DeserializeAsync<IssueContentDTO?>(content) is { } tuple)
+                    if (await _jsonSerializer.DeserializeAsync<IssueContentDTO?>(content, ct) is { } tuple)
                     {
                         var (id, author, authorUrl, avatarUrl, content_, instant) = tuple;
                         return new NexusModsIssueContentViewModel(id, author, authorUrl, avatarUrl, content_, instant);

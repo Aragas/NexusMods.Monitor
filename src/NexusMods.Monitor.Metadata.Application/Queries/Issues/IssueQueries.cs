@@ -2,7 +2,6 @@
 using AngleSharp.Dom;
 
 using Microsoft.Extensions.Caching.Distributed;
-using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Logging;
 
 using NexusMods.Monitor.Metadata.Application.Extensions;

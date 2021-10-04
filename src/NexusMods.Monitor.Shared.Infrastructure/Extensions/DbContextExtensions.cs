@@ -26,7 +26,7 @@ namespace NexusMods.Monitor.Shared.Infrastructure.Extensions
                     {
                         var relCommandField = c.GetType().GetField("_relationalCommand", BindingFlags.NonPublic | BindingFlags.Instance);
                         var relCommand = (IRelationalCommand) relCommandField!.GetValue(c)!;
-                        var transformed = TransformSQL(relCommand!.CommandText);
+                        var transformed = TransformSQL(relCommand.CommandText);
 
                         var depsField = relCommand.GetType().GetProperty("Dependencies", BindingFlags.NonPublic | BindingFlags.Instance);
                         var deps = (RelationalCommandBuilderDependencies) depsField!.GetValue(relCommand)!;

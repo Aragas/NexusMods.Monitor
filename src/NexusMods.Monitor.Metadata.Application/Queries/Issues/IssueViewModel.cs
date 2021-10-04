@@ -8,7 +8,6 @@ using NodaTime;
 using NodaTime.Extensions;
 
 using System;
-using System.Collections.Immutable;
 using System.Globalization;
 using System.Linq;
 
@@ -24,7 +23,6 @@ namespace NexusMods.Monitor.Metadata.Application.Queries.Issues
             var @private = bugTitle?.Children.FirstOrDefault(e => e.Id == $"issuePrivateLabel_{id}") as IHtmlDivElement;
             var closed = bugTitle?.Children.FirstOrDefault(e => e.Id == $"issueLockedLabel_{id}") as IHtmlDivElement;
 
-            var flags = (element.GetElementsByClassName("table-bug-title").FirstOrDefault()?.GetElementsByClassName("forum-sticky") ?? Enumerable.Empty<IElement>()).ToImmutableArray();
             var lastPost = element.GetElementsByClassName("table-bug-post").FirstOrDefault()?.ToText() ?? "01 Jan 2000 0:01AM";
 
             return new IssueViewModel(RecordUtils.Default<IssueViewModel>())

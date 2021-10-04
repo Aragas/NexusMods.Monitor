@@ -1,5 +1,4 @@
-﻿using NexusMods.Monitor.Shared.Application;
-using NexusMods.Monitor.Shared.Common;
+﻿using NexusMods.Monitor.Shared.Common;
 
 using System;
 using System.Net;
@@ -41,7 +40,7 @@ namespace NexusMods.Monitor.Subscriptions.Application.Queries.NexusModsMods
                 if (response.IsSuccessStatusCode && response.StatusCode != HttpStatusCode.NoContent)
                 {
                     var content = await response.Content.ReadAsStreamAsync(ct);
-                    if (await _jsonSerializer.DeserializeAsync<ModDTO?>(content) is { } tuple)
+                    if (await _jsonSerializer.DeserializeAsync<ModDTO?>(content, ct) is { } tuple)
                     {
                         var (id, name) = tuple;
                         return new NexusModsModViewModel(id, name);

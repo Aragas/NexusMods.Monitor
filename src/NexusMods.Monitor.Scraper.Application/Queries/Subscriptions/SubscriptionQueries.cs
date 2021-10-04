@@ -40,7 +40,7 @@ namespace NexusMods.Monitor.Scraper.Application.Queries.Subscriptions
             if (response.IsSuccessStatusCode && response.StatusCode != HttpStatusCode.NoContent)
             {
                 var content = await response.Content.ReadAsStreamAsync(ct);
-                foreach (var tuple in await _jsonSerializer.DeserializeAsync<SubscriptionDTO[]?>(content) ?? Array.Empty<SubscriptionDTO>())
+                foreach (var tuple in await _jsonSerializer.DeserializeAsync<SubscriptionDTO[]?>(content, ct) ?? Array.Empty<SubscriptionDTO>())
                 {
                     var (nexusModsGameId, nexusModsModId) = tuple;
                     yield return new SubscriptionViewModel(nexusModsGameId, nexusModsModId);

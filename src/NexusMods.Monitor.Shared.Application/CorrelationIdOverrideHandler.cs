@@ -1,5 +1,6 @@
 ﻿using CorrelationId.Abstractions;
 
+using System;
 using System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
@@ -12,12 +13,12 @@ namespace NexusMods.Monitor.Shared.Application
 
         public CorrelationIdOverrideHandler(ICorrelationContextAccessor correlationContextAccessor)
         {
-            _correlationContextAccessor = correlationContextAccessor;
+            _correlationContextAccessor = correlationContextAccessor ?? throw new ArgumentNullException(nameof(correlationContextAccessor));
         }
 
         protected override Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken cancellationToken)
         {
-            if (!string.IsNullOrEmpty(_correlationContextAccessor?.CorrelationContext?.CorrelationId))
+            if (!string.IsNullOrEmpty(_correlationContextAccessor.CorrelationContext?.CorrelationId))
             {
                 if (request.Headers.Contains(_correlationContextAccessor.CorrelationContext.Header)) request.Headers.Remove(_correlationContextAccessor.CorrelationContext.Header);
                 request.Headers.Add(_correlationContextAccessor.CorrelationContext.Header, _correlationContextAccessor.CorrelationContext.CorrelationId);

@@ -7,7 +7,6 @@ using Polly.Extensions.Http;
 using System;
 using System.Net;
 using System.Net.Http;
-using System.Net.Sockets;
 using System.Threading.Tasks;
 
 namespace NexusMods.Monitor.Shared.Host

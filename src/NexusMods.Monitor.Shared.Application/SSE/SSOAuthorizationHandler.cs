@@ -33,12 +33,12 @@ namespace NexusMods.Monitor.Shared.Application.SSE
             };
             _eventSourceReader.Disconnected += (sender, e) =>
             {
-                _taskCompletionSource?.SetResult();
+                _taskCompletionSource.SetResult();
             };
             _cancellationTokenSource = new CancellationTokenSource(60000);
             _cancellationTokenSource.Token.Register(() =>
             {
-                _taskCompletionSource?.SetResult();
+                _taskCompletionSource.SetResult();
             });
         }
 

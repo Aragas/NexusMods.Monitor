@@ -29,7 +29,7 @@ namespace NexusMods.Monitor.Bot.Discord.Application.Queries.RateLimits
             if (response.IsSuccessStatusCode && response.StatusCode != HttpStatusCode.NoContent)
             {
                 var content = await response.Content.ReadAsStreamAsync(ct);
-                if (await _jsonSerializer.DeserializeAsync<RateLimitDTO?>(content) is { } tuple)
+                if (await _jsonSerializer.DeserializeAsync<RateLimitDTO?>(content, ct) is { } tuple)
                 {
                     var ((hourlyLimit, hourlyRemaining, hourlyReset, dailyLimit, dailyRemaining, dailyReset), siteLimitDTO) = tuple;
                     return new RateLimitViewModel(new APILimitViewModel(hourlyLimit, hourlyRemaining, hourlyReset, dailyLimit, dailyRemaining, dailyReset), new SiteLimitViewModel(siteLimitDTO.RetryAfter));

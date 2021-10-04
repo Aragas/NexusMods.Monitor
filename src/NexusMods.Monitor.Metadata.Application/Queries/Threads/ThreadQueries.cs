@@ -1,7 +1,6 @@
 ﻿using AngleSharp;
 
 using Microsoft.Extensions.Caching.Distributed;
-using Microsoft.Extensions.Caching.Memory;
 
 using NexusMods.Monitor.Metadata.Application.Extensions;
 using NexusMods.Monitor.Metadata.Application.Queries.Games;
@@ -48,7 +47,7 @@ namespace NexusMods.Monitor.Metadata.Application.Queries.Threads
                 var document = await context.OpenAsync(request => request.Content(content), ct);
 
                 var element = document.GetElementById("mod-page-tab-posts");
-                var dataTarget = element?.Children[0]?.GetAttribute("data-target");
+                var dataTarget = element?.Children[0].GetAttribute("data-target");
                 var split = dataTarget?.Split("thread_id=", StringSplitOptions.RemoveEmptyEntries);
                 if (split?.Length > 1)
                 {

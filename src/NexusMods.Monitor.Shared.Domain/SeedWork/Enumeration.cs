@@ -23,7 +23,7 @@ namespace NexusMods.Monitor.Shared.Domain.SeedWork
 
         public static long AbsoluteDifference(Enumeration firstValue, Enumeration secondValue)
         {
-            var absoluteDifference = Math.Abs(firstValue.Id - secondValue.Id);
+            var absoluteDifference = Math.Abs((int) firstValue.Id - (int) secondValue.Id);
             return absoluteDifference;
         }
 

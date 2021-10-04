@@ -1,10 +1,7 @@
-﻿using AngleSharp.Dom;
-
-using Microsoft.Extensions.Caching.Distributed;
+﻿using Microsoft.Extensions.Caching.Distributed;
 
 using NexusMods.Monitor.Shared.Common;
 
-using System;
 using System.Threading;
 using System.Threading.Tasks;
 

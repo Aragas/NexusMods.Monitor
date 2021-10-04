@@ -1,5 +1,4 @@
 ﻿using Microsoft.Extensions.Caching.Distributed;
-using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Logging;
 
 using NexusMods.Monitor.Metadata.Application.Extensions;
@@ -49,7 +48,7 @@ namespace NexusMods.Monitor.Metadata.Application.Queries.Games
                 if (response.IsSuccessStatusCode && response.StatusCode != HttpStatusCode.NoContent)
                 {
                     var content = await response.Content.ReadAsStreamAsync(ct);
-                    var games = await _jsonSerializer.DeserializeAsync<GameDTO[]?>(content) ?? Array.Empty<GameDTO>();
+                    var games = await _jsonSerializer.DeserializeAsync<GameDTO[]?>(content, ct) ?? Array.Empty<GameDTO>();
 
                     cacheEntry = games.Select(g => new GameViewModel(g.Id, g.Name, g.ForumUrl.ToString(), g.Url.ToString(), g.DomainName)).ToArray();
                     var cacheEntryOptions = new DistributedCacheEntryOptions().SetSize(1).SetAbsoluteExpiration(TimeSpan.FromHours(8));

@@ -23,7 +23,7 @@ namespace NexusMods.Monitor.Metadata.Application.Queries.Comments
             var authorImg = author?.FindChild<IHtmlImageElement>();
             var details = head?.GetElementsByClassName("comment-details").FirstOrDefault() as IHtmlDivElement;
             var content = element.GetElementsByClassName("comment-content").FirstOrDefault() as IHtmlDivElement;
-            var time = content?.GetElementsByTagName("time")?.FirstOrDefault()?.ToText();
+            var time = content?.GetElementsByTagName("time").FirstOrDefault()?.ToText();
 
             return new CommentReplyViewModel(RecordUtils.Default<CommentReplyViewModel>())
             {

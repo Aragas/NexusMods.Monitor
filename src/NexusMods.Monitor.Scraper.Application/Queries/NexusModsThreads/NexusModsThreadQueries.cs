@@ -40,7 +40,7 @@ namespace NexusMods.Monitor.Scraper.Application.Queries.NexusModsThreads
                 if (response.IsSuccessStatusCode && response.StatusCode != HttpStatusCode.NoContent)
                 {
                     var content = await response.Content.ReadAsStreamAsync(ct);
-                    if (await _jsonSerializer.DeserializeAsync<ThreadDTO?>(content) is { } tuple)
+                    if (await _jsonSerializer.DeserializeAsync<ThreadDTO?>(content, ct) is { } tuple)
                     {
                         var (gameId, modId, threadId) = tuple;
                         return new NexusModsThreadViewModel(gameId, modId, threadId);

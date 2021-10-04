@@ -1,5 +1,4 @@
 ﻿using Microsoft.Extensions.Caching.Distributed;
-using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Logging;
 
 using NexusMods.Monitor.Metadata.Application.Extensions;
@@ -49,7 +48,7 @@ namespace NexusMods.Monitor.Metadata.Application.Queries.Mods
                 if (response.IsSuccessStatusCode && response.StatusCode != HttpStatusCode.NoContent)
                 {
                     var content = await response.Content.ReadAsStreamAsync(ct);
-                    var mod = await _jsonSerializer.DeserializeAsync<ModDTO?>(content);
+                    var mod = await _jsonSerializer.DeserializeAsync<ModDTO?>(content, ct);
                     if (mod is not null)
                     {
                         cacheEntry = new ModViewModel((uint) mod.ModId, mod.Name);

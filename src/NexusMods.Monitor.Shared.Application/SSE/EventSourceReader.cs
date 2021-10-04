@@ -131,9 +131,6 @@ namespace NexusMods.Monitor.Shared.Application.SSE
                             _lastEventId = value;
                             id = _lastEventId;
                             break;
-                        default:
-                            // Ignore other fields
-                            break;
                     }
                 }
             }

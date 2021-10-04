@@ -1,5 +1,4 @@
-﻿using NexusMods.Monitor.Shared.Application;
-using NexusMods.Monitor.Shared.Common;
+﻿using NexusMods.Monitor.Shared.Common;
 
 using System;
 using System.Net;
@@ -41,7 +40,7 @@ namespace NexusMods.Monitor.Subscriptions.Application.Queries.NexusModsGames
                 if (response.IsSuccessStatusCode && response.StatusCode != HttpStatusCode.NoContent)
                 {
                     var content = await response.Content.ReadAsStreamAsync(ct);
-                    if (await _jsonSerializer.DeserializeAsync<GameDTO?>(content) is { } tuple)
+                    if (await _jsonSerializer.DeserializeAsync<GameDTO?>(content, ct) is { } tuple)
                     {
                         var (id, name, forumUrl, url, domainName) = tuple;
                         return new NexusModsGameViewModel(id, name, forumUrl, url, domainName);
@@ -76,7 +75,7 @@ namespace NexusMods.Monitor.Subscriptions.Application.Queries.NexusModsGames
                 if (response.IsSuccessStatusCode && response.StatusCode != HttpStatusCode.NoContent)
                 {
                     var content = await response.Content.ReadAsStreamAsync(ct);
-                    if (await _jsonSerializer.DeserializeAsync<GameDTO?>(content) is { } tuple)
+                    if (await _jsonSerializer.DeserializeAsync<GameDTO?>(content, ct) is { } tuple)
                     {
                         var (id, name, forumUrl, url, domainName) = tuple;
                         return new NexusModsGameViewModel(id, name, forumUrl, url, domainName);

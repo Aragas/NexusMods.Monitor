@@ -29,7 +29,7 @@ namespace NexusMods.Monitor.Bot.Discord.Application.Queries.Authorizations
             if (response.IsSuccessStatusCode && response.StatusCode != HttpStatusCode.NoContent)
             {
                 var content = await response.Content.ReadAsStreamAsync(ct);
-                if (await _jsonSerializer.DeserializeAsync<AuthorizationStatusDTO?>(content) is { } dto)
+                if (await _jsonSerializer.DeserializeAsync<AuthorizationStatusDTO?>(content, ct) is { } dto)
                 {
                     return dto.IsAuthorized;
                 }
