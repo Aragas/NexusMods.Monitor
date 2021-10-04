@@ -37,7 +37,7 @@ namespace NexusMods.Monitor.Scraper.Application.CommandHandlers.Issues
                 return false;
             }
 
-            var issueEntity = Mapper.Map(message, await _issueRepository.GetStatusAsync(message.Status.Id), await _issueRepository.GetPriorityAsync(message.Priority.Id));
+            var issueEntity = Mapper.Map(message, await _issueRepository.GetStatusAsync(message.StatusId), await _issueRepository.GetPriorityAsync(message.PriorityId));
 
             _issueRepository.Add(issueEntity);
 

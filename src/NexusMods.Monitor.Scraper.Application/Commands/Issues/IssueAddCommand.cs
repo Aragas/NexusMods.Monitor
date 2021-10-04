@@ -12,7 +12,7 @@ using System.Linq;
 
 namespace NexusMods.Monitor.Scraper.Application.Commands.Issues
 {
-    public sealed record IssueAddCommand(uint Id, uint NexusModsGameId, uint NexusModsModId, string GameName, string ModName, string Title, string Url, string ModVersion, IssueStatusEnumeration Status, IssuePriorityEnumeration Priority, bool IsPrivate, bool IsClosed, Instant TimeOfLastPost, IssueAddCommand.IssueContentDTO? Content, IReadOnlyList<IssueAddCommand.IssueReplyDTO> Replies) : IRequest<bool>
+    public sealed record IssueAddCommand(uint Id, uint NexusModsGameId, uint NexusModsModId, string GameName, string ModName, string Title, string Url, string ModVersion, uint StatusId, uint PriorityId, bool IsPrivate, bool IsClosed, Instant TimeOfLastPost, IssueAddCommand.IssueContentDTO? Content, IReadOnlyList<IssueAddCommand.IssueReplyDTO> Replies) : IRequest<bool>
     {
         public sealed record IssueContentDTO(uint Id, string Author, string AuthorUrl, string AvatarUrl, string Content, Instant TimeOfPost);
 
@@ -30,8 +30,8 @@ namespace NexusMods.Monitor.Scraper.Application.Commands.Issues
                 Title = nexusModsIssueRoot.NexusModsIssue.Title,
                 Url = $"https://www.nexusmods.com/{nexusModsIssueRoot.GameDomain}/mods/{nexusModsIssueRoot.ModId}/?tab=bugs&issue_id={nexusModsIssueRoot.NexusModsIssue.Id}",
                 ModVersion = nexusModsIssueRoot.NexusModsIssue.ModVersion,
-                Status = issueStatus,
-                Priority = issuePriority,
+                StatusId = issueStatus.Id,
+                PriorityId = issuePriority.Id,
                 IsPrivate = nexusModsIssueRoot.NexusModsIssue.IsPrivate,
                 IsClosed = nexusModsIssueRoot.NexusModsIssue.IsClosed,
                 TimeOfLastPost = nexusModsIssueRoot.NexusModsIssue.LastPost,
