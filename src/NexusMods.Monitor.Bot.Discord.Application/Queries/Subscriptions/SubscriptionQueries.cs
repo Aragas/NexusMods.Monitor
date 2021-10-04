@@ -22,7 +22,11 @@ namespace NexusMods.Monitor.Bot.Discord.Application.Queries.Subscriptions
 
         public async IAsyncEnumerable<SubscriptionViewModel> GetAllAsync([EnumeratorCancellation] CancellationToken ct = default)
         {
-            using var response = await _httpClientFactory.CreateClient("Subscriptions.API").GetAsync("all", ct);
+            using var response = await _httpClientFactory.CreateClient("Subscriptions.API").GetAsync(
+                "all",
+                HttpCompletionOption.ResponseHeadersRead,
+                ct);
+
             if (response.IsSuccessStatusCode && response.StatusCode != HttpStatusCode.NoContent)
             {
                 var contentStream = await response.Content.ReadAsStreamAsync(ct);

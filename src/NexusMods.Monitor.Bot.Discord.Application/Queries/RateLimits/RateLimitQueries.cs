@@ -21,11 +21,15 @@ namespace NexusMods.Monitor.Bot.Discord.Application.Queries.RateLimits
 
         public async Task<RateLimitViewModel?> GetAsync(CancellationToken ct = default)
         {
-            using var response = await _httpClientFactory.CreateClient("Metadata.API").GetAsync("ratelimits", ct);
+            using var response = await _httpClientFactory.CreateClient("Metadata.API").GetAsync(
+                "ratelimits",
+                HttpCompletionOption.ResponseHeadersRead,
+                ct);
+
             if (response.IsSuccessStatusCode && response.StatusCode != HttpStatusCode.NoContent)
             {
-                var content = await response.Content.ReadAsStringAsync(ct);
-                if (_jsonSerializer.Deserialize<RateLimitDTO?>(content) is { } tuple)
+                var content = await response.Content.ReadAsStreamAsync(ct);
+                if (await _jsonSerializer.DeserializeAsync<RateLimitDTO?>(content) is { } tuple)
                 {
                     var ((hourlyLimit, hourlyRemaining, hourlyReset, dailyLimit, dailyRemaining, dailyReset), siteLimitDTO) = tuple;
                     return new RateLimitViewModel(new APILimitViewModel(hourlyLimit, hourlyRemaining, hourlyReset, dailyLimit, dailyRemaining, dailyReset), new SiteLimitViewModel(siteLimitDTO.RetryAfter));

@@ -8,7 +8,6 @@ using NexusMods.Monitor.Shared.Common;
 
 using System;
 using System.Diagnostics.CodeAnalysis;
-using System.Linq;
 using System.Net;
 using System.Net.Http;
 using System.Text.Json.Serialization;
@@ -37,22 +36,20 @@ namespace NexusMods.Monitor.Metadata.Application.Queries.Mods
 
         public async Task<ModViewModel?> GetAsync(uint gameId, uint modId, CancellationToken ct = default)
         {
-            var games = _nexusModsGameQueries.GetAllAsync(ct);
-            var gameDomain = (await games.FirstOrDefaultAsync(x => x.Id == gameId, ct))?.DomainName ?? "ERROR";
+            var gameDomain = (await _nexusModsGameQueries.GetAsync(gameId, ct))?.DomainName ?? "ERROR";
 
-            return await GetAsync(gameDomain, modId, ct);
-        }
-
-        public async Task<ModViewModel?> GetAsync(string gameDomain, uint modId, CancellationToken ct = default)
-        {
-            var key = $"mod({gameDomain}, {modId})";
+            var key = $"mod({gameId}, {modId})";
             if (!_cache.TryGetValue(key, _jsonSerializer, out ModViewModel? cacheEntry))
             {
-                var response = await _httpClientFactory.CreateClient("NexusMods.API").GetAsync($"v1/games/{gameDomain}/mods/{modId}.json", ct);
+                var response = await _httpClientFactory.CreateClient("NexusMods.API").GetAsync(
+                    $"v1/games/{gameDomain}/mods/{modId}.json",
+                    HttpCompletionOption.ResponseHeadersRead,
+                    ct);
+
                 if (response.IsSuccessStatusCode && response.StatusCode != HttpStatusCode.NoContent)
                 {
-                    var content = await response.Content.ReadAsStringAsync(ct);
-                    var mod = _jsonSerializer.Deserialize<ModDTO?>(content);
+                    var content = await response.Content.ReadAsStreamAsync(ct);
+                    var mod = await _jsonSerializer.DeserializeAsync<ModDTO?>(content);
                     if (mod is not null)
                     {
                         cacheEntry = new ModViewModel((uint) mod.ModId, mod.Name);
@@ -63,6 +60,13 @@ namespace NexusMods.Monitor.Metadata.Application.Queries.Mods
             }
 
             return cacheEntry;
+        }
+
+        public async Task<ModViewModel?> GetAsync(string gameDomain, uint modId, CancellationToken ct = default)
+        {
+            var gameId = (await _nexusModsGameQueries.GetAsync(gameDomain, ct))?.Id ?? uint.MaxValue;
+
+            return await GetAsync(gameId, modId, ct);
         }
 
         private record ModDTO([property: JsonPropertyName("name")] string Name, [property: JsonPropertyName("mod_id")] long ModId);

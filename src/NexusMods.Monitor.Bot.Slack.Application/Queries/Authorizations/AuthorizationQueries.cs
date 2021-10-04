@@ -1,5 +1,4 @@
-﻿using NexusMods.Monitor.Shared.Application;
-using NexusMods.Monitor.Shared.Common;
+﻿using NexusMods.Monitor.Shared.Common;
 
 using System;
 using System.Net;
@@ -22,11 +21,15 @@ namespace NexusMods.Monitor.Bot.Slack.Application.Queries.Authorizations
 
         public async Task<bool> IsAuthorizedAsync(CancellationToken ct = default)
         {
-            using var response = await _httpClientFactory.CreateClient("Metadata.API").GetAsync("authorization-status", ct);
+            using var response = await _httpClientFactory.CreateClient("Metadata.API").GetAsync(
+                "authorization-status",
+                HttpCompletionOption.ResponseHeadersRead,
+                ct);
+
             if (response.IsSuccessStatusCode && response.StatusCode != HttpStatusCode.NoContent)
             {
-                var content = await response.Content.ReadAsStringAsync(ct);
-                if (_jsonSerializer.Deserialize<AuthorizationStatusDTO?>(content) is { } dto)
+                var content = await response.Content.ReadAsStreamAsync(ct);
+                if (await _jsonSerializer.DeserializeAsync<AuthorizationStatusDTO?>(content) is { } dto)
                 {
                     return dto.IsAuthorized;
                 }

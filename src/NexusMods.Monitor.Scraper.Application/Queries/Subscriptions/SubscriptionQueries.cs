@@ -27,7 +27,10 @@ namespace NexusMods.Monitor.Scraper.Application.Queries.Subscriptions
 
             try
             {
-                response = await _httpClientFactory.CreateClient("Subscriptions.API").GetAsync("all", ct);
+                response = await _httpClientFactory.CreateClient("Subscriptions.API").GetAsync(
+                    "all",
+                    HttpCompletionOption.ResponseHeadersRead,
+                    ct);
             }
             catch (Exception e) when (e is TaskCanceledException)
             {
@@ -36,8 +39,8 @@ namespace NexusMods.Monitor.Scraper.Application.Queries.Subscriptions
 
             if (response.IsSuccessStatusCode && response.StatusCode != HttpStatusCode.NoContent)
             {
-                var content = await response.Content.ReadAsStringAsync(ct);
-                foreach (var tuple in _jsonSerializer.Deserialize<SubscriptionDTO[]?>(content) ?? Array.Empty<SubscriptionDTO>())
+                var content = await response.Content.ReadAsStreamAsync(ct);
+                foreach (var tuple in await _jsonSerializer.DeserializeAsync<SubscriptionDTO[]?>(content) ?? Array.Empty<SubscriptionDTO>())
                 {
                     var (nexusModsGameId, nexusModsModId) = tuple;
                     yield return new SubscriptionViewModel(nexusModsGameId, nexusModsModId);

@@ -29,7 +29,10 @@ namespace NexusMods.Monitor.Scraper.Application.Queries.NexusModsComments
 
             try
             {
-                response = await _httpClientFactory.CreateClient("Metadata.API").GetAsync($"comments/id?gameId={gameIdRequest}&modId={modIdRequest}", ct);
+                response = await _httpClientFactory.CreateClient("Metadata.API").GetAsync(
+                    $"comments/id?gameId={gameIdRequest}&modId={modIdRequest}",
+                    HttpCompletionOption.ResponseHeadersRead,
+                    ct);
             }
             catch (Exception e) when (e is TaskCanceledException)
             {

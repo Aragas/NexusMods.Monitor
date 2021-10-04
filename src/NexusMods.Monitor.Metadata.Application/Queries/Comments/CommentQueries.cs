@@ -59,15 +59,18 @@ namespace NexusMods.Monitor.Metadata.Application.Queries.Comments
                 yield break;
             var threadId = threadViewModel.ThreadId;
 
-            var key = $"comments_{gameId},{modId},{threadId}";
+            var key = $"comments({gameId}, {modId}, {threadId})";
             if (!_cache.TryGetValue(key, _jsonSerializer, out CommentViewModel[]? cacheEntry))
             {
                 var commentRoots = new Dictionary<uint, CommentViewModel>();
                 for (var page = 1; ; page++)
                 {
                     using var response = await _httpClientFactory.CreateClient("NexusMods").GetAsync(
-                        $"Core/Libs/Common/Widgets/CommentContainer?RH_CommentContainer=game_id:{gameId},object_id:{modId},object_type:1,thread_id:{threadId},page:{page}", ct);
-                    var content = await response.Content.ReadAsStringAsync(ct);
+                        $"Core/Libs/Common/Widgets/CommentContainer?RH_CommentContainer=game_id:{gameId},object_id:{modId},object_type:1,thread_id:{threadId},page:{page}",
+                        HttpCompletionOption.ResponseHeadersRead,
+                        ct);
+
+                    var content = await response.Content.ReadAsStreamAsync(ct);
 
                     var config = Configuration.Default.WithDefaultLoader();
                     var context = BrowsingContext.New(config);

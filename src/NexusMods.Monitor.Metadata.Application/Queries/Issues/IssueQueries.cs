@@ -48,15 +48,18 @@ namespace NexusMods.Monitor.Metadata.Application.Queries.Issues
             var mod = await _nexusModsModQueries.GetAsync(gameDomain, modId, ct);
             var modName = mod?.Name ?? "ERROR";
 
-            var key = $"issues_{gameId},{modId}";
+            var key = $"issues({gameId}, {modId})";
             if (!_cache.TryGetValue(key, _jsonSerializer, out IssueViewModel[]? cacheEntry))
             {
                 var issueRoots = new Dictionary<uint, IssueViewModel>();
                 for (var page = 1; ; page++)
                 {
                     using var response = await _httpClientFactory.CreateClient("NexusMods").GetAsync(
-                        $"Core/Libs/Common/Widgets/ModBugsTab?RH_ModBugsTab=game_id:{gameId},id:{modId},sort_by:last_reply,order:DESC,page:{page}", ct);
-                    var content = await response.Content.ReadAsStringAsync(ct);
+                        $"Core/Libs/Common/Widgets/ModBugsTab?RH_ModBugsTab=game_id:{gameId},id:{modId},sort_by:last_reply,order:DESC,page:{page}",
+                        HttpCompletionOption.ResponseHeadersRead,
+                        ct);
+
+                    var content = await response.Content.ReadAsStreamAsync(ct);
 
                     var config = Configuration.Default.WithDefaultLoader();
                     var context = BrowsingContext.New(config);
@@ -108,11 +111,13 @@ namespace NexusMods.Monitor.Metadata.Application.Queries.Issues
 
         private async Task<IDocument?> GetModBugReplyListAsync(uint issueId, CancellationToken ct = default)
         {
-            if (!_cache.TryGetValue($"issue_replies_{issueId}", _jsonSerializer, out string? cacheEntry))
+            if (!_cache.TryGetValue($"issue_replies({issueId})", _jsonSerializer, out string? cacheEntry))
             {
                 using var response = await _httpClientFactory.CreateClient("NexusMods").PostAsync(
                     "Core/Libs/Common/Widgets/ModBugReplyList",
-                    new FormUrlEncodedContent(new[] { new KeyValuePair<string?, string?>("issue_id", issueId.ToString()) }), ct);
+                    new FormUrlEncodedContent(new[] { new KeyValuePair<string?, string?>("issue_id", issueId.ToString()) }),
+                    ct);
+
                 cacheEntry = await response.Content.ReadAsStringAsync(ct);
 
                 var cacheEntryOptions = new DistributedCacheEntryOptions().SetSize(1).SetAbsoluteExpiration(TimeSpan.FromSeconds(10));

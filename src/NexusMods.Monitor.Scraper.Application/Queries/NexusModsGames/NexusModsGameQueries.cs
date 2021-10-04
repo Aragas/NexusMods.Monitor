@@ -27,7 +27,10 @@ namespace NexusMods.Monitor.Scraper.Application.Queries.NexusModsGames
 
             try
             {
-                response = await _httpClientFactory.CreateClient("Metadata.API").GetAsync($"game/id?gameId={gameId}", ct);
+                response = await _httpClientFactory.CreateClient("Metadata.API").GetAsync(
+                    $"game/id?gameId={gameId}",
+                    HttpCompletionOption.ResponseHeadersRead,
+                    ct);
             }
             catch (Exception e) when (e is TaskCanceledException)
             {
@@ -38,8 +41,8 @@ namespace NexusMods.Monitor.Scraper.Application.Queries.NexusModsGames
             {
                 if (response.IsSuccessStatusCode && response.StatusCode != HttpStatusCode.NoContent)
                 {
-                    var content = await response.Content.ReadAsStringAsync(ct);
-                    if (_jsonSerializer.Deserialize<GameDTO?>(content) is { } tuple)
+                    var content = await response.Content.ReadAsStreamAsync(ct);
+                    if (await _jsonSerializer.DeserializeAsync<GameDTO?>(content) is { } tuple)
                     {
                         var (id, name, forumUrl, url, domainName) = tuple;
                         return new NexusModsGameViewModel(id, name, forumUrl, url, domainName);
@@ -59,7 +62,10 @@ namespace NexusMods.Monitor.Scraper.Application.Queries.NexusModsGames
 
             try
             {
-                response = await _httpClientFactory.CreateClient("Metadata.API").GetAsync($"game/domain?gameDomain={gameDomain}", ct);
+                response = await _httpClientFactory.CreateClient("Metadata.API").GetAsync(
+                    $"game/domain?gameDomain={gameDomain}",
+                    HttpCompletionOption.ResponseHeadersRead,
+                    ct);
             }
             catch (Exception e) when (e is TaskCanceledException)
             {
@@ -70,8 +76,8 @@ namespace NexusMods.Monitor.Scraper.Application.Queries.NexusModsGames
             {
                 if (response.IsSuccessStatusCode && response.StatusCode != HttpStatusCode.NoContent)
                 {
-                    var content = await response.Content.ReadAsStringAsync(ct);
-                    if (_jsonSerializer.Deserialize<GameDTO?>(content) is { } tuple)
+                    var content = await response.Content.ReadAsStreamAsync(ct);
+                    if (await _jsonSerializer.DeserializeAsync<GameDTO?>(content) is { } tuple)
                     {
                         var (id, name, forumUrl, url, domainName) = tuple;
                         return new NexusModsGameViewModel(id, name, forumUrl, url, domainName);
@@ -91,7 +97,10 @@ namespace NexusMods.Monitor.Scraper.Application.Queries.NexusModsGames
 
             try
             {
-                response = await _httpClientFactory.CreateClient("Metadata.API").GetAsync("game/all", ct);
+                response = await _httpClientFactory.CreateClient("Metadata.API").GetAsync(
+                    "game/all",
+                    HttpCompletionOption.ResponseHeadersRead,
+                    ct);
             }
             catch (Exception e) when (e is TaskCanceledException)
             {

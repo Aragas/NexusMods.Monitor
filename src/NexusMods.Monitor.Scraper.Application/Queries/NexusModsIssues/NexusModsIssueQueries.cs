@@ -29,7 +29,10 @@ namespace NexusMods.Monitor.Scraper.Application.Queries.NexusModsIssues
 
             try
             {
-                response = await _httpClientFactory.CreateClient("Metadata.API").GetAsync($"issues/id?gameId={gameIdRequest}&modId={modIdRequest}", ct);
+                response = await _httpClientFactory.CreateClient("Metadata.API").GetAsync(
+                    $"issues/id?gameId={gameIdRequest}&modId={modIdRequest}",
+                    HttpCompletionOption.ResponseHeadersRead,
+                    ct);
             }
             catch (Exception e) when (e is TaskCanceledException)
             {
@@ -62,7 +65,10 @@ namespace NexusMods.Monitor.Scraper.Application.Queries.NexusModsIssues
 
             try
             {
-                response = await _httpClientFactory.CreateClient("Metadata.API").GetAsync($"issues/content?issueId={issueId}", ct);
+                response = await _httpClientFactory.CreateClient("Metadata.API").GetAsync(
+                    $"issues/content?issueId={issueId}",
+                    HttpCompletionOption.ResponseHeadersRead,
+                    ct);
             }
             catch (Exception e) when (e is TaskCanceledException)
             {
@@ -73,8 +79,8 @@ namespace NexusMods.Monitor.Scraper.Application.Queries.NexusModsIssues
             {
                 if (response.IsSuccessStatusCode && response.StatusCode != HttpStatusCode.NoContent)
                 {
-                    var content = await response.Content.ReadAsStringAsync(ct);
-                    if (_jsonSerializer.Deserialize<IssueContentDTO?>(content) is { } tuple)
+                    var content = await response.Content.ReadAsStreamAsync(ct);
+                    if (await _jsonSerializer.DeserializeAsync<IssueContentDTO?>(content) is { } tuple)
                     {
                         var (id, author, authorUrl, avatarUrl, content_, instant) = tuple;
                         return new NexusModsIssueContentViewModel(id, author, authorUrl, avatarUrl, content_, instant);
@@ -94,7 +100,10 @@ namespace NexusMods.Monitor.Scraper.Application.Queries.NexusModsIssues
 
             try
             {
-                response = await _httpClientFactory.CreateClient("Metadata.API").GetAsync($"issues/replies?issueId={issueId}", ct);
+                response = await _httpClientFactory.CreateClient("Metadata.API").GetAsync(
+                    $"issues/replies?issueId={issueId}",
+                    HttpCompletionOption.ResponseHeadersRead,
+                    ct);
             }
             catch (Exception e) when (e is TaskCanceledException)
             {

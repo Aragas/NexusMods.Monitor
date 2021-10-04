@@ -8,7 +8,6 @@ using NexusMods.Monitor.Metadata.Application.Queries.Games;
 using NexusMods.Monitor.Shared.Common;
 
 using System;
-using System.Linq;
 using System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
@@ -35,11 +34,14 @@ namespace NexusMods.Monitor.Metadata.Application.Queries.Threads
             var key = $"thread_id({gameId}, {modId})";
             if (!_cache.TryGetValue(key, _jsonSerializer, out ThreadViewModel? cacheEntry))
             {
-                var games = _nexusModsGameQueries.GetAllAsync(ct);
-                var gameIdText = (await games.FirstOrDefaultAsync(x => x.Id == gameId, ct))?.DomainName ?? "ERROR";
+                var gameDomain = (await _nexusModsGameQueries.GetAsync(gameId, ct))?.DomainName ?? "ERROR";
 
-                using var response = await _httpClientFactory.CreateClient("NexusMods").GetAsync($"{gameIdText}/mods/{modId}", ct);
-                var content = await response.Content.ReadAsStringAsync(ct);
+                using var response = await _httpClientFactory.CreateClient("NexusMods").GetAsync(
+                    $"{gameDomain}/mods/{modId}",
+                    HttpCompletionOption.ResponseHeadersRead,
+                    ct);
+
+                var content = await response.Content.ReadAsStreamAsync(ct);
 
                 var config = Configuration.Default.WithDefaultLoader();
                 var context = BrowsingContext.New(config);

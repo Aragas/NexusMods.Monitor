@@ -22,17 +22,37 @@ namespace NexusMods.Monitor.Subscriptions.Application.Queries.NexusModsMods
 
         public async Task<NexusModsModViewModel?> GetAsync(uint gameId, uint modId, CancellationToken ct = default)
         {
-            using var response = await _httpClientFactory.CreateClient("Metadata.API").GetAsync($"mod/id?gameId={gameId}&modId={modId}", ct);
-            if (response.IsSuccessStatusCode && response.StatusCode != HttpStatusCode.NoContent)
+            HttpResponseMessage response;
+
+            try
             {
-                var content = await response.Content.ReadAsStringAsync(ct);
-                if (_jsonSerializer.Deserialize<ModDTO?>(content) is { } tuple)
-                {
-                    var (id, name) = tuple;
-                    return new NexusModsModViewModel(id, name);
-                }
+                response = await _httpClientFactory.CreateClient("Metadata.API").GetAsync(
+                    $"mod/id?gameId={gameId}&modId={modId}",
+                    HttpCompletionOption.ResponseHeadersRead,
+                    ct);
             }
-            return null;
+            catch (Exception e) when (e is TaskCanceledException)
+            {
+                return null;
+            }
+
+            try
+            {
+                if (response.IsSuccessStatusCode && response.StatusCode != HttpStatusCode.NoContent)
+                {
+                    var content = await response.Content.ReadAsStreamAsync(ct);
+                    if (await _jsonSerializer.DeserializeAsync<ModDTO?>(content) is { } tuple)
+                    {
+                        var (id, name) = tuple;
+                        return new NexusModsModViewModel(id, name);
+                    }
+                }
+                return null;
+            }
+            finally
+            {
+                response.Dispose();
+            }
         }
 
         private sealed record ModDTO(uint Id, string Name);

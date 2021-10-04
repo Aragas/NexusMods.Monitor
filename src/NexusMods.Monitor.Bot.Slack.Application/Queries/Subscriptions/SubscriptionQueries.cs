@@ -1,5 +1,4 @@
-﻿using NexusMods.Monitor.Shared.Application;
-using NexusMods.Monitor.Shared.Common;
+﻿using NexusMods.Monitor.Shared.Common;
 
 using System;
 using System.Collections.Generic;
@@ -23,7 +22,11 @@ namespace NexusMods.Monitor.Bot.Slack.Application.Queries.Subscriptions
 
         public async IAsyncEnumerable<SubscriptionViewModel> GetAllAsync([EnumeratorCancellation] CancellationToken ct = default)
         {
-            using var response = await _httpClientFactory.CreateClient("Subscriptions.API").GetAsync("all", ct);
+            using var response = await _httpClientFactory.CreateClient("Subscriptions.API").GetAsync(
+                "all",
+                HttpCompletionOption.ResponseHeadersRead,
+                ct);
+
             if (response.IsSuccessStatusCode && response.StatusCode != HttpStatusCode.NoContent)
             {
                 var contentStream = await response.Content.ReadAsStreamAsync(ct);

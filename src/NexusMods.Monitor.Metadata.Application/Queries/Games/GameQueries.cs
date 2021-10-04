@@ -41,11 +41,15 @@ namespace NexusMods.Monitor.Metadata.Application.Queries.Games
         {
             if (!_cache.TryGetValue("games", _jsonSerializer, out GameViewModel[]? cacheEntry))
             {
-                var response = await _httpClientFactory.CreateClient("NexusMods.API").GetAsync("v1/games.json?include_unapproved=false", ct);
+                var response = await _httpClientFactory.CreateClient("NexusMods.API").GetAsync(
+                    "v1/games.json?include_unapproved=false",
+                    HttpCompletionOption.ResponseHeadersRead,
+                    ct);
+
                 if (response.IsSuccessStatusCode && response.StatusCode != HttpStatusCode.NoContent)
                 {
-                    var content = await response.Content.ReadAsStringAsync(ct);
-                    var games = _jsonSerializer.Deserialize<GameDTO[]?>(content) ?? Array.Empty<GameDTO>();
+                    var content = await response.Content.ReadAsStreamAsync(ct);
+                    var games = await _jsonSerializer.DeserializeAsync<GameDTO[]?>(content) ?? Array.Empty<GameDTO>();
 
                     cacheEntry = games.Select(g => new GameViewModel(g.Id, g.Name, g.ForumUrl.ToString(), g.Url.ToString(), g.DomainName)).ToArray();
                     var cacheEntryOptions = new DistributedCacheEntryOptions().SetSize(1).SetAbsoluteExpiration(TimeSpan.FromHours(8));

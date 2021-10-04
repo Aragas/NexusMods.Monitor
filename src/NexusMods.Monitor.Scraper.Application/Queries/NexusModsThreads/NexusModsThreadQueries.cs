@@ -25,7 +25,10 @@ namespace NexusMods.Monitor.Scraper.Application.Queries.NexusModsThreads
 
             try
             {
-                response = await _httpClientFactory.CreateClient("Metadata.API").GetAsync($"thread/id?gameId={gameIdRequest}&modId={modIdRequest}", ct);
+                response = await _httpClientFactory.CreateClient("Metadata.API").GetAsync(
+                    $"thread/id?gameId={gameIdRequest}&modId={modIdRequest}",
+                    HttpCompletionOption.ResponseHeadersRead,
+                    ct);
             }
             catch (Exception e) when (e is TaskCanceledException)
             {
@@ -36,8 +39,8 @@ namespace NexusMods.Monitor.Scraper.Application.Queries.NexusModsThreads
             {
                 if (response.IsSuccessStatusCode && response.StatusCode != HttpStatusCode.NoContent)
                 {
-                    var content = await response.Content.ReadAsStringAsync(ct);
-                    if (_jsonSerializer.Deserialize<ThreadDTO?>(content) is { } tuple)
+                    var content = await response.Content.ReadAsStreamAsync(ct);
+                    if (await _jsonSerializer.DeserializeAsync<ThreadDTO?>(content) is { } tuple)
                     {
                         var (gameId, modId, threadId) = tuple;
                         return new NexusModsThreadViewModel(gameId, modId, threadId);
