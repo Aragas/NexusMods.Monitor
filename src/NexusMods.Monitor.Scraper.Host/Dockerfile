@@ -23,6 +23,7 @@ RUN dotnet build "src/NexusMods.Monitor.Shared.Common/NexusMods.Monitor.Shared.C
   dotnet build "src/NexusMods.Monitor.Shared.Host/NexusMods.Monitor.Shared.Host.csproj"
 # Shared Layer End
 
+COPY ["src/NexusMods.Monitor.Shared.Infrastructure.Npgsql/NexusMods.Monitor.Shared.Infrastructure.Npgsql.csproj", "src/NexusMods.Monitor.Shared.Infrastructure.Npgsql/"]
 COPY ["src/NexusMods.Monitor.Scraper.Host/NexusMods.Monitor.Scraper.Host.csproj", "src/NexusMods.Monitor.Scraper.Host/"]
 COPY ["src/NexusMods.Monitor.Scraper.Application/NexusMods.Monitor.Scraper.Application.csproj", "src/NexusMods.Monitor.Scraper.Application/"]
 COPY ["src/NexusMods.Monitor.Scraper.Infrastructure/NexusMods.Monitor.Scraper.Infrastructure.csproj", "src/NexusMods.Monitor.Scraper.Infrastructure/"]
@@ -30,6 +31,7 @@ COPY ["src/NexusMods.Monitor.Scraper.Domain/NexusMods.Monitor.Scraper.Domain.csp
 
 RUN dotnet restore "src/NexusMods.Monitor.Scraper.Host/NexusMods.Monitor.Scraper.Host.csproj"
 
+COPY ["src/NexusMods.Monitor.Shared.Infrastructure.Npgsql/", "src/NexusMods.Monitor.Shared.Infrastructure.Npgsql/"]
 COPY ["src/NexusMods.Monitor.Scraper.Host/", "src/NexusMods.Monitor.Scraper.Host/"]
 COPY ["src/NexusMods.Monitor.Scraper.Application/", "src/NexusMods.Monitor.Scraper.Application/"]
 COPY ["src/NexusMods.Monitor.Scraper.Infrastructure/", "src/NexusMods.Monitor.Scraper.Infrastructure/"]

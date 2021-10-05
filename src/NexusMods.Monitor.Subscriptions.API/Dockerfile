@@ -23,7 +23,8 @@ RUN dotnet build "src/NexusMods.Monitor.Shared.Common/NexusMods.Monitor.Shared.C
   dotnet build "src/NexusMods.Monitor.Shared.Host/NexusMods.Monitor.Shared.Host.csproj"
 # Shared Layer End
 
-COPY ["src/NexusMods.Monitor.Shared.API/", "src/NexusMods.Monitor.Shared.API/"]
+COPY ["src/NexusMods.Monitor.Shared.Infrastructure.Npgsql/NexusMods.Monitor.Shared.Infrastructure.Npgsql.csproj", "src/NexusMods.Monitor.Shared.Infrastructure.Npgsql/"]
+COPY ["src/NexusMods.Monitor.Shared.API/NexusMods.Monitor.Shared.API.csproj", "src/NexusMods.Monitor.Shared.API/"]
 COPY ["src/NexusMods.Monitor.Subscriptions.API/NexusMods.Monitor.Subscriptions.API.csproj", "src/NexusMods.Monitor.Subscriptions.API/"]
 COPY ["src/NexusMods.Monitor.Subscriptions.Application/NexusMods.Monitor.Subscriptions.Application.csproj", "src/NexusMods.Monitor.Subscriptions.Application/"]
 COPY ["src/NexusMods.Monitor.Subscriptions.Infrastructure/NexusMods.Monitor.Subscriptions.Infrastructure.csproj", "src/NexusMods.Monitor.Subscriptions.Infrastructure/"]
@@ -31,6 +32,8 @@ COPY ["src/NexusMods.Monitor.Subscriptions.Domain/NexusMods.Monitor.Subscription
 
 RUN dotnet restore "src/NexusMods.Monitor.Subscriptions.API/NexusMods.Monitor.Subscriptions.API.csproj"
 
+COPY ["src/NexusMods.Monitor.Shared.Infrastructure.Npgsql/", "src/NexusMods.Monitor.Shared.Infrastructure.Npgsql/"]
+COPY ["src/NexusMods.Monitor.Shared.API/", "src/NexusMods.Monitor.Shared.API/"]
 COPY ["src/NexusMods.Monitor.Subscriptions.API/", "src/NexusMods.Monitor.Subscriptions.API/"]
 COPY ["src/NexusMods.Monitor.Subscriptions.Application/", "src/NexusMods.Monitor.Subscriptions.Application/"]
 COPY ["src/NexusMods.Monitor.Subscriptions.Infrastructure/", "src/NexusMods.Monitor.Subscriptions.Infrastructure/"]

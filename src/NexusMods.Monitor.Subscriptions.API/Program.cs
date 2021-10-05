@@ -5,7 +5,7 @@ using Microsoft.Extensions.Logging;
 
 using NexusMods.Monitor.Shared.Host;
 using NexusMods.Monitor.Shared.Host.Extensions;
-using NexusMods.Monitor.Shared.Infrastructure.Extensions;
+using NexusMods.Monitor.Shared.Infrastructure.Npgsql.Extensions;
 using NexusMods.Monitor.Subscriptions.Infrastructure.Contexts;
 
 using Polly;
@@ -40,7 +40,9 @@ namespace NexusMods.Monitor.Subscriptions.API
             {
                 using var scope = host.Services.CreateScope();
                 await using var subscriptionDb = scope.ServiceProvider.GetRequiredService<SubscriptionDb>();
-                await subscriptionDb.EnsureTablesCreatedAsync(token);
+                var logger = scope.ServiceProvider.GetRequiredService<ILogger<Program>>();
+                if (!await subscriptionDb.EnsureTablesCreatedAsync(token))
+                    logger.LogCritical("Failed 'EnsureTablesCreatedAsync'!");
             }, CancellationToken.None);
         }
 

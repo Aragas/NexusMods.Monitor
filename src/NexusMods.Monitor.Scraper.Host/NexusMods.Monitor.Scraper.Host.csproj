@@ -4,13 +4,14 @@
     <OutputType>Exe</OutputType>
     <InvariantGlobalization>true</InvariantGlobalization>
     <DockerDefaultTargetOS>Linux</DockerDefaultTargetOS>
+    <EnableUnsafeBinaryFormatterSerialization>true</EnableUnsafeBinaryFormatterSerialization>
   </PropertyGroup>
 
-    <ItemGroup>
-        <None Include="..\.dockerignore" Link=".dockerignore">
-            <DependentUpon>$(DockerDefaultDockerfile)</DependentUpon>
-        </None>
-    </ItemGroup>
+  <ItemGroup>
+    <None Include="..\.dockerignore" Link=".dockerignore">
+      <DependentUpon>$(DockerDefaultDockerfile)</DependentUpon>
+    </None>
+  </ItemGroup>
 
   <ItemGroup>
     <Content Include="appsettings.json">
@@ -27,19 +28,10 @@
     <PackageReference Include="RateLimiter" Version="2.2.0" />
   </ItemGroup>
 
-  <ItemGroup Condition="$(TargetFramework) == 'net5.0'">
-    <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="5.0.10" />
-    <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL.NodaTime" Version="5.0.10" />
-  </ItemGroup>
-
-  <ItemGroup Condition="$(TargetFramework) == 'net6.0'">
-    <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="6.0.0-preview7" />
-    <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL.NodaTime" Version="6.0.0-preview7" />
-  </ItemGroup>
-
   <ItemGroup>
     <ProjectReference Include="..\NexusMods.Monitor.Scraper.Application\NexusMods.Monitor.Scraper.Application.csproj" />
     <ProjectReference Include="..\NexusMods.Monitor.Shared.Host\NexusMods.Monitor.Shared.Host.csproj" />
+    <ProjectReference Include="..\NexusMods.Monitor.Shared.Infrastructure.Npgsql\NexusMods.Monitor.Shared.Infrastructure.Npgsql.csproj" />
   </ItemGroup>
 
 </Project>

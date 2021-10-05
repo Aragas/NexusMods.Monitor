@@ -23,12 +23,13 @@ RUN dotnet build "src/NexusMods.Monitor.Shared.Common/NexusMods.Monitor.Shared.C
   dotnet build "src/NexusMods.Monitor.Shared.Host/NexusMods.Monitor.Shared.Host.csproj"
 # Shared Layer End
 
-COPY ["src/NexusMods.Monitor.Shared.API/", "src/NexusMods.Monitor.Shared.API/"]
+COPY ["src/NexusMods.Monitor.Shared.API/NexusMods.Monitor.Shared.API.csproj", "src/NexusMods.Monitor.Shared.API/"]
 COPY ["src/NexusMods.Monitor.Metadata.API/NexusMods.Monitor.Metadata.API.csproj", "src/NexusMods.Monitor.Metadata.API/"]
 COPY ["src/NexusMods.Monitor.Metadata.Application/NexusMods.Monitor.Metadata.Application.csproj", "src/NexusMods.Monitor.Metadata.Application/"]
 
 RUN dotnet restore "src/NexusMods.Monitor.Metadata.API/NexusMods.Monitor.Metadata.API.csproj"
 
+COPY ["src/NexusMods.Monitor.Shared.API/", "src/NexusMods.Monitor.Shared.API/"]
 COPY ["src/NexusMods.Monitor.Metadata.API/", "src/NexusMods.Monitor.Metadata.API/"]
 COPY ["src/NexusMods.Monitor.Metadata.Application/", "src/NexusMods.Monitor.Metadata.Application/"]
 

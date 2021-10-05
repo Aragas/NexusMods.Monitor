@@ -25,6 +25,7 @@ using NexusMods.Monitor.Shared.Application.Extensions;
 using NexusMods.Monitor.Shared.Host;
 using NexusMods.Monitor.Shared.Host.Extensions;
 using NexusMods.Monitor.Shared.Infrastructure.Extensions;
+using NexusMods.Monitor.Shared.Infrastructure.Npgsql.Extensions;
 
 using NodaTime;
 
@@ -59,8 +60,10 @@ namespace NexusMods.Monitor.Scraper.Host
             await retryPolicy.ExecuteAsync(async token =>
             {
                 using var scope = host.Services.CreateScope();
-                using var nexusModsDb = scope.ServiceProvider.GetRequiredService<NexusModsDb>();
-                await nexusModsDb.EnsureTablesCreatedAsync(token);
+                await using var nexusModsDb = scope.ServiceProvider.GetRequiredService<NexusModsDb>();
+                var logger = scope.ServiceProvider.GetRequiredService<ILogger<Program>>();
+                if (!await nexusModsDb.EnsureTablesCreatedAsync(token))
+                    logger.LogCritical("Failed 'EnsureTablesCreatedAsync'!");
             }, CancellationToken.None);
         }
 
@@ -76,7 +79,7 @@ namespace NexusMods.Monitor.Scraper.Host
 
                 services.AddBetterHostedServices();
 
-                services.AddDbContext<NexusModsDb>(opt => opt.UseNpgsql(context.Configuration.GetConnectionString("NexusMods"), o => o.UseNodaTime()));
+                services.AddDbContext<NexusModsDb>(opt => opt.UseNpgsql2(context.Configuration.GetConnectionString("NexusMods")));
 
                 services.AddHostedServiceAsSingleton<NexusModsIssueMonitor>();
                 services.AddHostedServiceAsSingleton<NexusModsCommentsMonitor>();

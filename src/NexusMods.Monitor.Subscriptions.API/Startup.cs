@@ -9,6 +9,7 @@ using Microsoft.Extensions.Hosting;
 
 using NexusMods.Monitor.Shared.API.Extensions;
 using NexusMods.Monitor.Shared.Application.Extensions;
+using NexusMods.Monitor.Shared.Infrastructure.Npgsql.Extensions;
 using NexusMods.Monitor.Subscriptions.Application.Commands;
 using NexusMods.Monitor.Subscriptions.Application.Queries.NexusModsGames;
 using NexusMods.Monitor.Subscriptions.Application.Queries.NexusModsMods;
@@ -35,7 +36,7 @@ namespace NexusMods.Monitor.Subscriptions.API
 
             services.AddMediatR(typeof(SubscriptionAddCommand).Assembly);
 
-            services.AddDbContext<SubscriptionDb>(opt => opt.UseNpgsql(Configuration.GetConnectionString("Subscriptions"), o => o.UseNodaTime()));
+            services.AddDbContext<SubscriptionDb>(opt => opt.UseNpgsql2(Configuration.GetConnectionString("Subscriptions")));
 
             services.AddTransient<ISubscriptionRepository, SubscriptionRepository>();
 

@@ -5,6 +5,7 @@
     <UserSecretsId>03381fc8-8fdd-4db1-82ca-950685502e8d</UserSecretsId>
     <DockerDefaultTargetOS>Linux</DockerDefaultTargetOS>
     <GenerateDocumentationFile>true</GenerateDocumentationFile>
+    <EnableUnsafeBinaryFormatterSerialization>true</EnableUnsafeBinaryFormatterSerialization>
   </PropertyGroup>
 
   <ItemGroup>
@@ -13,18 +14,9 @@
     </None>
   </ItemGroup>
 
-  <ItemGroup Condition="$(TargetFramework) == 'net5.0'">
-    <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="5.0.10" />
-    <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL.NodaTime" Version="5.0.10" />
-  </ItemGroup>
-
-  <ItemGroup Condition="$(TargetFramework) == 'net6.0'">
-    <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL" Version="6.0.0-preview7" />
-    <PackageReference Include="Npgsql.EntityFrameworkCore.PostgreSQL.NodaTime" Version="6.0.0-preview7" />
-  </ItemGroup>
-
   <ItemGroup>
     <ProjectReference Include="..\NexusMods.Monitor.Shared.API\NexusMods.Monitor.Shared.API.csproj" />
+    <ProjectReference Include="..\NexusMods.Monitor.Shared.Infrastructure.Npgsql\NexusMods.Monitor.Shared.Infrastructure.Npgsql.csproj" />
     <ProjectReference Include="..\NexusMods.Monitor.Subscriptions.Application\NexusMods.Monitor.Subscriptions.Application.csproj" />
   </ItemGroup>
 
