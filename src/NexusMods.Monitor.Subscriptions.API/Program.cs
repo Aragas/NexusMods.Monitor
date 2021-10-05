@@ -41,8 +41,8 @@ namespace NexusMods.Monitor.Subscriptions.API
                 using var scope = host.Services.CreateScope();
                 await using var subscriptionDb = scope.ServiceProvider.GetRequiredService<SubscriptionDb>();
                 var logger = scope.ServiceProvider.GetRequiredService<ILogger<Program>>();
-                if (!await subscriptionDb.EnsureTablesCreatedAsync(token))
-                    logger.LogCritical("Failed 'EnsureTablesCreatedAsync'!");
+                if (!await subscriptionDb.UpsertDatabaseSchemaAsync(token))
+                    logger.LogCritical("Failed 'UpsertDatabaseSchemaAsync'!");
             }, CancellationToken.None);
         }
 

@@ -1,8 +1,10 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage;
 
-using System.Linq;
+using System.Collections.Immutable;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -13,18 +15,25 @@ namespace NexusMods.Monitor.Shared.Infrastructure.Npgsql.Extensions
         /// <summary>
         /// We assume that some tables or data seeds might or might not exist. We assume that the the table schemas didn't change or are changed manually.
         /// </summary>
-        public static async Task<bool> EnsureTablesCreatedAsync(this DbContext context, CancellationToken cancellationToken = default)
+        public static async Task<bool> UpsertDatabaseSchemaAsync(this DbContext context, CancellationToken cancellationToken = default)
         {
             var ensureCreated = await context.Database.EnsureCreatedAsync(cancellationToken);
 
             if (!ensureCreated)
             {
-                var dependencies = context.Database.GetService<RelationalDatabaseCreatorDependencies>();
+                var staticModel = context.GetService<IModel>();
+                var staticModelRelationalModel = staticModel.GetRelationalModel();
 
-                var commands = dependencies.MigrationsSqlGenerator.Generate(dependencies.ModelDiffer.GetDifferences(null, dependencies.Model.GetRelationalModel()), dependencies.Model).ToArray();
-                if (commands.Length > 0)
+                var modelDiffer = context.GetService<IMigrationsModelDiffer>();
+                var migrationsSqlGenerator = context.GetService<IMigrationsSqlGenerator>();
+                var migrationCommandExecutor = context.GetService<IMigrationCommandExecutor>();
+                var connection = context.GetService<IRelationalConnection>();
+
+                var migrationOperations = modelDiffer.GetDifferences(null, staticModelRelationalModel);
+                var migrationSqlCommands = migrationsSqlGenerator.Generate(migrationOperations, staticModel).ToImmutableArray();
+                if (migrationSqlCommands.Length > 0)
                 {
-                    await dependencies.MigrationCommandExecutor.ExecuteNonQueryAsync(commands, dependencies.Connection, cancellationToken);
+                    await migrationCommandExecutor.ExecuteNonQueryAsync(migrationSqlCommands, connection, cancellationToken);
                     return true;
                 }
             }

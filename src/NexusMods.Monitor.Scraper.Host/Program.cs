@@ -62,8 +62,8 @@ namespace NexusMods.Monitor.Scraper.Host
                 using var scope = host.Services.CreateScope();
                 await using var nexusModsDb = scope.ServiceProvider.GetRequiredService<NexusModsDb>();
                 var logger = scope.ServiceProvider.GetRequiredService<ILogger<Program>>();
-                if (!await nexusModsDb.EnsureTablesCreatedAsync(token))
-                    logger.LogCritical("Failed 'EnsureTablesCreatedAsync'!");
+                if (!await nexusModsDb.UpsertDatabaseSchemaAsync(token))
+                    logger.LogCritical("Failed 'UpsertDatabaseSchemaAsync'!");
             }, CancellationToken.None);
         }
 
