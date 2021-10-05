@@ -2,5 +2,5 @@
 
 namespace NexusMods.Monitor.Shared.Application.IntegrationEvents.Comments
 {
-    public sealed record CommentRemovedIntegrationEvent(CommentDTO Comment) : EventRecord;
+    public sealed record CommentRemovedIntegrationEvent(CommentDTO Comment) : CommentIntegrationEvent;
 }

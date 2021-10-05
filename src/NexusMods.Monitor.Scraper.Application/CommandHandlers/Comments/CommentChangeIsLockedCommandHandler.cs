@@ -18,9 +18,9 @@ namespace NexusMods.Monitor.Scraper.Application.CommandHandlers.Comments
     {
         private readonly ILogger _logger;
         private readonly ICommentRepository _commentRepository;
-        private readonly IEventPublisher _eventPublisher;
+        private readonly ICommentIntegrationEventPublisher _eventPublisher;
 
-        public CommentChangeIsLockedCommandHandler(ILogger<CommentChangeIsLockedCommandHandler> logger, ICommentRepository commentRepository, IEventPublisher eventPublisher)
+        public CommentChangeIsLockedCommandHandler(ILogger<CommentChangeIsLockedCommandHandler> logger, ICommentRepository commentRepository, ICommentIntegrationEventPublisher eventPublisher)
         {
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
             _commentRepository = commentRepository ?? throw new ArgumentNullException(nameof(commentRepository));
@@ -46,11 +46,10 @@ namespace NexusMods.Monitor.Scraper.Application.CommandHandlers.Comments
             commentEntity.SetIsLocked(message.IsLocked);
             _commentRepository.Update(commentEntity);
 
-            var commentDTO = Mapper.Map(commentEntity);
-
             if (await _commentRepository.UnitOfWork.SaveEntitiesAsync(ct))
             {
-                await _eventPublisher.Publish(new CommentChangedIsLockedIntegrationEvent(commentDTO, oldIsLocked), "comment_events", ct);
+                var commentDTO = Mapper.Map(commentEntity);
+                await _eventPublisher.Publish(new CommentChangedIsLockedIntegrationEvent(commentDTO, oldIsLocked), ct);
                 return true;
             }
             else

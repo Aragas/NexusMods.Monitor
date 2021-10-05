@@ -4,10 +4,8 @@ using Microsoft.Extensions.Logging;
 
 using NexusMods.Monitor.Scraper.Application.Commands.Comments;
 using NexusMods.Monitor.Scraper.Domain.AggregatesModel.CommentAggregate;
-using NexusMods.Monitor.Scraper.Domain.Events.Comments;
 
 using System;
-using System.Collections.Immutable;
 using System.Linq;
 using System.Threading;
 using System.Threading.Tasks;
@@ -34,17 +32,13 @@ namespace NexusMods.Monitor.Scraper.Application.CommandHandlers.Comments
                 return false;
             }
 
-            if (commentEntity.Replies.Any(r => r.Id == message.ReplyId))
+            if (commentEntity.Replies.FirstOrDefault(r => r.Id == message.ReplyId) is { } existingReplyEntity)
             {
-                _logger.LogError("Comment with Id {Id} has already the reply! CommentReply Id {ReplyId}", message.Id, message.ReplyId);
+                _logger.LogError("Comment with Id {Id} has already the reply! Existing: {@ExistingReply}, new: {@Message}", message.Id, existingReplyEntity, message);
                 return false;
             }
 
             commentEntity.AddReplyEntity(message.ReplyId, message.Url, message.Author, message.AuthorUrl, message.AvatarUrl, message.Content, false, message.TimeOfPost);
-
-            foreach (var @event in commentEntity.DomainEvents.OfType<CommentAddedReplyEvent>().ToImmutableArray())
-                commentEntity.RemoveDomainEvent(@event);
-
             _commentRepository.Update(commentEntity);
 
             return await _commentRepository.UnitOfWork.SaveEntitiesAsync(ct);

@@ -21,15 +21,11 @@ namespace NexusMods.Monitor.Scraper.Infrastructure.Repositories
             _context = context ?? throw new ArgumentNullException(nameof(context));
         }
 
-        public IssueEntity Add(IssueEntity issueEntity)
-        {
-            return _context.Add(issueEntity).Entity;
-        }
+        public IssueEntity Add(IssueEntity issueEntity) => _context.Add(issueEntity).Entity;
 
         public async Task<IssueEntity?> GetAsync(uint issueEntityId)
         {
-            var issueEntity = await _context
-                .IssueEntities
+            var issueEntity = await _context.IssueEntities
                 .Include(x => x.Replies)
                 .Include(x => x.Content)
                 .Include(x => x.Priority)
@@ -39,8 +35,7 @@ namespace NexusMods.Monitor.Scraper.Infrastructure.Repositories
 
             if (issueEntity is null)
             {
-                issueEntity = _context
-                    .IssueEntities
+                issueEntity = _context.IssueEntities
                     .Local
                     .FirstOrDefault(o => o.Id == issueEntityId);
             }

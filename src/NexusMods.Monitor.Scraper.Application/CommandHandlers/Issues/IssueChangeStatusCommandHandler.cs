@@ -1,6 +1,4 @@
-﻿using Enbiso.NLib.EventBus;
-
-using MediatR;
+﻿using MediatR;
 
 using Microsoft.Extensions.Logging;
 
@@ -18,9 +16,9 @@ namespace NexusMods.Monitor.Scraper.Application.CommandHandlers.Issues
     {
         private readonly ILogger _logger;
         private readonly IIssueRepository _issueRepository;
-        private readonly IEventPublisher _eventPublisher;
+        private readonly IIssueIntegrationEventPublisher _eventPublisher;
 
-        public IssueChangeStatusCommandHandler(ILogger<IssueChangeStatusCommandHandler> logger, IIssueRepository issueRepository, IEventPublisher eventPublisher)
+        public IssueChangeStatusCommandHandler(ILogger<IssueChangeStatusCommandHandler> logger, IIssueRepository issueRepository, IIssueIntegrationEventPublisher eventPublisher)
         {
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
             _issueRepository = issueRepository ?? throw new ArgumentNullException(nameof(issueRepository));
@@ -44,14 +42,12 @@ namespace NexusMods.Monitor.Scraper.Application.CommandHandlers.Issues
 
             var oldStatus = Mapper.Map(issueEntity.Status);
             issueEntity.SetStatus(await _issueRepository.GetStatusAsync(message.StatusId));
-
             _issueRepository.Update(issueEntity);
-
-            var issueDTO = Mapper.Map(issueEntity);
 
             if (await _issueRepository.UnitOfWork.SaveEntitiesAsync(ct))
             {
-                await _eventPublisher.Publish(new IssueChangedStatusIntegrationEvent(issueDTO, oldStatus), "issue_events", ct);
+                var issueDTO = Mapper.Map(issueEntity);
+                await _eventPublisher.Publish(new IssueChangedStatusIntegrationEvent(issueDTO, oldStatus), ct);
                 return true;
             }
             else

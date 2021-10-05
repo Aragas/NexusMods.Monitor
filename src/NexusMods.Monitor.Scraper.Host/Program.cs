@@ -1,5 +1,7 @@
 ﻿using BetterHostedServices;
 
+using Enbiso.NLib.EventBus.Nats;
+
 using MediatR;
 
 using Microsoft.EntityFrameworkCore;
@@ -19,12 +21,14 @@ using NexusMods.Monitor.Scraper.Application.Queries.Subscriptions;
 using NexusMods.Monitor.Scraper.Domain.AggregatesModel.CommentAggregate;
 using NexusMods.Monitor.Scraper.Domain.AggregatesModel.IssueAggregate;
 using NexusMods.Monitor.Scraper.Host.BackgroundServices;
+using NexusMods.Monitor.Scraper.Host.Services;
 using NexusMods.Monitor.Scraper.Infrastructure.Contexts;
 using NexusMods.Monitor.Scraper.Infrastructure.Repositories;
 using NexusMods.Monitor.Shared.Application.Extensions;
+using NexusMods.Monitor.Shared.Application.IntegrationEvents.Comments;
+using NexusMods.Monitor.Shared.Application.IntegrationEvents.Issues;
 using NexusMods.Monitor.Shared.Host;
 using NexusMods.Monitor.Shared.Host.Extensions;
-using NexusMods.Monitor.Shared.Infrastructure.Extensions;
 using NexusMods.Monitor.Shared.Infrastructure.Npgsql.Extensions;
 
 using NodaTime;
@@ -83,6 +87,10 @@ namespace NexusMods.Monitor.Scraper.Host
 
                 services.AddHostedServiceAsSingleton<NexusModsIssueMonitor>();
                 services.AddHostedServiceAsSingleton<NexusModsCommentsMonitor>();
+
+                services.AddTransient<ICommentIntegrationEventPublisher, CommentIntegrationEventPublisher>();
+                services.AddTransient<IIssueIntegrationEventPublisher, IssueIntegrationEventPublisher>();
+                services.PostConfigure<NatsOptions>(o => o.Exchanges = new[] { "comment_events", "issue_events" });
 
                 services.AddTransient<ICommentRepository, CommentRepository>();
                 services.AddTransient<IIssueRepository, IssueRepository>();

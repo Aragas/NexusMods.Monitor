@@ -24,8 +24,7 @@ namespace NexusMods.Monitor.Scraper.Application.CommandHandlers.Issues
 
         public async Task<bool> Handle(IssueAddCommand message, CancellationToken ct)
         {
-            var existingIssueEntity = await _issueRepository.GetAsync(message.Id);
-            if (existingIssueEntity is { })
+            if (await _issueRepository.GetAsync(message.Id) is { } existingIssueEntity)
             {
                 if (existingIssueEntity.IsDeleted)
                 {
@@ -33,12 +32,11 @@ namespace NexusMods.Monitor.Scraper.Application.CommandHandlers.Issues
                     return await _issueRepository.UnitOfWork.SaveEntitiesAsync(ct);
                 }
 
-                _logger.LogError("Issue with Id {Id} already exist, is not deleted.", message.Id);
+                _logger.LogError("Issue with Id {Id} already exist, is not deleted. Existing: {@ExistingIssue}, new: {Message}", message.Id, existingIssueEntity, message);
                 return false;
             }
 
             var issueEntity = Mapper.Map(message, await _issueRepository.GetStatusAsync(message.StatusId), await _issueRepository.GetPriorityAsync(message.PriorityId));
-
             _issueRepository.Add(issueEntity);
 
             return await _issueRepository.UnitOfWork.SaveEntitiesAsync(ct);

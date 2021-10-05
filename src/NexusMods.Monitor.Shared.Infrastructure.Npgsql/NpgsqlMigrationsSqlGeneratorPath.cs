@@ -42,7 +42,7 @@ public static class NpgsqlMigrationsSqlGeneratorPath
     {
         foreach (var codeInstruction in instructions)
         {
-            if (codeInstruction.opcode == OpCodes.Ldstr && codeInstruction.operand is string str && str.Trim().Equals("table", StringComparison.InvariantCultureIgnoreCase))
+            if (codeInstruction.opcode == OpCodes.Ldstr && codeInstruction.operand is string str && str.Trim().Equals("table", StringComparison.OrdinalIgnoreCase))
                 codeInstruction.operand = "TABLE IF NOT EXISTS ";
 
             yield return codeInstruction;
@@ -53,7 +53,7 @@ public static class NpgsqlMigrationsSqlGeneratorPath
     {
         foreach (var codeInstruction in instructions)
         {
-            if (codeInstruction.opcode == OpCodes.Ldstr && codeInstruction.operand is string str && str.Trim().Equals("index", StringComparison.InvariantCultureIgnoreCase))
+            if (codeInstruction.opcode == OpCodes.Ldstr && codeInstruction.operand is string str && str.Trim().Equals("index", StringComparison.OrdinalIgnoreCase))
                 codeInstruction.operand = "INDEX IF NOT EXISTS ";
 
             yield return codeInstruction;

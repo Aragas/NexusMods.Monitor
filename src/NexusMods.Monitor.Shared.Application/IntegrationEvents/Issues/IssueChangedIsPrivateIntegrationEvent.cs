@@ -2,5 +2,5 @@
 
 namespace NexusMods.Monitor.Shared.Application.IntegrationEvents.Issues
 {
-    public sealed record IssueChangedIsPrivateIntegrationEvent(IssueDTO Issue, bool PreviousIsPrivate) : EventRecord;
+    public sealed record IssueChangedIsPrivateIntegrationEvent(IssueDTO Issue, bool PreviousIsPrivate) : IssueIntegrationEvent;
 }

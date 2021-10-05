@@ -1,6 +1,4 @@
-﻿using Enbiso.NLib.EventBus;
-
-using MediatR;
+﻿using MediatR;
 
 using Microsoft.Extensions.Logging;
 
@@ -19,9 +17,9 @@ namespace NexusMods.Monitor.Scraper.Application.CommandHandlers.Comments
     {
         private readonly ILogger _logger;
         private readonly ICommentRepository _commentRepository;
-        private readonly IEventPublisher _eventPublisher;
+        private readonly ICommentIntegrationEventPublisher _eventPublisher;
 
-        public CommentAddNewReplyCommandHandler(ILogger<CommentAddNewReplyCommandHandler> logger, ICommentRepository commentRepository, IEventPublisher eventPublisher)
+        public CommentAddNewReplyCommandHandler(ILogger<CommentAddNewReplyCommandHandler> logger, ICommentRepository commentRepository, ICommentIntegrationEventPublisher eventPublisher)
         {
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
             _commentRepository = commentRepository ?? throw new ArgumentNullException(nameof(commentRepository));
@@ -37,22 +35,20 @@ namespace NexusMods.Monitor.Scraper.Application.CommandHandlers.Comments
                 return false;
             }
 
-            if (commentEntity.Replies.Any(r => r.Id == message.ReplyId))
+            if (commentEntity.Replies.FirstOrDefault(r => r.Id == message.ReplyId) is { } existingReplyEntity)
             {
-                _logger.LogError("Comment with Id {Id} has already the reply! CommentReply Id {ReplyId}", message.Id, message.ReplyId);
+                _logger.LogError("Comment with Id {Id} has already the reply! Existing: {@ExistingReply}, new: {@Message}", message.Id, existingReplyEntity, message);
                 return false;
             }
 
             var commentReplyEntity = commentEntity.AddReplyEntity(message.ReplyId, message.Url, message.Author, message.AuthorUrl, message.AvatarUrl, message.Content, false, message.TimeOfPost);
-
             _commentRepository.Update(commentEntity);
-
-            var commentDTO = Mapper.Map(commentEntity);
-            var commentReplyDTO = Mapper.Map(commentReplyEntity);
 
             if (await _commentRepository.UnitOfWork.SaveEntitiesAsync(ct))
             {
-                await _eventPublisher.Publish(new CommentAddedReplyIntegrationEvent(commentDTO, commentReplyDTO), "comment_events", ct);
+                var commentDTO = Mapper.Map(commentEntity);
+                var commentReplyDTO = Mapper.Map(commentReplyEntity);
+                await _eventPublisher.Publish(new CommentAddedReplyIntegrationEvent(commentDTO, commentReplyDTO), ct);
                 return true;
             }
             else

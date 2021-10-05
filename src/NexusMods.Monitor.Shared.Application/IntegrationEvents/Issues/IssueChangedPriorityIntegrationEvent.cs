@@ -2,5 +2,5 @@
 
 namespace NexusMods.Monitor.Shared.Application.IntegrationEvents.Issues
 {
-    public sealed record IssueChangedPriorityIntegrationEvent(IssueDTO Issue, IssuePriorityDTO PreviousPriority) : EventRecord;
+    public sealed record IssueChangedPriorityIntegrationEvent(IssueDTO Issue, IssuePriorityDTO PreviousPriority) : IssueIntegrationEvent;
 }

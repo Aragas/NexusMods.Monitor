@@ -1,6 +1,4 @@
-﻿using Enbiso.NLib.EventBus;
-
-using MediatR;
+﻿using MediatR;
 
 using Microsoft.Extensions.Logging;
 
@@ -18,9 +16,9 @@ namespace NexusMods.Monitor.Scraper.Application.CommandHandlers.Issues
     {
         private readonly ILogger _logger;
         private readonly IIssueRepository _issueRepository;
-        private readonly IEventPublisher _eventPublisher;
+        private readonly IIssueIntegrationEventPublisher _eventPublisher;
 
-        public IssueAddNewCommandHandler(ILogger<IssueAddNewCommandHandler> logger, IIssueRepository issueRepository, IEventPublisher eventPublisher)
+        public IssueAddNewCommandHandler(ILogger<IssueAddNewCommandHandler> logger, IIssueRepository issueRepository, IIssueIntegrationEventPublisher eventPublisher)
         {
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
             _issueRepository = issueRepository ?? throw new ArgumentNullException(nameof(issueRepository));
@@ -29,8 +27,7 @@ namespace NexusMods.Monitor.Scraper.Application.CommandHandlers.Issues
 
         public async Task<bool> Handle(IssueAddNewCommand message, CancellationToken ct)
         {
-            var existingIssueEntity = await _issueRepository.GetAsync(message.Id);
-            if (existingIssueEntity is { })
+            if (await _issueRepository.GetAsync(message.Id) is { } existingIssueEntity)
             {
                 if (existingIssueEntity.IsDeleted)
                 {
@@ -38,19 +35,17 @@ namespace NexusMods.Monitor.Scraper.Application.CommandHandlers.Issues
                     return await _issueRepository.UnitOfWork.SaveEntitiesAsync(ct);
                 }
 
-                _logger.LogError("Issue with Id {Id} already exist, is not deleted.", message.Id);
+                _logger.LogError("Issue with Id {Id} already exist, is not deleted. Existing: {@ExistingIssue}, new: {Message}", message.Id, existingIssueEntity, message);
                 return false;
             }
 
             var issueEntity = Mapper.Map(message, await _issueRepository.GetStatusAsync(message.StatusId), await _issueRepository.GetPriorityAsync(message.PriorityId));
-
             _issueRepository.Add(issueEntity);
-
-            var issueDTO = Mapper.Map(issueEntity);
 
             if (await _issueRepository.UnitOfWork.SaveEntitiesAsync(ct))
             {
-                await _eventPublisher.Publish(new IssueAddedIntegrationEvent(issueDTO), "issue_events", ct);
+                var issueDTO = Mapper.Map(issueEntity);
+                await _eventPublisher.Publish(new IssueAddedIntegrationEvent(issueDTO), ct);
                 return true;
             }
             else

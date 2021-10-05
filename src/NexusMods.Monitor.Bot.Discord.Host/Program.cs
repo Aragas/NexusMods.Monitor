@@ -4,6 +4,8 @@ using Discord;
 using Discord.Commands;
 using Discord.WebSocket;
 
+using Enbiso.NLib.EventBus.Nats;
+
 using MediatR;
 
 using Microsoft.Extensions.DependencyInjection;
@@ -41,6 +43,8 @@ namespace NexusMods.Monitor.Bot.Discord.Host
                 services.AddTransient<IClock, SystemClock>(_ => SystemClock.Instance);
 
                 services.AddBetterHostedServices();
+
+                services.PostConfigure<NatsOptions>(o => o.Exchanges = new[] { "comment_events", "issue_events" });
 
                 services.AddTransient<ISubscriptionQueries, SubscriptionQueries>();
                 services.AddTransient<IRateLimitQueries, RateLimitQueries>();

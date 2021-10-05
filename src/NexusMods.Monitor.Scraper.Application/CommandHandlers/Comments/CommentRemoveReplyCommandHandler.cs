@@ -1,6 +1,4 @@
-﻿using Enbiso.NLib.EventBus;
-
-using MediatR;
+﻿using MediatR;
 
 using Microsoft.Extensions.Logging;
 
@@ -19,9 +17,9 @@ namespace NexusMods.Monitor.Scraper.Application.CommandHandlers.Comments
     {
         private readonly ILogger _logger;
         private readonly ICommentRepository _commentRepository;
-        private readonly IEventPublisher _eventPublisher;
+        private readonly ICommentIntegrationEventPublisher _eventPublisher;
 
-        public CommentRemoveReplyCommandHandler(ILogger<CommentRemoveReplyCommandHandler> logger, ICommentRepository commentRepository, IEventPublisher eventPublisher)
+        public CommentRemoveReplyCommandHandler(ILogger<CommentRemoveReplyCommandHandler> logger, ICommentRepository commentRepository, ICommentIntegrationEventPublisher eventPublisher)
         {
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
             _commentRepository = commentRepository ?? throw new ArgumentNullException(nameof(commentRepository));
@@ -47,12 +45,11 @@ namespace NexusMods.Monitor.Scraper.Application.CommandHandlers.Comments
 
             _commentRepository.Update(commentEntity);
 
-            var commentDTO = Mapper.Map(commentEntity);
-            var commentReplyDTO = Mapper.Map(commentReplyEntity);
-
             if (await _commentRepository.UnitOfWork.SaveEntitiesAsync(ct))
             {
-                await _eventPublisher.Publish(new CommentRemovedReplyIntegrationEvent(commentDTO, commentReplyDTO), "comment_events", ct);
+                var commentDTO = Mapper.Map(commentEntity);
+                var commentReplyDTO = Mapper.Map(commentReplyEntity);
+                await _eventPublisher.Publish(new CommentRemovedReplyIntegrationEvent(commentDTO, commentReplyDTO), ct);
                 return true;
             }
             else

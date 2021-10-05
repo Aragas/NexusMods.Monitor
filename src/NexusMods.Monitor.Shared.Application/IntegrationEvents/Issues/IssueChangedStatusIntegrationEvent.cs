@@ -2,5 +2,5 @@
 
 namespace NexusMods.Monitor.Shared.Application.IntegrationEvents.Issues
 {
-    public sealed record IssueChangedStatusIntegrationEvent(IssueDTO Issue, IssueStatusDTO PreviousStatus) : EventRecord;
+    public sealed record IssueChangedStatusIntegrationEvent(IssueDTO Issue, IssueStatusDTO PreviousStatus) : IssueIntegrationEvent;
 }

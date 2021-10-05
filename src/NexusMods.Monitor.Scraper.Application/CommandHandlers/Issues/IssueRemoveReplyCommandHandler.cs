@@ -1,6 +1,4 @@
-﻿using Enbiso.NLib.EventBus;
-
-using MediatR;
+﻿using MediatR;
 
 using Microsoft.Extensions.Logging;
 
@@ -19,9 +17,9 @@ namespace NexusMods.Monitor.Scraper.Application.CommandHandlers.Issues
     {
         private readonly ILogger _logger;
         private readonly IIssueRepository _issueRepository;
-        private readonly IEventPublisher _eventPublisher;
+        private readonly IIssueIntegrationEventPublisher _eventPublisher;
 
-        public IssueRemoveReplyCommandHandler(ILogger<IssueRemoveReplyCommandHandler> logger, IIssueRepository issueRepository, IEventPublisher eventPublisher)
+        public IssueRemoveReplyCommandHandler(ILogger<IssueRemoveReplyCommandHandler> logger, IIssueRepository issueRepository, IIssueIntegrationEventPublisher eventPublisher)
         {
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
             _issueRepository = issueRepository ?? throw new ArgumentNullException(nameof(issueRepository));
@@ -44,15 +42,13 @@ namespace NexusMods.Monitor.Scraper.Application.CommandHandlers.Issues
             }
 
             var issueReply = issueEntity.RemoveReplyEntity(message.ReplyId)!;
-
             _issueRepository.Update(issueEntity);
-
-            var issueDTO = Mapper.Map(issueEntity);
-            var issueReplyDTO = Mapper.Map(issueReply);
 
             if (await _issueRepository.UnitOfWork.SaveEntitiesAsync(ct))
             {
-                await _eventPublisher.Publish(new IssueRemovedReplyIntegrationEvent(issueDTO, issueReplyDTO), "issue_events", ct);
+                var issueDTO = Mapper.Map(issueEntity);
+                var issueReplyDTO = Mapper.Map(issueReply);
+                await _eventPublisher.Publish(new IssueRemovedReplyIntegrationEvent(issueDTO, issueReplyDTO), ct);
                 return true;
             }
             else

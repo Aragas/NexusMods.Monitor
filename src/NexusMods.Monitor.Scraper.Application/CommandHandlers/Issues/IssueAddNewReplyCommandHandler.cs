@@ -1,6 +1,4 @@
-﻿using Enbiso.NLib.EventBus;
-
-using MediatR;
+﻿using MediatR;
 
 using Microsoft.Extensions.Logging;
 
@@ -19,9 +17,9 @@ namespace NexusMods.Monitor.Scraper.Application.CommandHandlers.Issues
     {
         private readonly ILogger _logger;
         private readonly IIssueRepository _issueRepository;
-        private readonly IEventPublisher _eventPublisher;
+        private readonly IIssueIntegrationEventPublisher _eventPublisher;
 
-        public IssueAddNewReplyCommandHandler(ILogger<IssueAddNewReplyCommandHandler> logger, IIssueRepository issueRepository, IEventPublisher eventPublisher)
+        public IssueAddNewReplyCommandHandler(ILogger<IssueAddNewReplyCommandHandler> logger, IIssueRepository issueRepository, IIssueIntegrationEventPublisher eventPublisher)
         {
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
             _issueRepository = issueRepository ?? throw new ArgumentNullException(nameof(issueRepository));
@@ -33,26 +31,24 @@ namespace NexusMods.Monitor.Scraper.Application.CommandHandlers.Issues
             var issueEntity = await _issueRepository.GetAsync(message.Id);
             if (issueEntity is null)
             {
-                _logger.LogError("Issue with Id {Id} was not found! IssueReply Id {ReplyId}", message.Id, message.ReplyIdId);
+                _logger.LogError("Issue with Id {Id} was not found! IssueReply Id {ReplyId}", message.Id, message.ReplyId);
                 return false;
             }
 
-            if (issueEntity.Replies.Any(r => r.Id == message.ReplyIdId))
+            if (issueEntity.Replies.FirstOrDefault(r => r.Id == message.ReplyId) is { } existingReplyEntity)
             {
-                _logger.LogError("Issue with Id {Id} has already the reply! IssueReply Id {ReplyId}", message.Id, message.ReplyIdId);
+                _logger.LogError("Issue with Id {Id} has already the reply! Existing: {@ExistingIssueReply}, new: {@Message}", message.Id, existingReplyEntity, message);
                 return false;
             }
 
-            var issueReplyEntity = issueEntity.AddReplyEntity(message.ReplyIdId, message.Author, message.AuthorUrl, message.AvatarUrl, message.Content, false, message.TimeOfPost);
-
+            var issueReplyEntity = issueEntity.AddReplyEntity(message.ReplyId, message.Author, message.AuthorUrl, message.AvatarUrl, message.Content, false, message.TimeOfPost);
             _issueRepository.Update(issueEntity);
-
-            var issueDTO = Mapper.Map(issueEntity);
-            var issueReplyDTO = Mapper.Map(issueReplyEntity);
 
             if (await _issueRepository.UnitOfWork.SaveEntitiesAsync(ct))
             {
-                await _eventPublisher.Publish(new IssueAddedReplyIntegrationEvent(issueDTO, issueReplyDTO), "issue_events", ct);
+                var issueDTO = Mapper.Map(issueEntity);
+                var issueReplyDTO = Mapper.Map(issueReplyEntity);
+                await _eventPublisher.Publish(new IssueAddedReplyIntegrationEvent(issueDTO, issueReplyDTO), ct);
                 return true;
             }
             else

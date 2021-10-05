@@ -24,8 +24,7 @@ namespace NexusMods.Monitor.Scraper.Application.CommandHandlers.Comments
 
         public async Task<bool> Handle(CommentAddCommand message, CancellationToken ct)
         {
-            var existingCommentEntity = await _commentRepository.GetAsync(message.Id);
-            if (existingCommentEntity is { })
+            if (await _commentRepository.GetAsync(message.Id) is { } existingCommentEntity)
             {
                 if (existingCommentEntity.IsDeleted)
                 {
@@ -38,7 +37,6 @@ namespace NexusMods.Monitor.Scraper.Application.CommandHandlers.Comments
             }
 
             var commentEntity = Mapper.Map(message);
-
             _commentRepository.Add(commentEntity);
 
             return await _commentRepository.UnitOfWork.SaveEntitiesAsync(ct);

@@ -32,14 +32,13 @@ namespace NexusMods.Monitor.Scraper.Application.CommandHandlers.Issues
                 return false;
             }
 
-            if (issueEntity.Replies.Any(r => r.Id == message.ReplyId))
+            if (issueEntity.Replies.FirstOrDefault(r => r.Id == message.ReplyId) is { } existingReplyEntity)
             {
-                _logger.LogError("Issue with Id {Id} has already the reply! IssueReply Id {ReplyId}", message.Id, message.ReplyId);
+                _logger.LogError("Issue with Id {Id} has already the reply! Existing: {@ExistingIssueReply}, new: {@Message}", message.Id, existingReplyEntity, message);
                 return false;
             }
 
             issueEntity.AddReplyEntity(message.ReplyId, message.Author, message.AuthorUrl, message.AvatarUrl, message.Content, false, message.TimeOfPost);
-
             _issueRepository.Update(issueEntity);
 
             return await _issueRepository.UnitOfWork.SaveEntitiesAsync(ct);

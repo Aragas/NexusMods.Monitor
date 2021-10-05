@@ -21,15 +21,11 @@ namespace NexusMods.Monitor.Scraper.Infrastructure.Repositories
             _context = context ?? throw new ArgumentNullException(nameof(context));
         }
 
-        public CommentEntity Add(CommentEntity commentEntity)
-        {
-            return _context.CommentEntities.Add(commentEntity).Entity;
-        }
+        public CommentEntity Add(CommentEntity commentEntity) => _context.CommentEntities.Add(commentEntity).Entity;
 
         public async Task<CommentEntity?> GetAsync(uint commentEntityId)
         {
-            var commentEntity = await _context
-                .CommentEntities
+            var commentEntity = await _context.CommentEntities
                 .Include(x => x.Replies)
                 .IgnoreQueryFilters()
                 .FirstOrDefaultAsync(o => o.Id == commentEntityId);
@@ -54,9 +50,6 @@ namespace NexusMods.Monitor.Scraper.Infrastructure.Repositories
         public IQueryable<CommentEntity> GetAll() => _context.CommentEntities
             .Include(x => x.Replies);
 
-        public CommentEntity Update(CommentEntity commentEntity)
-        {
-            return _context.CommentEntities.Update(commentEntity).Entity;
-        }
+        public CommentEntity Update(CommentEntity commentEntity) => _context.CommentEntities.Update(commentEntity).Entity;
     }
 }

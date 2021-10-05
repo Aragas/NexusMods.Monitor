@@ -2,5 +2,5 @@
 
 namespace NexusMods.Monitor.Shared.Application.IntegrationEvents.Comments
 {
-    public sealed record CommentChangedIsLockedIntegrationEvent(CommentDTO Comment, bool PreviousIsLocked) : EventRecord;
+    public sealed record CommentChangedIsLockedIntegrationEvent(CommentDTO Comment, bool PreviousIsLocked) : CommentIntegrationEvent;
 }

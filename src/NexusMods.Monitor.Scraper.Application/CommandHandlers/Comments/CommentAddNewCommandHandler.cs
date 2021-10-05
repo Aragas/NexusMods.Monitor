@@ -1,6 +1,4 @@
-﻿using Enbiso.NLib.EventBus;
-
-using MediatR;
+﻿using MediatR;
 
 using Microsoft.Extensions.Logging;
 
@@ -18,9 +16,9 @@ namespace NexusMods.Monitor.Scraper.Application.CommandHandlers.Comments
     {
         private readonly ILogger _logger;
         private readonly ICommentRepository _commentRepository;
-        private readonly IEventPublisher _eventPublisher;
+        private readonly ICommentIntegrationEventPublisher _eventPublisher;
 
-        public CommentAddNewCommandHandler(ILogger<CommentAddNewCommandHandler> logger, ICommentRepository commentRepository, IEventPublisher eventPublisher)
+        public CommentAddNewCommandHandler(ILogger<CommentAddNewCommandHandler> logger, ICommentRepository commentRepository, ICommentIntegrationEventPublisher eventPublisher)
         {
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
             _commentRepository = commentRepository ?? throw new ArgumentNullException(nameof(commentRepository));
@@ -29,8 +27,7 @@ namespace NexusMods.Monitor.Scraper.Application.CommandHandlers.Comments
 
         public async Task<bool> Handle(CommentAddNewCommand message, CancellationToken ct)
         {
-            var existingCommentEntity = await _commentRepository.GetAsync(message.Id);
-            if (existingCommentEntity is { })
+            if (await _commentRepository.GetAsync(message.Id) is { } existingCommentEntity)
             {
                 if (existingCommentEntity.IsDeleted)
                 {
@@ -43,14 +40,12 @@ namespace NexusMods.Monitor.Scraper.Application.CommandHandlers.Comments
             }
 
             var commentEntity = Mapper.Map(message);
-
             _commentRepository.Add(commentEntity);
-
-            var commentDTO = Mapper.Map(commentEntity);
 
             if (await _commentRepository.UnitOfWork.SaveEntitiesAsync(ct))
             {
-                await _eventPublisher.Publish(new CommentAddedIntegrationEvent(commentDTO), "comment_events", ct);
+                var commentDTO = Mapper.Map(commentEntity);
+                await _eventPublisher.Publish(new CommentAddedIntegrationEvent(commentDTO), ct);
                 return true;
             }
             else

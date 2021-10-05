@@ -99,7 +99,6 @@ namespace NexusMods.Monitor.Bot.Discord.Host.BackgroundServices
 #endif
         }
 
-        [System.Diagnostics.CodeAnalysis.SuppressMessage("Usage", "CA2254:Template should be a static expression")]
         private Task Bot_Log(LogMessage arg)
         {
             switch (arg.Severity)
