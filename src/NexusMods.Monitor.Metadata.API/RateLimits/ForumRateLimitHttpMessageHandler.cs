@@ -7,41 +7,42 @@ using System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace NexusMods.Monitor.Metadata.API.RateLimits;
-
-public class ForumRateLimitHttpMessageHandler : DelegatingHandler
+namespace NexusMods.Monitor.Metadata.API.RateLimits
 {
-    public record APILimit(DateTimeOffset? RetryAfter);
-
-    public APILimit APILimitState { get; private set; } = new(null);
-
-    private readonly TimeLimiter _timeLimiter = TimeLimiter.Compose(
-        new CountByIntervalAwaitableConstraint(1, TimeSpan.FromSeconds(1)),
-        new CountByIntervalAwaitableConstraint(20, TimeSpan.FromMinutes(1))
-    );
-
-    public ForumRateLimitHttpMessageHandler()
+    public class ForumRateLimitHttpMessageHandler : DelegatingHandler
     {
-        InnerHandler = new SocketsHttpHandler()
-        {
-            AllowAutoRedirect = false
-        };
-    }
+        public record APILimit(DateTimeOffset? RetryAfter);
 
-    protected override async Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken ct)
-    {
-        await _timeLimiter;
+        public APILimit APILimitState { get; private set; } = new(null);
 
-        var response = await base.SendAsync(request, ct);
-        if (response.IsSuccessStatusCode)
+        private readonly TimeLimiter _timeLimiter = TimeLimiter.Compose(
+            new CountByIntervalAwaitableConstraint(1, TimeSpan.FromSeconds(1)),
+            new CountByIntervalAwaitableConstraint(20, TimeSpan.FromMinutes(1))
+        );
+
+        public ForumRateLimitHttpMessageHandler()
         {
-            ParseResponseLimits(response);
+            InnerHandler = new SocketsHttpHandler()
+            {
+                AllowAutoRedirect = false
+            };
         }
-        return response;
-    }
 
-    private void ParseResponseLimits(HttpResponseMessage response)
-    {
-        APILimitState = new APILimit(response.Headers.RetryAfter?.Date);
+        protected override async Task<HttpResponseMessage> SendAsync(HttpRequestMessage request, CancellationToken ct)
+        {
+            await _timeLimiter;
+
+            var response = await base.SendAsync(request, ct);
+            if (response.IsSuccessStatusCode)
+            {
+                ParseResponseLimits(response);
+            }
+            return response;
+        }
+
+        private void ParseResponseLimits(HttpResponseMessage response)
+        {
+            APILimitState = new APILimit(response.Headers.RetryAfter?.Date);
+        }
     }
 }
