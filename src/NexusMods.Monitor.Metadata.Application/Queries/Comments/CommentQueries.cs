@@ -13,6 +13,7 @@ using NexusMods.Monitor.Shared.Common;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net;
 using System.Net.Http;
 using System.Runtime.CompilerServices;
 using System.Threading;
@@ -106,9 +107,24 @@ namespace NexusMods.Monitor.Metadata.Application.Queries.Comments
                 yield return nexusModsCommentRoot;
         }
 
-        public async Task<CommentViewModel?> GetAsync(uint gameId, uint modId, uint commentId, CancellationToken ct = default)
+        public async Task<bool> ExistsAsync(uint gameId, uint modId, uint commentId, CancellationToken ct = default)
         {
-            return null;
+            var threadViewModel = await _nexusModsThreadQueries.GetAsync(gameId, modId, ct);
+            if (threadViewModel is null)
+                return false;
+            var threadId = threadViewModel.ThreadId;
+
+            using var response = await _httpClientFactory.CreateClient("NexusMods.Forum").GetAsync(
+                $"index.php?app=forums&module=forums&section=findpost&pid={commentId}&t={threadId}",
+                HttpCompletionOption.ResponseHeadersRead,
+                ct);
+
+            if (response.Headers.Location is null)
+                return false;
+
+            return !string.IsNullOrEmpty(response.Headers.Location.Fragment);
         }
+
+        public async Task<bool> ExistsReplyAsync(uint gameId, uint modId, uint commentId, uint replyId, CancellationToken ct = default) => await ExistsAsync(gameId, modId, replyId, ct);
     }
 }

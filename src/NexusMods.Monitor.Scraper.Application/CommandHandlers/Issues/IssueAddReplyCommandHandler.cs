@@ -25,8 +25,7 @@ namespace NexusMods.Monitor.Scraper.Application.CommandHandlers.Issues
 
         public async Task<bool> Handle(IssueAddReplyCommand message, CancellationToken ct)
         {
-            var issueEntity = await _issueRepository.GetAsync(message.Id);
-            if (issueEntity is null)
+            if (await _issueRepository.GetAsync(message.Id) is not { } issueEntity)
             {
                 _logger.LogError("Issue with Id {Id} was not found! IssueReply Id {ReplyId}", message.Id, message.ReplyId);
                 return false;

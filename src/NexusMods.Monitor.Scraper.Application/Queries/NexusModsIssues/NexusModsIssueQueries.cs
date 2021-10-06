@@ -124,6 +124,58 @@ namespace NexusMods.Monitor.Scraper.Application.Queries.NexusModsIssues
             response.Dispose();
         }
 
+        public async Task<bool> ExistsAsync(uint gameId, uint modId, uint issueId, CancellationToken ct)
+        {
+            HttpResponseMessage response;
+
+            try
+            {
+                response = await _httpClientFactory.CreateClient("Metadata.API").GetAsync(
+                    $"issue/exists/id?gameId={gameId}&modId={modId}&issueId={issueId}",
+                    HttpCompletionOption.ResponseHeadersRead,
+                    ct);
+            }
+            catch (Exception e) when (e is TaskCanceledException)
+            {
+                return false;
+            }
+
+            try
+            {
+                return response.IsSuccessStatusCode;
+            }
+            finally
+            {
+                response.Dispose();
+            }
+        }
+
+        public async Task<bool> ExistsReplyAsync(uint gameId, uint modId, uint issueId, uint replyId, CancellationToken ct)
+        {
+            HttpResponseMessage response;
+
+            try
+            {
+                response = await _httpClientFactory.CreateClient("Metadata.API").GetAsync(
+                    $"issue/existsreply/id?gameId={gameId}&modId={modId}&issueId={issueId}&replyId={replyId}",
+                    HttpCompletionOption.ResponseHeadersRead,
+                    ct);
+            }
+            catch (Exception e) when (e is TaskCanceledException)
+            {
+                return false;
+            }
+
+            try
+            {
+                return response.IsSuccessStatusCode;
+            }
+            finally
+            {
+                response.Dispose();
+            }
+        }
+
         private sealed record IssueDTO(string GameDomain,
             uint GameId,
             uint ModId,

@@ -33,9 +33,10 @@ namespace NexusMods.Monitor.Metadata.API.Controllers
         private record SSOResponse([property: JsonPropertyName("success")] bool Success, [property: JsonPropertyName("data")] SSOResponseData? Data);
         private record SSOResponseData([property: JsonPropertyName("connection_token")] string? ConnectionToken, [property: JsonPropertyName("api_key")] string? ApiKey);
 
-        public record RateLimitViewModel(APILimitViewModel APILimit, SiteLimitViewModel SiteLimit);
+        public record RateLimitViewModel(APILimitViewModel APILimit, SiteLimitViewModel SiteLimit, ForumLimitViewModel ForumLimit);
         public record APILimitViewModel(int HourlyLimit, int HourlyRemaining, DateTime HourlyReset, int DailyLimit, int DailyRemaining, DateTime DailyReset);
         public record SiteLimitViewModel(DateTimeOffset? RetryAfter);
+        public record ForumLimitViewModel(DateTimeOffset? RetryAfter);
 
         public record AuthorizationStatusResponse(bool IsAuthorized);
 
@@ -47,13 +48,21 @@ namespace NexusMods.Monitor.Metadata.API.Controllers
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
         }
 
-        [HttpGet("comment/id")]
+        [HttpGet("comment/exists/id")]
         [Produces("application/json")]
-        [ProducesResponseType(typeof(IAsyncEnumerable<CommentViewModel>), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(void), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(void), StatusCodes.Status404NotFound)]
         [ProducesResponseType(typeof(void), StatusCodes.Status500InternalServerError)]
-        public async Task<IActionResult> GetCommentAsync([FromQuery, BindRequired] uint gameId, [FromQuery, BindRequired] uint modId, [FromQuery, BindRequired] uint commentId, [FromServices] ICommentQueries commentQueries, CancellationToken ct) =>
-            await commentQueries.GetAsync(gameId, modId, commentId, ct) is { } comment ? Ok(comment) : NotFound();
+        public async Task<IActionResult> ExistsCommentAsync([FromQuery, BindRequired] uint gameId, [FromQuery, BindRequired] uint modId, [FromQuery, BindRequired] uint commentId, [FromServices] ICommentQueries commentQueries, CancellationToken ct) =>
+            await commentQueries.ExistsAsync(gameId, modId, commentId, ct) ? Ok() : NotFound();
+
+        [HttpGet("comment/existsreply/id")]
+        [Produces("application/json")]
+        [ProducesResponseType(typeof(void), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(void), StatusCodes.Status404NotFound)]
+        [ProducesResponseType(typeof(void), StatusCodes.Status500InternalServerError)]
+        public async Task<IActionResult> ExistsCommentAsync([FromQuery, BindRequired] uint gameId, [FromQuery, BindRequired] uint modId, [FromQuery, BindRequired] uint commentId, [FromQuery, BindRequired] uint replyId, [FromServices] ICommentQueries commentQueries, CancellationToken ct) =>
+            await commentQueries.ExistsReplyAsync(gameId, modId, commentId, replyId, ct) ? Ok() : NotFound();
 
         [HttpGet("comments/id")]
         [Produces("application/json")]
@@ -62,13 +71,21 @@ namespace NexusMods.Monitor.Metadata.API.Controllers
         public IActionResult GetCommentsAllAsync([FromQuery, BindRequired] uint gameId, [FromQuery, BindRequired] uint modId, [FromServices] ICommentQueries commentQueries, CancellationToken ct) =>
             Ok(commentQueries.GetAllAsync(gameId, modId, ct));
 
-        [HttpGet("issue/id")]
+        [HttpGet("issue/exists/id")]
         [Produces("application/json")]
-        [ProducesResponseType(typeof(IAsyncEnumerable<CommentViewModel>), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(void), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(void), StatusCodes.Status404NotFound)]
         [ProducesResponseType(typeof(void), StatusCodes.Status500InternalServerError)]
-        public async Task<IActionResult> GetIssueAsync([FromQuery, BindRequired] uint gameId, [FromQuery, BindRequired] uint modId, [FromQuery, BindRequired] uint issueId, [FromServices] IIssueQueries issueQueries, CancellationToken ct) =>
-            await issueQueries.GetAsync(gameId, modId, issueId, ct) is { } issue ? Ok(issue) : NotFound();
+        public async Task<IActionResult> ExistsIssueAsync([FromQuery, BindRequired] uint gameId, [FromQuery, BindRequired] uint modId, [FromQuery, BindRequired] uint issueId, [FromServices] IIssueQueries issueQueries, CancellationToken ct) =>
+            await issueQueries.ExistsAsync(gameId, modId, issueId, ct) ? Ok() : NotFound();
+
+        [HttpGet("issue/existsreply/id")]
+        [Produces("application/json")]
+        [ProducesResponseType(typeof(void), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(void), StatusCodes.Status404NotFound)]
+        [ProducesResponseType(typeof(void), StatusCodes.Status500InternalServerError)]
+        public async Task<IActionResult> ExistsIssueAsync([FromQuery, BindRequired] uint gameId, [FromQuery, BindRequired] uint modId, [FromQuery, BindRequired] uint issueId, [FromQuery, BindRequired] uint replyId, [FromServices] IIssueQueries issueQueries, CancellationToken ct) =>
+            await issueQueries.ExistsReplyAsync(gameId, modId, issueId, replyId, ct) ? Ok() : NotFound();
 
         [HttpGet("issues/id")]
         [Produces("application/json")]
@@ -137,13 +154,15 @@ namespace NexusMods.Monitor.Metadata.API.Controllers
         [Produces("application/json")]
         [ProducesResponseType(typeof(RateLimitViewModel), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(void), StatusCodes.Status500InternalServerError)]
-        public IActionResult GetRateLimits([FromServices] APIRateLimitHttpMessageHandler apiRateLimit, [FromServices] SiteRateLimitHttpMessageHandler siteRateLimit)
+        public IActionResult GetRateLimits([FromServices] APIRateLimitHttpMessageHandler apiRateLimit, [FromServices] SiteRateLimitHttpMessageHandler siteRateLimit, [FromServices] ForumRateLimitHttpMessageHandler forumRateLimit)
         {
             var (hourlyLimit, hourlyRemaining, hourlyReset, dailyLimit, dailyRemaining, dailyReset) = apiRateLimit.APILimitState;
-            var retryAfter = siteRateLimit.APILimitState.RetryAfter;
+            var siteRetryAfter = siteRateLimit.APILimitState.RetryAfter;
+            var forumRetryAfter = forumRateLimit.APILimitState.RetryAfter;
             return Ok(new RateLimitViewModel(
                 new APILimitViewModel(hourlyLimit, hourlyRemaining, hourlyReset, dailyLimit, dailyRemaining, dailyReset),
-                new SiteLimitViewModel(retryAfter))
+                new SiteLimitViewModel(siteRetryAfter),
+                new ForumLimitViewModel(forumRetryAfter))
             );
         }
 

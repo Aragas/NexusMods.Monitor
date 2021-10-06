@@ -3,6 +3,7 @@
 using Microsoft.Extensions.Logging;
 
 using NexusMods.Monitor.Scraper.Application.Commands.Issues;
+using NexusMods.Monitor.Scraper.Application.Queries.NexusModsIssues;
 using NexusMods.Monitor.Scraper.Domain.AggregatesModel.IssueAggregate;
 using NexusMods.Monitor.Shared.Application.IntegrationEvents.Issues;
 
@@ -16,21 +17,28 @@ namespace NexusMods.Monitor.Scraper.Application.CommandHandlers.Issues
     {
         private readonly ILogger _logger;
         private readonly IIssueRepository _issueRepository;
+        private readonly INexusModsIssueQueries _nexusModsIssueQueries;
         private readonly IIssueIntegrationEventPublisher _eventPublisher;
 
-        public IssueRemoveCommandHandler(ILogger<IssueRemoveCommandHandler> logger, IIssueRepository issueRepository, IIssueIntegrationEventPublisher eventPublisher)
+        public IssueRemoveCommandHandler(ILogger<IssueRemoveCommandHandler> logger, IIssueRepository issueRepository, INexusModsIssueQueries nexusModsIssueQueries, IIssueIntegrationEventPublisher eventPublisher)
         {
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
             _issueRepository = issueRepository ?? throw new ArgumentNullException(nameof(issueRepository));
+            _nexusModsIssueQueries = nexusModsIssueQueries ?? throw new ArgumentNullException(nameof(nexusModsIssueQueries));
             _eventPublisher = eventPublisher ?? throw new ArgumentNullException(nameof(eventPublisher));
         }
 
         public async Task<bool> Handle(IssueRemoveCommand message, CancellationToken ct)
         {
-            var issueEntity = await _issueRepository.GetAsync(message.Id);
-            if (issueEntity is null)
+            if (await _issueRepository.GetAsync(message.Id) is not { } issueEntity)
             {
                 _logger.LogError("Issue with Id {Id} was not found.", message.Id);
+                return false;
+            }
+
+            if (await _nexusModsIssueQueries.ExistsAsync(issueEntity.NexusModsGameId, issueEntity.NexusModsModId, issueEntity.Id, ct))
+            {
+                _logger.LogError("Issue with Id {Id} still exists in NexusMods!", message.Id);
                 return false;
             }
 

@@ -55,6 +55,7 @@ namespace NexusMods.Monitor.Metadata.API.Options
                 .SetValidator(new NexusModsTokenValidator(httpClientFactory));
 
             RuleFor(options => options.Endpoint).IsUri().IsUriAvailable(httpClientFactory);
+            RuleFor(options => options.ForumEndpoint).IsUri().IsUriAvailable(httpClientFactory);
 
         }
     }
@@ -62,6 +63,7 @@ namespace NexusMods.Monitor.Metadata.API.Options
     public sealed record NexusModsOptions
     {
         public string Endpoint { get; init; } = default!;
+        public string ForumEndpoint { get; init; } = default!;
         public string APIEndpoint { get; init; } = default!;
         public string APIKey { get; init; } = default!;
     }

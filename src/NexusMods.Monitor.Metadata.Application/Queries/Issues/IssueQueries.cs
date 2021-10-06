@@ -92,9 +92,31 @@ namespace NexusMods.Monitor.Metadata.Application.Queries.Issues
                 yield return nexusModsCommentRoot;
         }
 
-        public async Task<IssueViewModel?> GetAsync(uint gameId, uint modId, uint issueId, CancellationToken ct = default)
+        public async Task<bool> ExistsAsync(uint gameId, uint modId, uint issueId, CancellationToken ct = default)
         {
-            return null;
+            var document = await GetModBugReplyListAsync(issueId, ct);
+            if (document is null)
+            {
+                return false;
+            }
+
+            var issueEmptyTile = document.GetElementById("bug-issue-tile-");
+            return issueEmptyTile is null;
+        }
+
+        public async Task<bool> ExistsReplyAsync(uint gameId, uint modId, uint issueId, uint replyId, CancellationToken ct = default)
+        {
+            var document = await GetModBugReplyListAsync(issueId, ct);
+            if (document is null)
+            {
+                return false;
+            }
+
+            var issueEmptyTile = document.GetElementById("bug-issue-tile-");
+            if (issueEmptyTile is not null)
+                return false;
+
+            return await GetRepliesAsync(issueId, ct).AnyAsync(r => r.Id == replyId, ct);
         }
 
         public async Task<IssueContentViewModel?> GetContentAsync(uint issueId, CancellationToken ct = default)
@@ -117,10 +139,12 @@ namespace NexusMods.Monitor.Metadata.Application.Queries.Issues
         {
             if (!_cache.TryGetValue($"issue_replies({issueId})", _jsonSerializer, out string? cacheEntry))
             {
-                using var response = await _httpClientFactory.CreateClient("NexusMods").PostAsync(
-                    "Core/Libs/Common/Widgets/ModBugReplyList",
-                    new FormUrlEncodedContent(new[] { new KeyValuePair<string?, string?>("issue_id", issueId.ToString()) }),
-                    ct);
+                var post = new HttpRequestMessage(HttpMethod.Post, "Core/Libs/Common/Widgets/ModBugReplyList")
+                {
+                    Content = new FormUrlEncodedContent(new[] { new KeyValuePair<string?, string?>("issue_id", issueId.ToString()) }),
+                };
+
+                using var response = await _httpClientFactory.CreateClient("NexusMods").SendAsync(post, HttpCompletionOption.ResponseHeadersRead, ct);
 
                 cacheEntry = await response.Content.ReadAsStringAsync(ct);
 

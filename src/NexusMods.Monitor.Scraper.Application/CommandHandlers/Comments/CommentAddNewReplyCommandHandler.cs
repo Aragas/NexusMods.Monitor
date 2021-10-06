@@ -28,8 +28,7 @@ namespace NexusMods.Monitor.Scraper.Application.CommandHandlers.Comments
 
         public async Task<bool> Handle(CommentAddNewReplyCommand message, CancellationToken ct)
         {
-            var commentEntity = await _commentRepository.GetAsync(message.Id);
-            if (commentEntity is null)
+            if (await _commentRepository.GetAsync(message.Id) is not { } commentEntity)
             {
                 _logger.LogError("Comment with Id {Id} was not found. CommentReply Id {ReplyId}.", message.Id, message.ReplyId);
                 return false;

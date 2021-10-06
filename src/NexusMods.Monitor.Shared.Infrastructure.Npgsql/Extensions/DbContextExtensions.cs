@@ -15,9 +15,9 @@ namespace NexusMods.Monitor.Shared.Infrastructure.Npgsql.Extensions
         /// <summary>
         /// We assume that some tables or data seeds might or might not exist. We assume that the the table schemas didn't change or are changed manually.
         /// </summary>
-        public static async Task<bool> UpsertDatabaseSchemaAsync(this DbContext context, CancellationToken cancellationToken = default)
+        public static async Task<bool> UpsertDatabaseSchemaAsync(this DbContext context, CancellationToken ct = default)
         {
-            var ensureCreated = await context.Database.EnsureCreatedAsync(cancellationToken);
+            var ensureCreated = await context.Database.EnsureCreatedAsync(ct);
 
             if (!ensureCreated)
             {
@@ -33,7 +33,7 @@ namespace NexusMods.Monitor.Shared.Infrastructure.Npgsql.Extensions
                 var migrationSqlCommands = migrationsSqlGenerator.Generate(migrationOperations, staticModel).ToImmutableArray();
                 if (migrationSqlCommands.Length > 0)
                 {
-                    await migrationCommandExecutor.ExecuteNonQueryAsync(migrationSqlCommands, connection, cancellationToken);
+                    await migrationCommandExecutor.ExecuteNonQueryAsync(migrationSqlCommands, connection, ct);
                     return true;
                 }
             }

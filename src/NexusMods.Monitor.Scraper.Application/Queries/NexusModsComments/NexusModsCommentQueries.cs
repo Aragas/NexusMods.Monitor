@@ -52,6 +52,58 @@ namespace NexusMods.Monitor.Scraper.Application.Queries.NexusModsComments
             response.Dispose();
         }
 
+        public async Task<bool> ExistsAsync(uint gameId, uint modId, uint commentId, CancellationToken ct)
+        {
+            HttpResponseMessage response;
+
+            try
+            {
+                response = await _httpClientFactory.CreateClient("Metadata.API").GetAsync(
+                    $"comment/exists/id?gameId={gameId}&modId={modId}&commentId={commentId}",
+                    HttpCompletionOption.ResponseHeadersRead,
+                    ct);
+            }
+            catch (Exception e) when (e is TaskCanceledException)
+            {
+                return false;
+            }
+
+            try
+            {
+                return response.IsSuccessStatusCode;
+            }
+            finally
+            {
+                response.Dispose();
+            }
+        }
+
+        public async Task<bool> ExistsReplyAsync(uint gameId, uint modId, uint commentId, uint replyId, CancellationToken ct)
+        {
+            HttpResponseMessage response;
+
+            try
+            {
+                response = await _httpClientFactory.CreateClient("Metadata.API").GetAsync(
+                    $"comment/existsreply/id?gameId={gameId}&modId={modId}&commentId={commentId}&replyId={replyId}",
+                    HttpCompletionOption.ResponseHeadersRead,
+                    ct);
+            }
+            catch (Exception e) when (e is TaskCanceledException)
+            {
+                return false;
+            }
+
+            try
+            {
+                return response.IsSuccessStatusCode;
+            }
+            finally
+            {
+                response.Dispose();
+            }
+        }
+
         private record CommentsDTO(
             string GameDomain,
             uint GameId,

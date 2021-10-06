@@ -43,6 +43,18 @@ namespace NexusMods.Monitor.Metadata.API
                 .AddPolly()
                 .AddCorrelationIdOverrideForwarding()
                 .SetHandlerLifetime(Timeout.InfiniteTimeSpan);
+            services.AddHttpClient("NexusMods.Forum")
+                .ConfigureHttpClient((sp, client) =>
+                {
+                    var backendOptions = sp.GetRequiredService<IOptions<NexusModsOptions>>().Value;
+                    client.BaseAddress = new Uri(backendOptions.ForumEndpoint);
+                    client.DefaultRequestHeaders.Add("User-Agent", userAgent);
+                })
+                .ConfigurePrimaryHttpMessageHandler(sp => sp.GetRequiredService<ForumRateLimitHttpMessageHandler>())
+                .GenerateCorrelationId()
+                .AddPolly()
+                .AddCorrelationIdOverrideForwarding()
+                .SetHandlerLifetime(Timeout.InfiniteTimeSpan);
             services.AddHttpClient("NexusMods.API")
                 .ConfigureHttpClient((sp, client) =>
                 {
@@ -63,6 +75,7 @@ namespace NexusMods.Monitor.Metadata.API
             services.AddSingleton<NexusModsAPIKeyProvider>();
 
             services.AddSingleton<SiteRateLimitHttpMessageHandler>();
+            services.AddSingleton<ForumRateLimitHttpMessageHandler>();
             services.AddSingleton<APIRateLimitHttpMessageHandler>();
         });
     }
