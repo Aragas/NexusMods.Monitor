@@ -1,6 +1,4 @@
-﻿using Enbiso.NLib.EventBus;
-
-using MediatR;
+﻿using MediatR;
 
 using Microsoft.Extensions.Logging;
 
@@ -31,13 +29,13 @@ namespace NexusMods.Monitor.Scraper.Application.CommandHandlers.Comments
         {
             if (await _commentRepository.GetAsync(message.Id) is not { } commentEntity)
             {
-                _logger.LogError("Comment with Id {Id} was not found.", message.Id);
+                _logger.LogError("Comment with Id {Id} was not found", message.Id);
                 return false;
             }
 
             if (commentEntity.IsLocked != message.IsLocked)
             {
-                _logger.LogError("Comment with Id {Id} has already the correct IsLocked value.", message.Id);
+                _logger.LogError("Comment with Id {Id} has already the correct IsLocked value", message.Id);
                 return false;
             }
 

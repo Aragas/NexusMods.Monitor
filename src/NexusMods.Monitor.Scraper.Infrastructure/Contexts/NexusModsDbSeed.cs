@@ -30,7 +30,7 @@ namespace NexusMods.Monitor.Scraper.Infrastructure.Contexts
                 onRetry: (exception, timeSpan, retry, ctx) =>
                 {
                     logger.LogWarning(exception,
-                        "[{prefix}] Exception {ExceptionType} with message {Message} detected on attempt {retry} of {retries}",
+                        "[{Prefix}] Exception {ExceptionType} with message {Message} detected on attempt {Retry} of {Retries}",
                         prefix, exception.GetType().Name, exception.Message, retry, retries);
                 }
             );

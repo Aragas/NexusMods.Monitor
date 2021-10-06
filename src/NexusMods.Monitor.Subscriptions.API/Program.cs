@@ -33,7 +33,7 @@ namespace NexusMods.Monitor.Subscriptions.API
                     {
                         using var scope = host.Services.CreateScope();
                         var logger = scope.ServiceProvider.GetRequiredService<ILogger<Program>>();
-                        logger.LogError(ex, "Exception during PostgreSQL connection. Waiting {time}...", time);
+                        logger.LogError(ex, "Exception during PostgreSQL connection. Waiting {Time}...", time);
                     });
 
             await retryPolicy.ExecuteAsync(async token =>

@@ -28,10 +28,7 @@ namespace NexusMods.Monitor.Shared.Application.FluentValidation
                 .WaitAndRetry(
                     retryCount: 20,
                     sleepDurationProvider: (i, result, context) => TimeSpan.FromSeconds(2),
-                    onRetry: (result, timeSpan, retryCount, context) =>
-                    {
-                        return;
-                    });
+                    onRetry: (result, timeSpan, retryCount, context) => { });
         }
 
         public override bool IsValid(ValidationContext<T> context, string value)
@@ -41,7 +38,7 @@ namespace NexusMods.Monitor.Shared.Application.FluentValidation
                 var client = _httpClientFactory.CreateClient("FluentClient");
                 var request = new HttpRequestMessage(HttpMethod.Options, value);
                 using var cts = new CancellationTokenSource(2000);
-                var response = client.Send(request, HttpCompletionOption.ResponseHeadersRead, cts.Token);
+                _ = client.Send(request, HttpCompletionOption.ResponseHeadersRead, cts.Token);
             });
 
             return result.Outcome == OutcomeType.Successful;

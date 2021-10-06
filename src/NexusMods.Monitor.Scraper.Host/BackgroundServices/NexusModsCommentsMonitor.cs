@@ -41,23 +41,19 @@ namespace NexusMods.Monitor.Scraper.Host.BackgroundServices
 
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)
         {
-            var scope = _logger.BeginScope("Service: {service}", nameof(NexusModsCommentsMonitor));
+            var scope = _logger.BeginScope("Service: {Service}", nameof(NexusModsCommentsMonitor));
 
             stoppingToken.Register(() => _logger.LogInformation("Comments processing is stopping"));
 
-            var policy = Policy.Handle<Exception>(ex => ex.GetType() != typeof(TaskCanceledException))
-                .WaitAndRetryForeverAsync(retryAttempt => TimeSpan.FromMinutes(10),
-                    (ex, time) =>
-                    {
-                        _logger.LogError(ex, "Exception during comments processing. Waiting {time}...", time);
-                    });
+            var policy = Policy
+                .Handle<Exception>(ex => ex.GetType() != typeof(TaskCanceledException))
+                .WaitAndRetryForeverAsync(
+                    retryAttempt => TimeSpan.FromMinutes(10),
+                    (ex, time) => _logger.LogError(ex, "Exception during comments processing. Waiting {Time}...", time));
 
             while (!stoppingToken.IsCancellationRequested)
             {
-                await policy.ExecuteAsync(async token =>
-                {
-                    await _timeLimiter.Enqueue(async () => await ProcessComments(token), token);
-                }, stoppingToken);
+                await policy.ExecuteAsync(async ct => await _timeLimiter.Enqueue(async () => await ProcessComments(ct), ct), stoppingToken);
             }
 
             scope.Dispose();

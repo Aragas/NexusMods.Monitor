@@ -41,7 +41,7 @@ namespace NexusMods.Monitor.Scraper.Host.BackgroundServices
 
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)
         {
-            var scope = _logger.BeginScope("Service: {service}", nameof(NexusModsIssueMonitor));
+            var scope = _logger.BeginScope("Service: {Service}", nameof(NexusModsIssueMonitor));
 
             stoppingToken.Register(() => _logger.LogInformation("Issues processing is stopping"));
 
@@ -49,7 +49,7 @@ namespace NexusMods.Monitor.Scraper.Host.BackgroundServices
                 .WaitAndRetryForeverAsync(retryAttempt => TimeSpan.FromMinutes(10),
                     (ex, time) =>
                     {
-                        _logger.LogError(ex, "Exception during issues processing. Waiting {time}...", time);
+                        _logger.LogError(ex, "Exception during issues processing. Waiting {Time}...", time);
                     });
 
             while (!stoppingToken.IsCancellationRequested)

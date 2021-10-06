@@ -50,13 +50,13 @@ namespace NexusMods.Monitor.Bot.Slack.Application
 
         public AttachmentBuilder WithTimestamp(DateTimeOffset timestamp)
         {
-            _attachment.Ts = (int) ((double) timestamp.ToUnixTimeMilliseconds() / 1000d);
+            _attachment.Ts = (int) (timestamp.ToUnixTimeMilliseconds() / 1000d);
             return this;
         }
 
         public AttachmentBuilder WithCurrentTimestamp()
         {
-            _attachment.Ts = (int) ((double) DateTimeOffset.UtcNow.ToUnixTimeMilliseconds() / 1000d);
+            _attachment.Ts = (int) (DateTimeOffset.UtcNow.ToUnixTimeMilliseconds() / 1000d);
             return this;
         }
 
