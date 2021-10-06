@@ -92,6 +92,11 @@ namespace NexusMods.Monitor.Metadata.Application.Queries.Issues
                 yield return nexusModsCommentRoot;
         }
 
+        public async Task<IssueViewModel?> GetAsync(uint gameId, uint modId, uint issueId, CancellationToken ct = default)
+        {
+            return null;
+        }
+
         public async Task<IssueContentViewModel?> GetContentAsync(uint issueId, CancellationToken ct = default)
         {
             var document = await GetModBugReplyListAsync(issueId, ct);

@@ -47,12 +47,28 @@ namespace NexusMods.Monitor.Metadata.API.Controllers
             _logger = logger ?? throw new ArgumentNullException(nameof(logger));
         }
 
+        [HttpGet("comment/id")]
+        [Produces("application/json")]
+        [ProducesResponseType(typeof(IAsyncEnumerable<CommentViewModel>), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(void), StatusCodes.Status404NotFound)]
+        [ProducesResponseType(typeof(void), StatusCodes.Status500InternalServerError)]
+        public async Task<IActionResult> GetCommentAsync([FromQuery, BindRequired] uint gameId, [FromQuery, BindRequired] uint modId, [FromQuery, BindRequired] uint commentId, [FromServices] ICommentQueries commentQueries, CancellationToken ct) =>
+            await commentQueries.GetAsync(gameId, modId, commentId, ct) is { } comment ? Ok(comment) : NotFound();
+
         [HttpGet("comments/id")]
         [Produces("application/json")]
         [ProducesResponseType(typeof(IAsyncEnumerable<CommentViewModel>), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(void), StatusCodes.Status500InternalServerError)]
         public IActionResult GetCommentsAllAsync([FromQuery, BindRequired] uint gameId, [FromQuery, BindRequired] uint modId, [FromServices] ICommentQueries commentQueries, CancellationToken ct) =>
             Ok(commentQueries.GetAllAsync(gameId, modId, ct));
+
+        [HttpGet("issue/id")]
+        [Produces("application/json")]
+        [ProducesResponseType(typeof(IAsyncEnumerable<CommentViewModel>), StatusCodes.Status200OK)]
+        [ProducesResponseType(typeof(void), StatusCodes.Status404NotFound)]
+        [ProducesResponseType(typeof(void), StatusCodes.Status500InternalServerError)]
+        public async Task<IActionResult> GetIssueAsync([FromQuery, BindRequired] uint gameId, [FromQuery, BindRequired] uint modId, [FromQuery, BindRequired] uint issueId, [FromServices] IIssueQueries issueQueries, CancellationToken ct) =>
+            await issueQueries.GetAsync(gameId, modId, issueId, ct) is { } issue ? Ok(issue) : NotFound();
 
         [HttpGet("issues/id")]
         [Produces("application/json")]

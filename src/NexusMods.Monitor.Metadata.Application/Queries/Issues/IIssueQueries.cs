@@ -7,6 +7,7 @@ namespace NexusMods.Monitor.Metadata.Application.Queries.Issues
     public interface IIssueQueries
     {
         IAsyncEnumerable<IssueViewModel> GetAllAsync(uint gameId, uint modId, CancellationToken ct = default);
+        Task<IssueViewModel?> GetAsync(uint gameId, uint modId, uint issueId, CancellationToken ct = default);
         Task<IssueContentViewModel?> GetContentAsync(uint issueId, CancellationToken ct = default);
         IAsyncEnumerable<IssueReplyViewModel> GetRepliesAsync(uint issueId, CancellationToken ct = default);
     }

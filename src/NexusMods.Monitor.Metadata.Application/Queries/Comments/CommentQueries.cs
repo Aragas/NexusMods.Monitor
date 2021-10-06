@@ -16,6 +16,7 @@ using System.Linq;
 using System.Net.Http;
 using System.Runtime.CompilerServices;
 using System.Threading;
+using System.Threading.Tasks;
 
 namespace NexusMods.Monitor.Metadata.Application.Queries.Comments
 {
@@ -103,6 +104,11 @@ namespace NexusMods.Monitor.Metadata.Application.Queries.Comments
 
             foreach (var nexusModsCommentRoot in cacheEntry ?? Array.Empty<CommentViewModel>())
                 yield return nexusModsCommentRoot;
+        }
+
+        public async Task<CommentViewModel?> GetAsync(uint gameId, uint modId, uint commentId, CancellationToken ct = default)
+        {
+            return null;
         }
     }
 }
