@@ -3,8 +3,11 @@ using NexusMods.Monitor.Shared.Domain.SeedWork;
 
 using NodaTime;
 
+using System.Diagnostics.CodeAnalysis;
+
 namespace NexusMods.Monitor.Scraper.Domain.AggregatesModel.CommentAggregate
 {
+    [SuppressMessage("ReSharper", "RedundantBoolCompare", Justification = "Consistent look")]
     public sealed record CommentReplyEntity : Entity
     {
         public uint OwnerId { get; private set; }
@@ -16,6 +19,7 @@ namespace NexusMods.Monitor.Scraper.Domain.AggregatesModel.CommentAggregate
         public bool IsDeleted { get; private set; }
         public Instant TimeOfPost { get; private set; }
 
+        [SuppressMessage("ReSharper", "UnusedMember.Local")]
         private CommentReplyEntity() : this(default, default, default!, default!, default!, default!, default!, default, default) { }
         public CommentReplyEntity(uint id, uint ownerId, string url, string author, string authorUrl, string avatarUrl, string content, bool isDeleted, Instant timeOfPost) : base(id)
         {

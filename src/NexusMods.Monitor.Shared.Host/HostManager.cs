@@ -40,7 +40,7 @@ namespace NexusMods.Monitor.Shared.Host
         {
             try
             {
-                _logger.Warning("Starting.");
+                _logger.Warning("Starting");
 
                 var hostBuilder = _factory(args)
                     .ConfigureHostConfiguration(builder => SetBaseConfiguration(builder))
@@ -60,12 +60,12 @@ namespace NexusMods.Monitor.Shared.Host
             }
             catch (Exception ex)
             {
-                _logger.Fatal(ex, "Fatal exception.");
+                _logger.Fatal(ex, "Fatal exception");
                 throw;
             }
             finally
             {
-                _logger.Warning("Stopped.");
+                _logger.Warning("Stopped");
                 await _logger.TryDisposeAsync();
             }
         }

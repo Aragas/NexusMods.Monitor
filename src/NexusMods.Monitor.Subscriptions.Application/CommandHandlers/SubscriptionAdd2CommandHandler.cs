@@ -37,7 +37,7 @@ namespace NexusMods.Monitor.Subscriptions.Application.CommandHandlers
             var segments = absolutePath.Split(new[] { Path.DirectorySeparatorChar, Path.AltDirectorySeparatorChar }, StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries);
             if (segments.Length != 3 || !uint.TryParse(segments.Last(), out var nexusModsModId))
             {
-                _logger.LogError("Subscription with Id {Id} provided invalid NexusModsUrl {nexusModsUrl}.", message.SubscriberId, message.NexusModsUrl);
+                _logger.LogError("Subscription with Id {Id} provided invalid NexusModsUrl {NexusModsUrl}", message.SubscriberId, message.NexusModsUrl);
                 return false;
             }
 
@@ -45,7 +45,7 @@ namespace NexusMods.Monitor.Subscriptions.Application.CommandHandlers
             var game = await _nexusModsGameQueries.GetAsync(gameDomain, ct);
             if (game is null)
             {
-                _logger.LogError("Subscription with Id {Id} provided invalid game domain {gameDomain}.", message.SubscriberId, gameDomain);
+                _logger.LogError("Subscription with Id {Id} provided invalid game domain {GameDomain}", message.SubscriberId, gameDomain);
                 return false;
             }
 
@@ -54,7 +54,7 @@ namespace NexusMods.Monitor.Subscriptions.Application.CommandHandlers
             var existingSubscription = await _subscriptionRepository.GetAsync(message.SubscriberId, nexusModsGameId, nexusModsModId);
             if (existingSubscription is { })
             {
-                _logger.LogError("Subscription with Id {Id} already exists.", message.SubscriberId);
+                _logger.LogError("Subscription with Id {Id} already exists", message.SubscriberId);
                 return false;
             }
 

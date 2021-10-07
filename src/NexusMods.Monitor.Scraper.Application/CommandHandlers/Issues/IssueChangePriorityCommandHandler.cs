@@ -29,13 +29,13 @@ namespace NexusMods.Monitor.Scraper.Application.CommandHandlers.Issues
         {
             if (await _issueRepository.GetAsync(message.Id) is not { } issueEntity)
             {
-                _logger.LogError("Issue with Id {Id} was not found.", message.Id);
+                _logger.LogError("Issue with Id {Id} was not found", message.Id);
                 return false;
             }
 
             if (issueEntity.Priority.Id != message.PriorityId)
             {
-                _logger.LogError("Issue with Id {Id} has already the correct Priority value.", message.Id);
+                _logger.LogError("Issue with Id {Id} has already the correct Priority value", message.Id);
                 return false;
             }
 

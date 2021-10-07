@@ -29,13 +29,13 @@ namespace NexusMods.Monitor.Scraper.Application.CommandHandlers.Comments
         {
             if (await _commentRepository.GetAsync(message.Id) is not { } commentEntity)
             {
-                _logger.LogError("Comment with Id {Id} was not found.", message.Id);
+                _logger.LogError("Comment with Id {Id} was not found", message.Id);
                 return false;
             }
 
             if (commentEntity.IsSticky != message.IsSticky)
             {
-                _logger.LogError("Comment with Id {Id} has already the correct IsSticky value.", message.Id);
+                _logger.LogError("Comment with Id {Id} has already the correct IsSticky value", message.Id);
                 return false;
             }
 

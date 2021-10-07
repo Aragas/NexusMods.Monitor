@@ -35,14 +35,14 @@ namespace NexusMods.Monitor.Subscriptions.Application.Queries.Subscriptions
                 var game = await _nexusModsGameQueries.GetAsync(x.NexusModsGameId, ct);
                 if (game is null)
                 {
-                    _logger.LogError("Subscription with Id {Id} provided invalid game id {gameId}.", x.SubscriberId, x.NexusModsGameId);
+                    _logger.LogError("Subscription with Id {Id} provided invalid game id {GameId}", x.SubscriberId, x.NexusModsGameId);
                     return new SubscriptionViewModel(x.SubscriberId, x.NexusModsGameId, x.NexusModsModId, "ERROR", "ERROR");
                 }
 
                 var mod = await _nexusModsModQueries.GetAsync(x.NexusModsGameId, x.NexusModsModId, ct);
                 if (mod is null)
                 {
-                    _logger.LogError("Subscription with Id {Id} provided invalid mod id {modId}.", x.SubscriberId, x.NexusModsModId);
+                    _logger.LogError("Subscription with Id {Id} provided invalid mod id {ModId}", x.SubscriberId, x.NexusModsModId);
                     return new SubscriptionViewModel(x.SubscriberId, x.NexusModsGameId, x.NexusModsModId, game.Name, "ERROR");
                 }
 

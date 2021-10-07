@@ -22,7 +22,7 @@ namespace NexusMods.Monitor.Metadata.API
     {
         public static async Task Main(string[] args) => await new HostManager(CreateHostBuilder).StartAsync(args);
 
-        public static IHostBuilder CreateHostBuilder(string[] args) => Microsoft.Extensions.Hosting.Host
+        public static IHostBuilder CreateHostBuilder(string[] args) => Host
             .CreateDefaultBuilder(args)
             .ConfigureWebHostDefaults(webBuilder => webBuilder.UseStartup<Startup>())
             .AddNexusModsHttpClients();

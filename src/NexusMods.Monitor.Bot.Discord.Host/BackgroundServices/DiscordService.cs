@@ -53,7 +53,7 @@ namespace NexusMods.Monitor.Bot.Discord.Host.BackgroundServices
                 .WaitAndRetryAsync(10, _ => TimeSpan.FromSeconds(2),
                     (ex, time) =>
                     {
-                        _logger.LogError(ex, "Exception during NATS connection. Waiting {time}...", time);
+                        _logger.LogError(ex, "Exception during NATS connection. Waiting {Time}...", time);
                     });
         }
 
@@ -64,7 +64,7 @@ namespace NexusMods.Monitor.Bot.Discord.Host.BackgroundServices
                 _discordSocketClient.MessageReceived -= Bot_MessageReceived;
                 _discordSocketClient.Log -= Bot_Log;
                 await _discordSocketClient.StopAsync();
-                _logger.LogWarning("Stopped Discord Bot.");
+                _logger.LogWarning("Stopped Discord Bot");
 
                 _eventSubscriber.Dispose();
             }
@@ -78,7 +78,7 @@ namespace NexusMods.Monitor.Bot.Discord.Host.BackgroundServices
             var botToken = _options.BotToken;
             if (string.IsNullOrEmpty(botToken))
             {
-                _logger.LogError("Error while getting Discord.BotToken! Check your configuration file.");
+                _logger.LogError("Error while getting Discord.BotToken! Check your configuration file");
                 return;
             }
 
@@ -90,7 +90,7 @@ namespace NexusMods.Monitor.Bot.Discord.Host.BackgroundServices
 
             await _retryPolicy.ExecuteAsync(async token => await _eventSubscriber.Subscribe(token), stoppingToken);
 
-            _logger.LogWarning("Started Discord Bot.");
+            _logger.LogWarning("Started Discord Bot");
 
 #if NET5_0
             stoppingToken.Register(_ => OnCancellation(null, stoppingToken), null);
@@ -104,26 +104,26 @@ namespace NexusMods.Monitor.Bot.Discord.Host.BackgroundServices
             switch (arg.Severity)
             {
                 case LogSeverity.Critical:
-                    _logger.LogCritical(arg.Exception, arg.Message);
+                    _logger.LogCritical(arg.Exception, "Critical log entry: {Message}", arg.Message);
                     break;
                 case LogSeverity.Error:
-                    _logger.LogError(arg.Exception, arg.Message);
+                    _logger.LogError(arg.Exception, "Error log entry: {Message}", arg.Message);
                     break;
                 case LogSeverity.Warning:
-                    _logger.LogWarning(arg.Exception, arg.Message);
+                    _logger.LogWarning(arg.Exception, "Warning log entry: {Message}", arg.Message);
                     break;
                 case LogSeverity.Info:
-                    _logger.LogInformation(arg.Exception, arg.Message);
+                    _logger.LogInformation(arg.Exception, "Info log entry: {Message}", arg.Message);
                     break;
                 case LogSeverity.Verbose:
-                    _logger.LogTrace(arg.Exception, arg.Message);
+                    _logger.LogTrace(arg.Exception, "Verbose log entry: {Message}", arg.Message);
                     break;
                 case LogSeverity.Debug:
-                    _logger.LogDebug(arg.Exception, arg.Message);
+                    _logger.LogDebug(arg.Exception, "Debug log entry: {Message}", arg.Message);
                     break;
 
                 default:
-                    _logger.LogWarning("Incorrect LogMessage.Severity - {arg}, {message}", (int) arg.Severity, arg.Message);
+                    _logger.LogWarning("Incorrect LogMessage.Severity - {Severity}, {Message}", arg.Severity, arg.Message);
                     break;
             }
 
@@ -144,7 +144,7 @@ namespace NexusMods.Monitor.Bot.Discord.Host.BackgroundServices
 
                 if (result.Error.HasValue && result.Error.Value != CommandError.UnknownCommand)
                 {
-                    _logger.LogError("Error! {result}", result.ToString());
+                    _logger.LogError("Error! {Result}", result.ToString());
                     await context.Message.AddReactionAsync(new Emoji("⁉️"));
                 }
                 else if (result.Error is CommandError.UnknownCommand)

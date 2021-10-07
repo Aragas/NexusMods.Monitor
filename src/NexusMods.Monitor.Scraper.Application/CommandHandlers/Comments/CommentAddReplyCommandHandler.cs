@@ -27,7 +27,7 @@ namespace NexusMods.Monitor.Scraper.Application.CommandHandlers.Comments
         {
             if (await _commentRepository.GetAsync(message.Id) is not { } commentEntity)
             {
-                _logger.LogError("Comment with Id {Id} was not found. CommentReply Id {ReplyId}.", message.Id, message.ReplyId);
+                _logger.LogError("Comment with Id {Id} was not found. CommentReply Id {ReplyId}", message.Id, message.ReplyId);
                 return false;
             }
 

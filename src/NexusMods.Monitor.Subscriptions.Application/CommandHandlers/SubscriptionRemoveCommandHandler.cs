@@ -27,7 +27,7 @@ namespace NexusMods.Monitor.Subscriptions.Application.CommandHandlers
             var existingSubscription = await _subscriptionRepository.GetAsync(message.SubscriberId, message.NexusModsGameId, message.NexusModsModId);
             if (existingSubscription is null)
             {
-                _logger.LogError("Subscription with Id {Id} does not exist.", message.SubscriberId);
+                _logger.LogError("Subscription with Id {Id} does not exist", message.SubscriberId);
                 return false;
             }
 

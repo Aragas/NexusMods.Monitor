@@ -3,8 +3,11 @@ using NexusMods.Monitor.Shared.Domain.SeedWork;
 
 using NodaTime;
 
+using System.Diagnostics.CodeAnalysis;
+
 namespace NexusMods.Monitor.Scraper.Domain.AggregatesModel.IssueAggregate
 {
+    [SuppressMessage("ReSharper", "RedundantBoolCompare", Justification = "Consistent look")]
     public sealed record IssueReplyEntity(uint Id) : Entity(Id)
     {
         public uint OwnerId { get; private set; } = default!;
@@ -15,6 +18,7 @@ namespace NexusMods.Monitor.Scraper.Domain.AggregatesModel.IssueAggregate
         public bool IsDeleted { get; private set; } = default!;
         public Instant TimeOfPost { get; private set; } = default!;
 
+        [SuppressMessage("ReSharper", "UnusedMember.Local")]
         private IssueReplyEntity() : this(default, default, default!, default!, default!, default!, default, default) { }
         public IssueReplyEntity(uint id, uint ownerId, string author, string authorUrl, string avatarUrl, string content, bool isDeleted, Instant timeOfPost) : this(id)
         {

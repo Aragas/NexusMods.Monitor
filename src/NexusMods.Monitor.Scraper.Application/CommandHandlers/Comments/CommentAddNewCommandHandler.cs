@@ -35,7 +35,7 @@ namespace NexusMods.Monitor.Scraper.Application.CommandHandlers.Comments
                     return await _commentRepository.UnitOfWork.SaveEntitiesAsync(ct);
                 }
 
-                _logger.LogError("Comment with Id {Id} already exist, is not deleted.", message.Id);
+                _logger.LogError("Comment with Id {Id} already exist, is not deleted", message.Id);
                 return false;
             }
 

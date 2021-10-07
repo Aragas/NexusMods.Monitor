@@ -75,14 +75,14 @@ namespace NexusMods.Monitor.Metadata.API.RateLimits
             var hourlyLimitConstraint = new CountByIntervalAwaitableConstraint(APILimitState.HourlyLimit, TimeSpan.FromHours(1));
             var hourlyTimeLeft = APILimitState.HourlyReset - DateTime.UtcNow;
             var hourlyRemainingConstraint = APILimitState.HourlyRemaining <= 0
-                ? (IAwaitableConstraint) new BlockUntilDateConstraint(APILimitState.HourlyReset)
-                : (IAwaitableConstraint) new CountByIntervalAwaitableConstraint(APILimitState.HourlyRemaining, hourlyTimeLeft);
+                ? new BlockUntilDateConstraint(APILimitState.HourlyReset) as IAwaitableConstraint
+                : new CountByIntervalAwaitableConstraint(APILimitState.HourlyRemaining, hourlyTimeLeft);
 
             var dailyLimitConstraint = new CountByIntervalAwaitableConstraint(APILimitState.DailyLimit, TimeSpan.FromDays(1));
             var dailyTimeLeft = APILimitState.DailyReset - DateTime.UtcNow;
             var dailyRemainingConstraint = APILimitState.DailyRemaining <= 0
-                ? (IAwaitableConstraint) new BlockUntilDateConstraint(APILimitState.DailyReset)
-                : (IAwaitableConstraint) new CountByIntervalAwaitableConstraint(APILimitState.DailyRemaining, dailyTimeLeft);
+                ? new BlockUntilDateConstraint(APILimitState.DailyReset) as IAwaitableConstraint
+                : new CountByIntervalAwaitableConstraint(APILimitState.DailyRemaining, dailyTimeLeft);
 
             return TimeLimiter.Compose(constraint, hourlyLimitConstraint, hourlyRemainingConstraint, dailyLimitConstraint, dailyRemainingConstraint);
         }

@@ -4,10 +4,12 @@ using NexusMods.Monitor.Shared.Domain.SeedWork;
 using NodaTime;
 
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 
 namespace NexusMods.Monitor.Scraper.Domain.AggregatesModel.CommentAggregate
 {
+    [SuppressMessage("ReSharper", "RedundantBoolCompare", Justification = "Consistent look")]
     public sealed record CommentEntity(uint Id) : Entity(Id), IAggregateRoot
     {
         public uint NexusModsGameId { get; private set; } = default!;
@@ -27,6 +29,7 @@ namespace NexusMods.Monitor.Scraper.Domain.AggregatesModel.CommentAggregate
         private readonly List<CommentReplyEntity> _replies = new();
         public IReadOnlyList<CommentReplyEntity> Replies => _replies.AsReadOnly();
 
+        [SuppressMessage("ReSharper", "UnusedMember.Local")]
         private CommentEntity() : this(default, default, default, default!, default!, default!, default!, default!, default!, default!, default, default, default, default) { }
         public CommentEntity(uint id, uint nexusModsGameId, uint nexusModsModId, string gameName, string modName, string url, string author, string authorUrl, string avatarUrl, string content, bool isSticky, bool isLocked, bool isDeleted, Instant timeOfPost) : this(id)
         {

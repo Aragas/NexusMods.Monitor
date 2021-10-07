@@ -46,7 +46,7 @@ namespace NexusMods.Monitor.Subscriptions.API
             }, CancellationToken.None);
         }
 
-        public static IHostBuilder CreateHostBuilder(string[] args) => Microsoft.Extensions.Hosting.Host
+        public static IHostBuilder CreateHostBuilder(string[] args) => Host
             .CreateDefaultBuilder(args)
             .ConfigureWebHostDefaults(webBuilder => webBuilder.UseStartup<Startup>())
             .AddMetadataHttpClient()

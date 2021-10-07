@@ -14,10 +14,19 @@ namespace NexusMods.Monitor.Metadata.Application.Extensions
             return IsParentHidden(element.ParentElement);
         }
 
-        private static bool IsHiddenInternal(IElement element) =>
-            element.GetAttribute(AttributeNames.Hidden) is { } hidden && hidden.Equals("true", StringComparison.OrdinalIgnoreCase) ||
-            element.GetAttribute(AttributeNames.Style) is { } style && style.Equals("display:none", StringComparison.OrdinalIgnoreCase);
+        private static bool IsHiddenInternal(IElement element)
+        {
+            var t1 = element.GetAttribute(AttributeNames.Hidden) is { } hidden && hidden.Equals("true", StringComparison.OrdinalIgnoreCase);
+            var t2 = element.GetAttribute(AttributeNames.Style) is { } style && style.Contains("display:none", StringComparison.OrdinalIgnoreCase);
 
-        public static bool IsHidden(this IElement element) => IsHiddenInternal(element) || IsParentHidden(element);
+            return t1 || t2;
+        }
+
+        public static bool IsHidden(this IElement element)
+        {
+            var t1 = IsHiddenInternal(element);
+            var t2 = IsParentHidden(element);
+            return t1 || t2;
+        }
     }
 }

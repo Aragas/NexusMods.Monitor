@@ -3,6 +3,7 @@
 using Microsoft.Extensions.Logging;
 
 using System.Diagnostics;
+using System.Diagnostics.CodeAnalysis;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -13,6 +14,7 @@ namespace NexusMods.Monitor.Shared.Application.Behaviours
         private readonly Stopwatch _timer;
         private readonly ILogger<TRequest> _logger;
 
+        [SuppressMessage("ReSharper", "ContextualLoggerProblem")]
         public PerformanceBehaviour(ILogger<TRequest> logger)
         {
             _timer = new Stopwatch();

@@ -29,13 +29,13 @@ namespace NexusMods.Monitor.Scraper.Application.CommandHandlers.Issues
         {
             if (await _issueRepository.GetAsync(message.Id) is not { } issueEntity)
             {
-                _logger.LogError("Issue with Id {Id} was not found.", message.Id);
+                _logger.LogError("Issue with Id {Id} was not found", message.Id);
                 return false;
             }
 
             if (issueEntity.IsPrivate != message.IsPrivate)
             {
-                _logger.LogError("Issue with Id {Id} has already the correct IsPrivate value.", message.Id);
+                _logger.LogError("Issue with Id {Id} has already the correct IsPrivate value", message.Id);
                 return false;
             }
 

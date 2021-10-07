@@ -46,7 +46,7 @@ namespace NexusMods.Monitor.Bot.Discord.Host
         [Command("help")]
         public async Task Help()
         {
-            _loggerService.LogInformation("Received 'help' command from user '{User}'.", Context.User.ToString());
+            _loggerService.LogInformation("Received 'help' command from user '{User}'", Context.User.ToString());
 
             await Context.User.SendMessageAsync(@"help
 about
@@ -62,7 +62,7 @@ authorize");
         [Command("about")]
         public async Task About()
         {
-            _loggerService.LogInformation("Received 'about' command from user '{User}'.", Context.User.ToString());
+            _loggerService.LogInformation("Received 'about' command from user '{User}'", Context.User.ToString());
 
             var uptime = _clock.GetCurrentInstant() - Process.GetCurrentProcess().StartTime.ToUniversalTime().ToInstant();
             var subscriptionCount = await _subscriptionQueries.GetAllAsync().CountAsync();
@@ -82,11 +82,11 @@ authorize");
         {
             if (Context.IsPrivate)
             {
-                _loggerService.LogWarning("Received 'subscriptions' in a private channel from user '{User}'.", Context.User.ToString());
+                _loggerService.LogWarning("Received 'subscriptions' in a private channel from user '{User}'", Context.User.ToString());
                 return;
             }
 
-            _loggerService.LogInformation("Received 'subscriptions' command from user '{User}'.", Context.User.ToString());
+            _loggerService.LogInformation("Received 'subscriptions' command from user '{User}'", Context.User.ToString());
 
 
             var subscriptions = await _subscriptionQueries.GetAllAsync().Where(s => s.ChannelId == Context.Channel.Id).ToImmutableArrayAsync();
@@ -108,12 +108,12 @@ authorize");
         {
             if (Context.IsPrivate)
             {
-                _loggerService.LogWarning("Received 'subscribe' in a private channel from user '{User}'.",
+                _loggerService.LogWarning("Received 'subscribe' in a private channel from user '{User}'",
                     Context.User.ToString());
                 return;
             }
 
-            _loggerService.LogInformation("Received 'subscribe' command from user '{User}'.", Context.User.ToString());
+            _loggerService.LogInformation("Received 'subscribe' command from user '{User}'", Context.User.ToString());
 
 
             if (await _mediator.Send(new SubscribeCommand(Context.Channel.Id, gameId, modId)))
@@ -127,12 +127,12 @@ authorize");
         {
             if (Context.IsPrivate)
             {
-                _loggerService.LogWarning("Received 'subscribe' in a private channel from user '{User}'.",
+                _loggerService.LogWarning("Received 'subscribe' in a private channel from user '{User}'",
                     Context.User.ToString());
                 return;
             }
 
-            _loggerService.LogInformation("Received 'subscribe' command from user '{User}'.", Context.User.ToString());
+            _loggerService.LogInformation("Received 'subscribe' command from user '{User}'", Context.User.ToString());
 
 
             if (await _mediator.Send(new Subscribe2Command(Context.Channel.Id, nexusModsUrl)))
@@ -146,11 +146,11 @@ authorize");
         {
             if (Context.IsPrivate)
             {
-                _loggerService.LogWarning("Received 'unsubscribe' in a private channel from user '{User}'.", Context.User.ToString());
+                _loggerService.LogWarning("Received 'unsubscribe' in a private channel from user '{User}'", Context.User.ToString());
                 return;
             }
 
-            _loggerService.LogInformation("Received 'unsubscribe' command from user '{User}'.", Context.User.ToString());
+            _loggerService.LogInformation("Received 'unsubscribe' command from user '{User}'", Context.User.ToString());
 
 
             if (await _mediator.Send(new UnsubscribeCommand(Context.Channel.Id, gameId, modId)))
@@ -164,11 +164,11 @@ authorize");
         {
             if (Context.IsPrivate)
             {
-                _loggerService.LogWarning("Received 'unsubscribe' in a private channel from user '{User}'.", Context.User.ToString());
+                _loggerService.LogWarning("Received 'unsubscribe' in a private channel from user '{User}'", Context.User.ToString());
                 return;
             }
 
-            _loggerService.LogInformation("Received 'unsubscribe' command from user '{User}'.", Context.User.ToString());
+            _loggerService.LogInformation("Received 'unsubscribe' command from user '{User}'", Context.User.ToString());
 
 
             if (await _mediator.Send(new Unsubscribe2Command(Context.Channel.Id, nexusModsUrl)))
@@ -180,7 +180,7 @@ authorize");
         [Command("ratelimits")]
         public async Task RateLimits()
         {
-            _loggerService.LogInformation("Received 'ratelimits' command from user '{User}'.", Context.User.ToString());
+            _loggerService.LogInformation("Received 'ratelimits' command from user '{User}'", Context.User.ToString());
 
             var rateLimit = await _rateLimitQueries.GetAsync();
             if (rateLimit is null)
@@ -200,7 +200,7 @@ authorize");
         [Command("authorize")]
         public async Task Authorize()
         {
-            _loggerService.LogInformation("Received 'ratelimits' command from user '{User}'.", Context.User.ToString());
+            _loggerService.LogInformation("Received 'ratelimits' command from user '{User}'", Context.User.ToString());
 
             var isAuthorized = await _authorizationQueries.IsAuthorizedAsync();
             if (isAuthorized)

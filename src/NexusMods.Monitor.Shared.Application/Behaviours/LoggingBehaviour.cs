@@ -2,6 +2,7 @@
 
 using Microsoft.Extensions.Logging;
 
+using System.Diagnostics.CodeAnalysis;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -9,8 +10,9 @@ namespace NexusMods.Monitor.Shared.Application.Behaviours
 {
     internal class LoggingBehaviour<TRequest> : IRequestPreProcessor<TRequest> where TRequest : notnull
     {
-        private readonly ILogger _logger;
+        private readonly ILogger<TRequest> _logger;
 
+        [SuppressMessage("ReSharper", "ContextualLoggerProblem")]
         public LoggingBehaviour(ILogger<TRequest> logger)
         {
             _logger = logger;

@@ -2,6 +2,7 @@
 
 using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 
 namespace NexusMods.Monitor.Shared.Domain.SeedWork
 {
@@ -17,6 +18,8 @@ namespace NexusMods.Monitor.Shared.Domain.SeedWork
         public void ClearDomainEvents() => _domainEvents.Clear();
 
 
+        [SuppressMessage("ReSharper", "BaseObjectGetHashCodeCallInGetHashCode")]
+        // https://docs.microsoft.com/en-us/dotnet/api/system.object.gethashcode?view=net-5.0
         public override int GetHashCode() => !IsTransient ? HashCode.Combine(Id) : base.GetHashCode();
 
         public virtual bool Equals(Entity? other)

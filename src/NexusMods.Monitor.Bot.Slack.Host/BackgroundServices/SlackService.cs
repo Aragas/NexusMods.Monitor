@@ -66,7 +66,7 @@ namespace NexusMods.Monitor.Bot.Slack.Host.BackgroundServices
                 .WaitAndRetryAsync(10, _ => TimeSpan.FromSeconds(2),
                     (ex, time) =>
                     {
-                        _logger.LogError(ex, "Exception during NATS connection. Waiting {time}...", time);
+                        _logger.LogError(ex, "Exception during NATS connection. Waiting {Time}...", time);
                     });
         }
 
@@ -75,14 +75,14 @@ namespace NexusMods.Monitor.Bot.Slack.Host.BackgroundServices
             void OnCancellation(object? _, CancellationToken ct)
             {
                 _bot.OnMessage -= Bot_OnMessageReceived;
-                _logger.LogWarning("Stopped Slack Bot.");
+                _logger.LogWarning("Stopped Slack Bot");
                 _eventSubscriber.Dispose();
             }
 
             _bot.OnMessage += Bot_OnMessageReceived;
             await _bot.Connect(stoppingToken);
             await _retryPolicy.ExecuteAsync(async token => await _eventSubscriber.Subscribe(token), stoppingToken);
-            _logger.LogWarning("Started Slack Bot.");
+            _logger.LogWarning("Started Slack Bot");
 
 #if NET5_0
             stoppingToken.Register(_ => OnCancellation(null, stoppingToken), null);

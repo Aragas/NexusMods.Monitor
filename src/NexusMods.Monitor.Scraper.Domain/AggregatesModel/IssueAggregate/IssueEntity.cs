@@ -4,10 +4,12 @@ using NexusMods.Monitor.Shared.Domain.SeedWork;
 using NodaTime;
 
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 
 namespace NexusMods.Monitor.Scraper.Domain.AggregatesModel.IssueAggregate
 {
+    [SuppressMessage("ReSharper", "RedundantBoolCompare", Justification = "Consistent look")]
     public sealed record IssueEntity(uint Id) : Entity(Id), IAggregateRoot
     {
         public uint NexusModsModId { get; private init; } = default!;
@@ -28,6 +30,7 @@ namespace NexusMods.Monitor.Scraper.Domain.AggregatesModel.IssueAggregate
         private readonly List<IssueReplyEntity> _replies = new();
         public IReadOnlyList<IssueReplyEntity> Replies => _replies.AsReadOnly();
 
+        [SuppressMessage("ReSharper", "UnusedMember.Local")]
         private IssueEntity() : this(default, default, default, default!, default!, default!, default!, default!, default!, default!, default, default, default, default) { }
         public IssueEntity(uint id, uint nexusModsGameId, uint nexusModsModId, string gameName, string modName, string title, string url, string modVersion, IssueStatusEnumeration status, IssuePriorityEnumeration priority, bool isPrivate, bool isClosed, bool isDeleted, Instant timeOfLastPost) : this(id)
         {
