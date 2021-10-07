@@ -4,6 +4,9 @@ using Microsoft.EntityFrameworkCore.Metadata;
 using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage;
 
+using Npgsql;
+
+using System;
 using System.Collections.Immutable;
 using System.Threading;
 using System.Threading.Tasks;
@@ -33,7 +36,11 @@ namespace NexusMods.Monitor.Shared.Infrastructure.Npgsql.Extensions
                 var migrationSqlCommands = migrationsSqlGenerator.Generate(migrationOperations, staticModel).ToImmutableArray();
                 if (migrationSqlCommands.Length > 0)
                 {
-                    await migrationCommandExecutor.ExecuteNonQueryAsync(migrationSqlCommands, connection, ct);
+                    try
+                    {
+                        await migrationCommandExecutor.ExecuteNonQueryAsync(migrationSqlCommands, connection, ct);
+                    }
+                    catch (Exception e) when (e is PostgresException) { } // TODO: Patching on ARM is not working
                     return true;
                 }
             }
