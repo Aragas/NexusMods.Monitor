@@ -58,7 +58,7 @@ namespace NexusMods.Monitor.Shared.Application.HttpLogging
 
             var shouldRedactHeaderValue = _options?.ShouldRedactHeaderValue ?? ShouldNotRedactHeaderValue;
 
-            using var scope = _logger.BeginScope("CorrelationId: {CorrelationId}", _correlationContextAccessor.CorrelationContext.CorrelationId);
+            using var scope = _logger.BeginScope("CorrelationId: {CorrelationId}", _correlationContextAccessor.CorrelationContext?.CorrelationId);
             Log.RequestStart(_logger, request, shouldRedactHeaderValue);
             var stopwatch = ValueStopwatch.StartNew();
             var response = await base.SendAsync(request, cancellationToken).ConfigureAwait(false);

@@ -60,7 +60,7 @@ namespace NexusMods.Monitor.Shared.Application.HttpLogging
 
             var shouldRedactHeaderValue = _options?.ShouldRedactHeaderValue ?? ShouldNotRedactHeaderValue;
 
-            using var scope = _logger.BeginScope("CorrelationId: {CorrelationId}", _correlationContextAccessor.CorrelationContext.CorrelationId);
+            using var scope = _logger.BeginScope("CorrelationId: {CorrelationId}", _correlationContextAccessor.CorrelationContext?.CorrelationId);
             using (Log.BeginRequestPipelineScope(_logger, request))
             {
                 Log.RequestPipelineStart(_logger, request, shouldRedactHeaderValue);
