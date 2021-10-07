@@ -1,10 +1,18 @@
 ﻿using CorrelationId;
+using CorrelationId.Abstractions;
 
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Http.Authentication;
+using Microsoft.AspNetCore.Http.Features;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Options;
 
 using System;
+using System.Collections.Generic;
+using System.Security.Claims;
+using System.Security.Principal;
+using System.Threading;
 
 namespace NexusMods.Monitor.Shared.Application.Extensions
 {
@@ -20,7 +28,8 @@ namespace NexusMods.Monitor.Shared.Application.Extensions
             builder.ConfigureHttpClient((sp, client) =>
             {
                 var correlationIdOptions = sp.GetRequiredService<IOptions<CorrelationIdOptions>>().Value;
-                client.DefaultRequestHeaders.Add(correlationIdOptions.RequestHeader, Guid.NewGuid().ToString());
+                var correlationIdProvider = sp.GetRequiredService<ICorrelationIdProvider>();
+                client.DefaultRequestHeaders.Add(correlationIdOptions.RequestHeader, correlationIdProvider.GenerateCorrelationId(null));
             });
 
             return builder;

@@ -7,8 +7,11 @@ using MediatR;
 using MediatR.Pipeline;
 
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.DependencyInjection.Extensions;
+using Microsoft.Extensions.Http;
 
 using NexusMods.Monitor.Shared.Application.Behaviours;
+using NexusMods.Monitor.Shared.Application.HttpLogging;
 using NexusMods.Monitor.Shared.Common;
 
 using System;
@@ -44,6 +47,8 @@ namespace NexusMods.Monitor.Shared.Application.Extensions
 
             services.AddSingleton<DefaultJsonSerializer>();
 
+            services.RemoveAll<IHttpMessageHandlerBuilderFilter>();
+            services.AddSingleton<IHttpMessageHandlerBuilderFilter, LoggingHttpMessageHandlerBuilderFilter>();
             return services;
         }
     }

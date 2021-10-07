@@ -68,8 +68,6 @@ services:
     image: ${DOCKER_REGISTRY-}nexusmods_monitor_metadata:${TAG-latest}
     environment:
       NexusMods__APIKey: PLACEHOLDER
-      NexusMods__APIEndpoint: https://api.nexusmods.com/
-      NexusMods__Endpoint: https://www.nexusmods.com/
       ASPNETCORE_URLS: "http://*:80"
     build:
       context: ../../.
