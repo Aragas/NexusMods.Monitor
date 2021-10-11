@@ -1,7 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <ItemGroup>
-    <PackageReference Include="SlackNet.Bot" Version="0.9.4" />
+    <PackageReference Include="SlackNet.Bot" Version="0.9.5" />
   </ItemGroup>
 
   <ItemGroup>
