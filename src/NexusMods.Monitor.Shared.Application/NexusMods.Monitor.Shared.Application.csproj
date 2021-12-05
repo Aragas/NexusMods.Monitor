@@ -2,7 +2,7 @@
 
   <ItemGroup>
     <PackageReference Include="CorrelationId" Version="3.0.1" />
-    <PackageReference Include="Enbiso.NLib.EventBus" Version="5.0.41" />
+    <PackageReference Include="Enbiso.NLib.EventBus" Version="6.0.0" />
     <PackageReference Include="FluentValidation" Version="10.3.3" />
     <PackageReference Include="FluentValidation.DependencyInjectionExtensions" Version="10.3.3" />
     <PackageReference Include="Polly" Version="7.2.2" />
