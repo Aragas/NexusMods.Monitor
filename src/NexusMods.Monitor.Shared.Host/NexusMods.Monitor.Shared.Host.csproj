@@ -2,7 +2,7 @@
 
   <ItemGroup>
     <PackageReference Include="BetterHostedServices" Version="2.0.3" />
-    <PackageReference Include="Enbiso.NLib.EventBus.Nats" Version="5.0.41" />
+    <PackageReference Include="Enbiso.NLib.EventBus.Nats" Version="6.0.0" />
     <PackageReference Include="MediatR.Extensions.Microsoft.DependencyInjection" Version="9.0.0" />
     <PackageReference Include="Microsoft.VisualStudio.Azure.Containers.Tools.Targets" Version="1.11.1" />
     <PackageReference Include="Serilog.Enrichers.AssemblyName" Version="1.0.9" />
