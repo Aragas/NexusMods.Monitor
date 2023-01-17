@@ -22,7 +22,8 @@ namespace NexusMods.Monitor.Shared.Application.Extensions
                 throw new ArgumentNullException(nameof(optionsBuilder));
             }
 
-            optionsBuilder.Services.AddHttpClient("FluentClient");
+            optionsBuilder.Services.AddHttpClient("FluentClient")
+                .GenerateCorrelationId();
             optionsBuilder.Services.TryAddEnumerable(ServiceDescriptor.Transient<IValidator<TOptions>, TOptionsValidator>());
             optionsBuilder.Services.AddTransient<IValidateOptions<TOptions>>(sp => new FluentValidateOptions<TOptions>(sp.GetRequiredService<IEnumerable<IValidator<TOptions>>>()));
 

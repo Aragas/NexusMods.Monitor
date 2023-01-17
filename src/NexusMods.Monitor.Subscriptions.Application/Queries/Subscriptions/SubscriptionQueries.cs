@@ -32,21 +32,21 @@ namespace NexusMods.Monitor.Subscriptions.Application.Queries.Subscriptions
             .ToAsyncEnumerable()
             .SelectAwait(async x =>
             {
-                var game = await _nexusModsGameQueries.GetAsync(x.NexusModsGameId, ct);
+                var game = await _nexusModsGameQueries.GetAsync(x.Id.NexusModsGameId, ct);
                 if (game is null)
                 {
-                    _logger.LogError("Subscription with Id {Id} provided invalid game id {GameId}", x.SubscriberId, x.NexusModsGameId);
-                    return new SubscriptionViewModel(x.SubscriberId, x.NexusModsGameId, x.NexusModsModId, "ERROR", "ERROR");
+                    _logger.LogError("Subscription with Id {Id} provided invalid game id {GameId}", x.Id.SubscriberId, x.Id.NexusModsGameId);
+                    return new SubscriptionViewModel(x.Id.SubscriberId, x.Id.NexusModsGameId, x.Id.NexusModsModId, "ERROR", "ERROR");
                 }
 
-                var mod = await _nexusModsModQueries.GetAsync(x.NexusModsGameId, x.NexusModsModId, ct);
+                var mod = await _nexusModsModQueries.GetAsync(x.Id.NexusModsGameId, x.Id.NexusModsModId, ct);
                 if (mod is null)
                 {
-                    _logger.LogError("Subscription with Id {Id} provided invalid mod id {ModId}", x.SubscriberId, x.NexusModsModId);
-                    return new SubscriptionViewModel(x.SubscriberId, x.NexusModsGameId, x.NexusModsModId, game.Name, "ERROR");
+                    _logger.LogError("Subscription with Id {Id} provided invalid mod id {ModId}", x.Id.SubscriberId, x.Id.NexusModsModId);
+                    return new SubscriptionViewModel(x.Id.SubscriberId, x.Id.NexusModsGameId, x.Id.NexusModsModId, game.Name, "ERROR");
                 }
 
-                return new SubscriptionViewModel(x.SubscriberId, x.NexusModsGameId, x.NexusModsModId, game.Name, mod.Name);
+                return new SubscriptionViewModel(x.Id.SubscriberId, x.Id.NexusModsGameId, x.Id.NexusModsModId, game.Name, mod.Name);
             });
     }
 }

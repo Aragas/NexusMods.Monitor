@@ -1,0 +1,31 @@
+services:
+  nexusmods_monitor_bot_discord:
+    environment:
+      EventBus__Servers__0: nats://host.docker.internal:19050
+    depends_on:
+      - nats
+    networks:
+      - eventbus
+
+  nexusmods_monitor_scraper:
+    environment:
+      EventBus__Servers__0: nats://host.docker.internal:19050
+    depends_on:
+      - nats
+    networks:
+      - eventbus
+
+  nats:
+    image: nats:alpine
+    ports:
+      - "19050:4222"
+      - "19051:6222"
+      - "19052:8222"
+    networks:
+      - eventbus
+    healthcheck:
+      test: echo $$(wget --server-response http://nats:8222/varz 2>&1 | grep  '200 OK') | grep '200'  || exit 1
+      interval: 20s
+      timeout: 5s
+      retries: 5
+      start_period: 40s

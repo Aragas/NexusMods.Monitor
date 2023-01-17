@@ -13,7 +13,8 @@ namespace NexusMods.Monitor.Shared.Application.FluentValidation
 
         public override bool IsValid(ValidationContext<T> context, string value) => value switch
         {
-            { } s when Uri.TryCreate(s, UriKind.Absolute, out _) => true,
+            { } when string.IsNullOrEmpty(value) => false,
+            { } when Uri.TryCreate(value, UriKind.Absolute, out _) => true,
             _ => false
         };
 

@@ -92,11 +92,7 @@ namespace NexusMods.Monitor.Bot.Discord.Host.BackgroundServices
 
             _logger.LogWarning("Started Discord Bot");
 
-#if NET5_0
-            stoppingToken.Register(_ => OnCancellation(null, stoppingToken), null);
-#else
             stoppingToken.Register(OnCancellation, null);
-#endif
         }
 
         private Task Bot_Log(LogMessage arg)

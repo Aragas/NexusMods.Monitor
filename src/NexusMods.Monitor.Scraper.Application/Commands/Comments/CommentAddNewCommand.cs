@@ -18,20 +18,20 @@ namespace NexusMods.Monitor.Scraper.Application.Commands.Comments
         {
             return new CommentAddNewCommand(RecordUtils.Default<CommentAddNewCommand>())
             {
-                Id = viewModel.NexusModsComment.Id,
+                Id = viewModel.Comment.Id,
                 NexusModsGameId = viewModel.GameId,
                 NexusModsModId = viewModel.ModId,
                 GameName = viewModel.GameName,
                 ModName = viewModel.ModName,
-                Url = $"https://www.nexusmods.com/{viewModel.GameDomain}/mods/{viewModel.ModId}/?tab=posts&jump_to_comment={viewModel.NexusModsComment.Id}",
-                Author = viewModel.NexusModsComment.Author,
-                AuthorUrl = viewModel.NexusModsComment.AuthorUrl,
-                AvatarUrl = viewModel.NexusModsComment.AvatarUrl,
-                Content = viewModel.NexusModsComment.Content,
-                IsSticky = viewModel.NexusModsComment.IsSticky,
-                IsLocked = viewModel.NexusModsComment.IsLocked,
-                TimeOfPost = viewModel.NexusModsComment.Post,
-                Replies = viewModel.NexusModsComment.Replies.Select(x => new CommentReplyDTO
+                Url = $"https://www.nexusmods.com/{viewModel.GameDomain}/mods/{viewModel.ModId}/?tab=posts&jump_to_comment={viewModel.Comment.Id}",
+                Author = viewModel.Comment.Author,
+                AuthorUrl = viewModel.Comment.AuthorUrl,
+                AvatarUrl = viewModel.Comment.AvatarUrl,
+                Content = viewModel.Comment.Content,
+                IsSticky = viewModel.Comment.IsSticky,
+                IsLocked = viewModel.Comment.IsLocked,
+                TimeOfPost = viewModel.Comment.Post,
+                Replies = viewModel.Comment.Replies.Select(x => new CommentReplyDTO
                 (
                     x.Id,
                     $"https://www.nexusmods.com/{viewModel.GameDomain}/mods/{viewModel.ModId}/?tab=posts&jump_to_comment={x.Id}",

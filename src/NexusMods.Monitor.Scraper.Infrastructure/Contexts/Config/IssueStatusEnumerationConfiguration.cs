@@ -2,6 +2,7 @@
 using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 using NexusMods.Monitor.Scraper.Domain.AggregatesModel.IssueAggregate;
+using NexusMods.Monitor.Shared.Domain.SeedWork;
 using NexusMods.Monitor.Shared.Infrastructure;
 
 namespace NexusMods.Monitor.Scraper.Infrastructure.Contexts.Config
@@ -14,7 +15,7 @@ namespace NexusMods.Monitor.Scraper.Infrastructure.Contexts.Config
             builder.Property(p => p.Id).HasDefaultValue(1).ValueGeneratedNever().HasColumnName("id").IsRequired();
             builder.Property(p => p.Name).HasColumnName("name").IsRequired();
 
-            builder.HasData(IssueStatusEnumeration.List());
+            builder.HasData(Enumeration.GetAll<IssueStatusEnumeration>());
         }
     }
 }

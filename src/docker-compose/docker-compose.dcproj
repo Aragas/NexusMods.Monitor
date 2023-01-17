@@ -4,20 +4,33 @@
     <ProjectVersion>2.1</ProjectVersion>
     <DockerTargetOS>Linux</DockerTargetOS>
     <ProjectGuid>33720e89-2f26-423a-9287-c6d83413eb60</ProjectGuid>
-    <AdditionalComposeFilePaths>docker-compose.graylog.yml;</AdditionalComposeFilePaths>
+    <!--
+    <AdditionalComposeFilePaths>docker-compose.seq.yml;</AdditionalComposeFilePaths>
+    -->
     <DockerComposeProjectName>nexmusmodsmonitor</DockerComposeProjectName>
   </PropertyGroup>
   <ItemGroup>
-    <None Include="docker-compose.graylog.yml">
+    <None Include="docker-compose.application.discord.yml">
       <DependentUpon>docker-compose.yml</DependentUpon>
     </None>
-    <None Include="docker-compose.seq.yml">
+    <None Include="docker-compose.application.metadata.yml">
       <DependentUpon>docker-compose.yml</DependentUpon>
     </None>
-    <None Include="docker-compose.override.yml">
+    <None Include="docker-compose.application.scraper.yml">
+      <DependentUpon>docker-compose.yml</DependentUpon>
+    </None>
+    <None Include="docker-compose.application.subscriptions.yml">
+      <DependentUpon>docker-compose.yml</DependentUpon>
+    </None>
+    <None Include="docker-compose.service.nats.yml">
+      <DependentUpon>docker-compose.yml</DependentUpon>
+    </None>
+    <None Include="docker-compose.service.seq.yml">
+      <DependentUpon>docker-compose.yml</DependentUpon>
+    </None>
+    <None Include="docker-compose.secrets.yml">
       <DependentUpon>docker-compose.yml</DependentUpon>
     </None>
     <None Include="docker-compose.yml" />
-    <None Include=".dockerignore" />
   </ItemGroup>
 </Project>

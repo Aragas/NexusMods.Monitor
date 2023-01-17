@@ -5,6 +5,7 @@ using Microsoft.Extensions.Logging;
 using NexusMods.Monitor.Subscriptions.Application.Commands;
 using NexusMods.Monitor.Subscriptions.Application.Queries.NexusModsGames;
 using NexusMods.Monitor.Subscriptions.Domain.AggregatesModel.SubscriptionAggregate;
+using NexusMods.Monitor.Subscriptions.Domain.ValueObject;
 
 using System;
 using System.IO;
@@ -58,7 +59,7 @@ namespace NexusMods.Monitor.Subscriptions.Application.CommandHandlers
                 return false;
             }
 
-            var subscriptionEntity = new SubscriptionEntity(message.SubscriberId, nexusModsGameId, nexusModsModId);
+            var subscriptionEntity = new SubscriptionEntity(new SubscriptionId(message.SubscriberId, nexusModsGameId, nexusModsModId));
             _subscriptionRepository.Add(subscriptionEntity);
 
             return await _subscriptionRepository.UnitOfWork.SaveEntitiesAsync(ct);

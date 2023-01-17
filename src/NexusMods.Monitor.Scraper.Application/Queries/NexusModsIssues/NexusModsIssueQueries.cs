@@ -4,6 +4,7 @@ using NodaTime;
 
 using System;
 using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.Net;
 using System.Net.Http;
 using System.Runtime.CompilerServices;
@@ -52,7 +53,8 @@ namespace NexusMods.Monitor.Scraper.Application.Queries.NexusModsIssues
                             new NexusModsIssueStatus(statusId, statusName),
                             replyCount, modVersion,
                             new NexusModsIssuePriority(priorityId, priorityName),
-                            lastPost));
+                            lastPost),
+                        null, ImmutableArray<NexusModsIssueReplyViewModel>.Empty);
                 }
             }
 

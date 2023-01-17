@@ -8,7 +8,7 @@ using System.Diagnostics.CodeAnalysis;
 namespace NexusMods.Monitor.Scraper.Domain.AggregatesModel.CommentAggregate
 {
     [SuppressMessage("ReSharper", "RedundantBoolCompare", Justification = "Consistent look")]
-    public sealed record CommentReplyEntity : Entity
+    public sealed record CommentReplyEntity : DefaultEntity
     {
         public uint OwnerId { get; private set; }
         public string Url { get; private set; }

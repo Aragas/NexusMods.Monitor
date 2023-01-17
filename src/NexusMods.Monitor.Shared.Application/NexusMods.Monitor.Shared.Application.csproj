@@ -2,20 +2,15 @@
 
   <ItemGroup>
     <PackageReference Include="CorrelationId" Version="3.0.1" />
-    <PackageReference Include="Enbiso.NLib.EventBus" Version="6.0.0" />
-    <PackageReference Include="FluentValidation" Version="10.3.5" />
-    <PackageReference Include="FluentValidation.DependencyInjectionExtensions" Version="10.3.5" />
-    <PackageReference Include="Polly" Version="7.2.2" />
+    <PackageReference Include="Enbiso.NLib.EventBus" Version="6.1.8" />
+    <PackageReference Include="FluentValidation" Version="11.4.0" />
+    <PackageReference Include="FluentValidation.DependencyInjectionExtensions" Version="11.4.0" />
+    <PackageReference Include="Polly" Version="7.2.3" />
   </ItemGroup>
 
-  <ItemGroup Condition="$(TargetFramework) == 'net5.0'">
-    <PackageReference Include="Microsoft.Extensions.Hosting.Abstractions" Version="6.0.0" />
-    <PackageReference Include="Microsoft.Extensions.Http" Version="5.0.0" />
-  </ItemGroup>
-
-  <ItemGroup Condition="$(TargetFramework) == 'net6.0'">
-    <PackageReference Include="Microsoft.Extensions.Hosting.Abstractions" Version="6.0.0" />
-    <PackageReference Include="Microsoft.Extensions.Http" Version="6.0.0-preview.7.21377.19" />
+  <ItemGroup>
+    <PackageReference Include="Microsoft.Extensions.Hosting.Abstractions" Version="7.0.0" />
+    <PackageReference Include="Microsoft.Extensions.Http" Version="7.0.0" />
   </ItemGroup>
 
   <ItemGroup>

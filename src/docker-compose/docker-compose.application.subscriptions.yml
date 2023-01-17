@@ -1,0 +1,39 @@
+services:
+  nexusmods_monitor_subscriptions:
+    image: ${DOCKER_REGISTRY-}nexusmods_monitor_subscriptions:${TAG-latest}
+    environment:
+      ASPNETCORE_URLS: "http://*:80"
+      ConnectionStrings__Subscriptions: Host=host.docker.internal;Port=19012;Database=nexusmodsmonitor;Username=nexusmodsmonitor;Password=nexusmodsmonitor;Include Error Detail=true;
+      MetadataAPI__APIEndpointV1: http://host.docker.internal:19001/api/v1/metadata/
+    build:
+      context: ../../.
+      dockerfile: src/NexusMods.Monitor.Subscriptions.API/Dockerfile
+    depends_on:
+      - nexusmods_monitor_metadata
+      - subscriptions_postgres
+    ports:
+      - "19011:80"
+    networks:
+      - internal
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    healthcheck:
+      test: ["CMD-SHELL", "curl", "-f", "http://localhost:80"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+
+  subscriptions_postgres:
+    image: postgres:13-alpine
+    environment:
+     POSTGRES_USER: nexusmodsmonitor
+     POSTGRES_PASSWORD: nexusmodsmonitor
+    volumes:
+      - ./subscriptions_postgres:/var/lib/postgresql/data
+    ports:
+      - "19012:5432"
+    #healthcheck:
+    #  test: ["CMD-SHELL", "pg_isready", "-d", "nexusmodsmonitor"]
+    #  interval: 30s
+    #  timeout: 60s
+    #  retries: 5

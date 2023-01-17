@@ -1,0 +1,40 @@
+services:
+  nexusmods_monitor_scraper:
+    image: ${DOCKER_REGISTRY-}nexusmods_monitor_scraper:${TAG-latest}
+    environment:
+      ConnectionStrings__NexusMods: Host=host.docker.internal;Port=19022;Database=nexusmodsmonitor;Username=nexusmodsmonitor;Password=nexusmodsmonitor;Include Error Detail=true;
+      MetadataAPI__APIEndpointV1: http://host.docker.internal:19001/api/v1/metadata/
+      SubscriptionsAPI__APIEndpointV1: http://host.docker.internal:19011/api/v1/subscriptions/
+    build:
+      context: ../../.
+      dockerfile: src/NexusMods.Monitor.Scraper.Host/Dockerfile
+    depends_on:
+      - nexusmods_monitor_subscriptions
+      - nexusmods_monitor_metadata
+      - scraper_postgres
+    ports:
+      - "19021:80"
+    networks:
+      - internal
+    healthcheck:
+      test: ["CMD-SHELL", "curl", "-f", "http://localhost:80"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+
+  scraper_postgres:
+    image: postgres:13-alpine
+    environment:
+     POSTGRES_USER: nexusmodsmonitor
+     POSTGRES_PASSWORD: nexusmodsmonitor
+    volumes:
+      - ./scraper_postgres:/var/lib/postgresql/data
+    ports:
+      - "19022:5432"
+    networks:
+      - internal
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready", "-d", "nexusmodsmonitor"]
+      interval: 30s
+      timeout: 60s
+      retries: 5

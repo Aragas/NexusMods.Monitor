@@ -8,7 +8,7 @@ using System.Diagnostics.CodeAnalysis;
 namespace NexusMods.Monitor.Scraper.Domain.AggregatesModel.IssueAggregate
 {
     [SuppressMessage("ReSharper", "RedundantBoolCompare", Justification = "Consistent look")]
-    public sealed record IssueReplyEntity(uint Id) : Entity(Id)
+    public sealed record IssueReplyEntity(uint Id) : DefaultEntity(Id)
     {
         public uint OwnerId { get; private set; } = default!;
         public string Author { get; private set; } = default!;

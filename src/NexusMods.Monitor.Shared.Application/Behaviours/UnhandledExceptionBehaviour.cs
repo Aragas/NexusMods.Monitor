@@ -9,7 +9,7 @@ using System.Threading.Tasks;
 
 namespace NexusMods.Monitor.Shared.Application.Behaviours
 {
-    internal class UnhandledExceptionBehaviour<TRequest, TResponse> : IPipelineBehavior<TRequest, TResponse> where TRequest : notnull
+    internal class UnhandledExceptionBehaviour<TRequest, TResponse> : IPipelineBehavior<TRequest, TResponse> where TRequest : IRequest<TResponse>
     {
         private readonly ILogger<TRequest> _logger;
 
@@ -19,7 +19,7 @@ namespace NexusMods.Monitor.Shared.Application.Behaviours
             _logger = logger;
         }
 
-        public async Task<TResponse> Handle(TRequest request, CancellationToken ct, RequestHandlerDelegate<TResponse> next)
+        public async Task<TResponse> Handle(TRequest request, RequestHandlerDelegate<TResponse> next, CancellationToken ct)
         {
             try
             {

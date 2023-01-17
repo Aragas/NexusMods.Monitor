@@ -5,18 +5,15 @@ using System.Reflection;
 
 namespace NexusMods.Monitor.Shared.Domain.SeedWork
 {
-    public abstract record Enumeration(uint Id, string Name) : Entity(Id), IComparable<Enumeration>
+    public abstract record Enumeration(uint Id, string Name) : DefaultEntity(Id), IComparable<Enumeration>
     {
         public override string ToString() => Name;
 
-        public static IEnumerable<T> GetAll<T>() where T : Enumeration, new()
+        public static IEnumerable<T> GetAll<T>() where T : Enumeration
         {
-            var type = typeof(T);
-            foreach (var info in type.GetFields(BindingFlags.Public | BindingFlags.Static | BindingFlags.DeclaredOnly))
+            foreach (var info in typeof(T).GetFields(BindingFlags.Public | BindingFlags.Static | BindingFlags.DeclaredOnly))
             {
-                var instance = new T();
-
-                if (info.GetValue(instance) is T locatedValue)
+                if (info.GetValue(null) is T locatedValue)
                     yield return locatedValue;
             }
         }

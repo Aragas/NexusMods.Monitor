@@ -6,6 +6,7 @@ using NexusMods.Monitor.Shared.Common;
 
 using System;
 using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Net;
@@ -38,7 +39,7 @@ namespace NexusMods.Monitor.Metadata.Application.Queries.Games
 
         public async IAsyncEnumerable<GameViewModel> GetAllAsync([EnumeratorCancellation] CancellationToken ct = default)
         {
-            if (!_cache.TryGetValue("games", _jsonSerializer, out GameViewModel[]? cacheEntry))
+            if (!_cache.TryGetValue("games", _jsonSerializer, out ImmutableArray<GameViewModel> cacheEntry))
             {
                 var response = await _httpClientFactory.CreateClient("NexusMods.API").GetAsync(
                     "v1/games.json?include_unapproved=false",
@@ -50,13 +51,13 @@ namespace NexusMods.Monitor.Metadata.Application.Queries.Games
                     var content = await response.Content.ReadAsStreamAsync(ct);
                     var games = await _jsonSerializer.DeserializeAsync<GameDTO[]?>(content, ct) ?? Array.Empty<GameDTO>();
 
-                    cacheEntry = games.Select(g => new GameViewModel(g.Id, g.Name, g.ForumUrl.ToString(), g.Url.ToString(), g.DomainName)).ToArray();
+                    cacheEntry = games.Select(g => new GameViewModel(g.Id, g.Name, g.ForumUrl.ToString(), g.Url.ToString(), g.DomainName)).ToImmutableArray();
                     var cacheEntryOptions = new DistributedCacheEntryOptions().SetSize(1).SetAbsoluteExpiration(TimeSpan.FromHours(8));
                     await _cache.SetAsync("games", cacheEntry, cacheEntryOptions, _jsonSerializer, ct);
                 }
             }
 
-            foreach (var nexusModsGame in cacheEntry ?? Array.Empty<GameViewModel>())
+            foreach (var nexusModsGame in cacheEntry)
                 yield return nexusModsGame;
         }
 

@@ -1,0 +1,16 @@
+services:
+  nexusmods_monitor_bot_discord:
+    image: ${DOCKER_REGISTRY-}nexusmods_monitor_bot_discord:${TAG-latest}
+    environment:
+      MetadataAPI__APIEndpointV1: http://host.docker.internal:19001/api/v1/metadata/
+      SubscriptionsAPI__APIEndpointV1: http://host.docker.internal:19011/api/v1/subscriptions/
+    build:
+      context: ../../.
+      dockerfile: src/NexusMods.Monitor.Bot.Discord.Host/Dockerfile
+    depends_on:
+      - nexusmods_monitor_subscriptions
+      - nexusmods_monitor_scraper
+    networks:
+      - internal
+    extra_hosts:
+      - "host.docker.internal:host-gateway"

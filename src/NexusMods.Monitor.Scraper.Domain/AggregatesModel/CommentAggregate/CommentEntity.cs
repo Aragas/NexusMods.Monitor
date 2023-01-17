@@ -10,7 +10,7 @@ using System.Linq;
 namespace NexusMods.Monitor.Scraper.Domain.AggregatesModel.CommentAggregate
 {
     [SuppressMessage("ReSharper", "RedundantBoolCompare", Justification = "Consistent look")]
-    public sealed record CommentEntity(uint Id) : Entity(Id), IAggregateRoot
+    public sealed record CommentEntity(uint Id) : DefaultEntity(Id), IAggregateRoot
     {
         public uint NexusModsGameId { get; private set; } = default!;
         public uint NexusModsModId { get; private set; } = default!;

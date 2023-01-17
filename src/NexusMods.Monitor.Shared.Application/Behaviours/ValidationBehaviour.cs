@@ -19,7 +19,7 @@ namespace NexusMods.Monitor.Shared.Application.Behaviours
             _validators = validators;
         }
 
-        public async Task<TResponse> Handle(TRequest request, CancellationToken ct, RequestHandlerDelegate<TResponse> next)
+        public async Task<TResponse> Handle(TRequest request, RequestHandlerDelegate<TResponse> next, CancellationToken ct)
         {
             if (_validators.Any())
             {

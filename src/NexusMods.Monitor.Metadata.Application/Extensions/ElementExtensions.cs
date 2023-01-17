@@ -8,25 +8,24 @@ namespace NexusMods.Monitor.Metadata.Application.Extensions
     {
         private static bool IsParentHidden(IElement element)
         {
-            if (element.ParentElement is null)
-                return IsHiddenInternal(element);
+            while (true)
+            {
+                if (element.ParentElement is null) return IsHiddenInternal(element);
 
-            return IsParentHidden(element.ParentElement);
+                element = element.ParentElement;
+            }
         }
 
         private static bool IsHiddenInternal(IElement element)
         {
-            var t1 = element.GetAttribute(AttributeNames.Hidden) is { } hidden && hidden.Equals("true", StringComparison.OrdinalIgnoreCase);
-            var t2 = element.GetAttribute(AttributeNames.Style) is { } style && style.Contains("display:none", StringComparison.OrdinalIgnoreCase);
-
-            return t1 || t2;
+            return element.GetAttribute(AttributeNames.Hidden) is { } hidden && hidden.Equals("true", StringComparison.OrdinalIgnoreCase) ||
+                   element.GetAttribute(AttributeNames.Style) is { } style && style.Contains("display:none", StringComparison.OrdinalIgnoreCase);
         }
+
 
         public static bool IsHidden(this IElement element)
         {
-            var t1 = IsHiddenInternal(element);
-            var t2 = IsParentHidden(element);
-            return t1 || t2;
+            return IsHiddenInternal(element) || IsParentHidden(element);
         }
     }
 }

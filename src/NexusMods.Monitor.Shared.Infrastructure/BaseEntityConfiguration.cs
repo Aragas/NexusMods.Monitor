@@ -5,7 +5,7 @@ using NexusMods.Monitor.Shared.Domain.SeedWork;
 
 namespace NexusMods.Monitor.Shared.Infrastructure
 {
-    public abstract class BaseEntityConfiguration<TEntity> : IEntityTypeConfiguration<TEntity> where TEntity : Entity
+    public abstract class BaseEntityConfiguration<TEntity> : IEntityTypeConfiguration<TEntity> where TEntity : DefaultEntity
     {
         public void Configure(EntityTypeBuilder<TEntity> entity)
         {

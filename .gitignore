@@ -351,3 +351,8 @@ MigrationBackup/
 
 # Ionide (cross platform F# VS Code tools) working folder
 .ionide/
+/src/docker-compose/cache_postgres/*
+/src/docker-compose/cache_redis/*
+/src/docker-compose/scraper_postgres/*
+/src/docker-compose/subscriptions_postgres/*
+/src/docker-compose/metadata_postgres/*

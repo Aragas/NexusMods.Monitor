@@ -13,7 +13,7 @@ namespace NexusMods.Monitor.Scraper.Application.Commands.Issues
         {
             return new IssueAddNewReplyCommand(RecordUtils.Default<IssueAddNewReplyCommand>())
             {
-                Id = nexusModsIssueRoot.NexusModsIssue.Id,
+                Id = nexusModsIssueRoot.Issue.Id,
                 ReplyId = nexusModsIssueReply.Id,
                 Author = nexusModsIssueReply.Author,
                 AuthorUrl = nexusModsIssueReply.AuthorUrl,

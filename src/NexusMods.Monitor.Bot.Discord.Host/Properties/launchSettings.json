@@ -1,10 +1,14 @@
 {
+  "$schema": "https://json.schemastore.org/launchsettings.json",
   "profiles": {
     "NexusMods.Monitor.Bot.Discord.Host": {
-      "commandName": "Project"
-    },
-    "Docker": {
-      "commandName": "Docker"
+      "commandName": "Project",
+      "environmentVariables": {
+        "ASPNETCORE_ENVIRONMENT": "Development",
+        "EventBus__Servers__0": "nats://host.docker.internal:19050",
+        "Serilog__WriteTo__1__Name": "Seq",
+        "Serilog__WriteTo__1__Args__serverUrl": "http://host.docker.internal:19060"
+      }
     }
   }
 }

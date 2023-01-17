@@ -15,7 +15,7 @@ namespace NexusMods.Monitor.Shared.Infrastructure.Extensions
         public static async Task DispatchDomainEventsAsync(this IMediator mediator, DbContext ctx)
         {
             var domainEntities = ctx.ChangeTracker
-                .Entries<Entity>()
+                .Entries<DefaultEntity>()
                 .Where(x => x.Entity.DomainEvents.Count > 0)
                 .ToImmutableArray();
 

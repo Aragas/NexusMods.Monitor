@@ -22,30 +22,30 @@ namespace NexusMods.Monitor.Scraper.Application.Commands.Issues
         {
             return new IssueAddCommand(RecordUtils.Default<IssueAddCommand>())
             {
-                Id = nexusModsIssueRoot.NexusModsIssue.Id,
+                Id = nexusModsIssueRoot.Issue.Id,
                 NexusModsGameId = nexusModsIssueRoot.GameId,
                 NexusModsModId = nexusModsIssueRoot.ModId,
                 GameName = nexusModsIssueRoot.GameName,
                 ModName = nexusModsIssueRoot.ModName,
-                Title = nexusModsIssueRoot.NexusModsIssue.Title,
-                Url = $"https://www.nexusmods.com/{nexusModsIssueRoot.GameDomain}/mods/{nexusModsIssueRoot.ModId}/?tab=bugs&issue_id={nexusModsIssueRoot.NexusModsIssue.Id}",
-                ModVersion = nexusModsIssueRoot.NexusModsIssue.ModVersion,
+                Title = nexusModsIssueRoot.Issue.Title,
+                Url = $"https://www.nexusmods.com/{nexusModsIssueRoot.GameDomain}/mods/{nexusModsIssueRoot.ModId}/?tab=bugs&issue_id={nexusModsIssueRoot.Issue.Id}",
+                ModVersion = nexusModsIssueRoot.Issue.ModVersion,
                 StatusId = issueStatus.Id,
                 PriorityId = issuePriority.Id,
-                IsPrivate = nexusModsIssueRoot.NexusModsIssue.IsPrivate,
-                IsClosed = nexusModsIssueRoot.NexusModsIssue.IsClosed,
-                TimeOfLastPost = nexusModsIssueRoot.NexusModsIssue.LastPost,
-                Content = nexusModsIssueRoot.NexusModsIssueContent is null
+                IsPrivate = nexusModsIssueRoot.Issue.IsPrivate,
+                IsClosed = nexusModsIssueRoot.Issue.IsClosed,
+                TimeOfLastPost = nexusModsIssueRoot.Issue.LastPost,
+                Content = nexusModsIssueRoot.IssueContent is null
                     ? null
                     : new IssueContentDTO(
-                        nexusModsIssueRoot.NexusModsIssueContent.Id,
-                        nexusModsIssueRoot.NexusModsIssueContent.Author,
-                        nexusModsIssueRoot.NexusModsIssueContent.AuthorUrl,
-                        nexusModsIssueRoot.NexusModsIssueContent.AvatarUrl,
-                        nexusModsIssueRoot.NexusModsIssueContent.Content,
-                        nexusModsIssueRoot.NexusModsIssueContent.Time
+                        nexusModsIssueRoot.IssueContent.Id,
+                        nexusModsIssueRoot.IssueContent.Author,
+                        nexusModsIssueRoot.IssueContent.AuthorUrl,
+                        nexusModsIssueRoot.IssueContent.AvatarUrl,
+                        nexusModsIssueRoot.IssueContent.Content,
+                        nexusModsIssueRoot.IssueContent.Time
                     ),
-                Replies = nexusModsIssueRoot.NexusModsIssueReplies.Select(x => new IssueReplyDTO(
+                Replies = nexusModsIssueRoot.IssueReplies.Select(x => new IssueReplyDTO(
                     x.Id,
                     x.Author,
                     x.AuthorUrl,

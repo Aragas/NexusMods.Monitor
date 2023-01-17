@@ -1,0 +1,39 @@
+services:
+  nexusmods_monitor_metadata:
+    image: ${DOCKER_REGISTRY-}nexusmods_monitor_metadata:${TAG-latest}
+    environment:
+      ASPNETCORE_URLS: "http://*:80"
+      ConnectionStrings__Cache: Host=host.docker.internal;Port=19002;Database=nexusmodsmonitor;Username=nexusmodsmonitor;Password=nexusmodsmonitor;Include Error Detail=true;
+    build:
+      context: ../../.
+      dockerfile: src/NexusMods.Monitor.Metadata.API/Dockerfile
+    depends_on:
+      - metadata_postgres
+    ports:
+      - "19001:80"
+    networks:
+      - internal
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    healthcheck:
+      test: ["CMD-SHELL", "curl", "-f", "http://localhost:80"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+
+  metadata_postgres:
+    image: postgres:13-alpine
+    environment:
+     POSTGRES_USER: nexusmodsmonitor
+     POSTGRES_PASSWORD: nexusmodsmonitor
+    volumes:
+      - ./metadata_postgres:/var/lib/postgresql/data
+    ports:
+      - "19002:5432"
+    networks:
+      - internal
+    #healthcheck:
+    #  test: ["CMD-SHELL", "pg_isready", "-d", "nexusmodsmonitor"]
+    #  interval: 30s
+    #  timeout: 60s
+    #  retries: 5

@@ -24,7 +24,7 @@ namespace NexusMods.Monitor.Shared.Infrastructure.Npgsql.Extensions
 
             if (!ensureCreated)
             {
-                var staticModel = context.GetService<IModel>();
+                var staticModel = context.GetService<IDesignTimeModel>().Model;
                 var staticModelRelationalModel = staticModel.GetRelationalModel();
 
                 var modelDiffer = context.GetService<IMigrationsModelDiffer>();

@@ -11,6 +11,7 @@ using NexusMods.Monitor.Shared.Common;
 
 using System;
 using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.Linq;
 using System.Net.Http;
 using System.Runtime.CompilerServices;
@@ -48,7 +49,7 @@ namespace NexusMods.Monitor.Metadata.Application.Queries.Issues
             var modName = mod?.Name ?? "ERROR";
 
             var key = $"issues({gameId}, {modId})";
-            if (!_cache.TryGetValue(key, _jsonSerializer, out IssueViewModel[]? cacheEntry))
+            if (!_cache.TryGetValue(key, _jsonSerializer, out ImmutableArray<IssueViewModel> cacheEntry))
             {
                 var issueRoots = new Dictionary<uint, IssueViewModel>();
                 for (var page = 1; ; page++)
@@ -83,12 +84,12 @@ namespace NexusMods.Monitor.Metadata.Application.Queries.Issues
                         break;
                 }
 
-                cacheEntry = issueRoots.Values.ToArray();
+                cacheEntry = issueRoots.Values.ToImmutableArray();
                 var cacheEntryOptions = new DistributedCacheEntryOptions().SetSize(1).SetAbsoluteExpiration(TimeSpan.FromSeconds(60));
                 await _cache.SetAsync(key, cacheEntry, cacheEntryOptions, _jsonSerializer, ct);
             }
 
-            foreach (var nexusModsCommentRoot in cacheEntry ?? Array.Empty<IssueViewModel>())
+            foreach (var nexusModsCommentRoot in cacheEntry)
                 yield return nexusModsCommentRoot;
         }
 

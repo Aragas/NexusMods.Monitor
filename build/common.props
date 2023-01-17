@@ -2,8 +2,8 @@
 <Project>
   <PropertyGroup>
     <Version>2.0</Version>
-    <TargetFramework>net5.0</TargetFramework>
-    <LangVersion>preview</LangVersion>
+    <TargetFramework>net7.0</TargetFramework>
+    <LangVersion>10.0</LangVersion>
     <Nullable>enable</Nullable>
     <DisableImplicitNamespaceImports>true</DisableImplicitNamespaceImports>
     <NoWarn>1073;MSB4011;CA2252;CS8032;CS1591;</NoWarn>

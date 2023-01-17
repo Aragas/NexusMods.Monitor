@@ -9,6 +9,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 
+using NexusMods.Monitor.Scraper.Application;
 using NexusMods.Monitor.Scraper.Application.CommandHandlers.Comments;
 using NexusMods.Monitor.Scraper.Application.Queries.Comments;
 using NexusMods.Monitor.Scraper.Application.Queries.Issues;
@@ -86,6 +87,9 @@ namespace NexusMods.Monitor.Scraper.Host
 
                 services.AddHostedServiceAsSingleton<NexusModsIssueMonitor>();
                 services.AddHostedServiceAsSingleton<NexusModsCommentsMonitor>();
+
+                services.AddScoped<NexusModsIssuesProcessor>();
+                services.AddScoped<NexusModsCommentsProcessor>();
 
                 services.AddTransient<ICommentIntegrationEventPublisher, CommentIntegrationEventPublisher>();
                 services.AddTransient<IIssueIntegrationEventPublisher, IssueIntegrationEventPublisher>();

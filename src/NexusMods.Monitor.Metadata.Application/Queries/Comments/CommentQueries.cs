@@ -12,6 +12,7 @@ using NexusMods.Monitor.Shared.Common;
 
 using System;
 using System.Collections.Generic;
+using System.Collections.Immutable;
 using System.Linq;
 using System.Net.Http;
 using System.Runtime.CompilerServices;
@@ -60,7 +61,7 @@ namespace NexusMods.Monitor.Metadata.Application.Queries.Comments
             var threadId = threadViewModel.ThreadId;
 
             var key = $"comments({gameId}, {modId}, {threadId})";
-            if (!_cache.TryGetValue(key, _jsonSerializer, out CommentViewModel[]? cacheEntry))
+            if (!_cache.TryGetValue(key, _jsonSerializer, out ImmutableArray<CommentViewModel> cacheEntry))
             {
                 var commentRoots = new Dictionary<uint, CommentViewModel>();
                 for (var page = 1; ; page++)
@@ -97,12 +98,12 @@ namespace NexusMods.Monitor.Metadata.Application.Queries.Comments
                         break;
                 }
 
-                cacheEntry = commentRoots.Values.ToArray();
+                cacheEntry = commentRoots.Values.ToImmutableArray();
                 var cacheEntryOptions = new DistributedCacheEntryOptions().SetSize(1).SetAbsoluteExpiration(TimeSpan.FromSeconds(60));
                 await _cache.SetAsync(key, cacheEntry, cacheEntryOptions, _jsonSerializer, ct);
             }
 
-            foreach (var nexusModsCommentRoot in cacheEntry ?? Array.Empty<CommentViewModel>())
+            foreach (var nexusModsCommentRoot in cacheEntry)
                 yield return nexusModsCommentRoot;
         }
 

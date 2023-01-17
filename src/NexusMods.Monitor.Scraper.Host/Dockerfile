@@ -1,5 +1,5 @@
 # Stage 1: Build application
-FROM mcr.microsoft.com/dotnet/sdk:5.0 AS build-env
+FROM mcr.microsoft.com/dotnet/sdk:7.0 AS build-env
 
 WORKDIR /build
 
@@ -37,25 +37,12 @@ COPY ["src/NexusMods.Monitor.Scraper.Application/", "src/NexusMods.Monitor.Scrap
 COPY ["src/NexusMods.Monitor.Scraper.Infrastructure/", "src/NexusMods.Monitor.Scraper.Infrastructure/"]
 COPY ["src/NexusMods.Monitor.Scraper.Domain/", "src/NexusMods.Monitor.Scraper.Domain/"]
 
-RUN /bin/bash -c 'set -ex && \
-    ARCH=`uname -m` && \
-    if [[ "$ARCH" == "amd64" || "$ARCH" == "x86_64" ]]; then \
-       echo "x86_64" && \
-       #dotnet publish "src/NexusMods.Monitor.Scraper.Host/NexusMods.Monitor.Scraper.Host.csproj" -c Release -o ./output -r alpine-x64 --self-contained true /p:PublishReadyToRun=true /p:PublishReadyToRunShowWarnings=true; \
-       dotnet publish "src/NexusMods.Monitor.Scraper.Host/NexusMods.Monitor.Scraper.Host.csproj" -c Release -o ./output -r alpine-x64 --self-contained true; \
-    elif [[ "$ARCH" == "aarch64" || "$ARCH" == "arm64" ]]; then \
-       echo "aarch64" && \
-       dotnet publish "src/NexusMods.Monitor.Scraper.Host/NexusMods.Monitor.Scraper.Host.csproj" -c Release -o ./output -r alpine-arm64 --self-contained true; \
-    else \
-       echo "unknown arch" && \
-       dotnet publish "src/NexusMods.Monitor.Scraper.Host/NexusMods.Monitor.Scraper.Host.csproj" -c Release -o ./output --os alpine --arch $ARCH --self-contained true; \
-    fi'
+RUN dotnet publish "src/NexusMods.Monitor.Scraper.Host/NexusMods.Monitor.Scraper.Host.csproj" -c Release -o /publish --no-restore
+
 
 # Stage 2: Copy application artifacts into a smaller runtime environment, which is then used as our final image
-FROM mcr.microsoft.com/dotnet/runtime-deps:5.0-alpine
-
-WORKDIR /app
-
-COPY --from=build-env /build/output .
-
-ENTRYPOINT ["./NexusMods.Monitor.Scraper.Host"]
+FROM mcr.microsoft.com/dotnet/aspnet:7.0 as runtime
+WORKDIR /publish
+COPY --from=build-env /publish .
+EXPOSE 80
+ENTRYPOINT ["dotnet", "NexusMods.Monitor.Scraper.Host.dll"]
