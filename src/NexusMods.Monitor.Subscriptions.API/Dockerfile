@@ -5,7 +5,7 @@ WORKDIR /build
 
 COPY [".git/HEAD", ".git/HEAD"]
 COPY [".git/config", ".git/config"]
-COPY [".git/refs/heads/master", ".git/refs/heads/master"]
+COPY [".git/refs/heads/", ".git/refs/heads/"]
 COPY ["build/", "build/"]
 COPY ["src/Directory.Build.props", "src/"]
 COPY ["src/Directory.Build.targets", "src/"]
